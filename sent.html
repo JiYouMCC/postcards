@@ -1,0 +1,84 @@
+---
+layout: simple
+title: "我寄出的明信片"
+---
+<header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+  </header>
+<div class="container">
+  <div class="row mt-4" id='imageContainer'>
+  </div>
+</div>
+<script>
+  const csvData = {{ site.data.postcard.sent | jsonify }};
+  for (let i = 0; i < csvData.length; i++) {
+    var dataItem = csvData[i];
+    $("#imageContainer").append(
+      $("<div></div>").addClass("col-lg-3 col-md-4 mb-4 col-6 image-item").append(
+        $("<img></img>").addClass("img-fluid img-thumbnail postcard")
+          .attr("src","/postcards/sent/" + dataItem["id"]+ ".jpg")
+          .attr("title", dataItem["id"])
+          .attr("data-bs-toggle", "popover")
+          .attr("data-bs-placement", "bottom")
+          .attr("data-card-id", dataItem["id"])
+          .attr("data-card-url", dataItem["url"])
+          .attr("data-card-type", dataItem["type"])
+          .attr("data-card-platform", dataItem["platform"])
+          .attr("data-card-action_type", dataItem["action_type"])
+          .attr("data-card-friend_id", dataItem["friend_id"])
+          .attr("data-card-friend_url", dataItem["friend_url"])
+          .attr("data-card-country", dataItem["country"])
+          .attr("data-card-region", dataItem["region"])
+          .attr("data-card-sent_data", dataItem["sent_data"])
+          .attr("data-card-received_data", dataItem["received_data"])
+          .attr("data-card-card_brand", dataItem["card_brand"])
+          .attr("data-card-card_material", dataItem["card_material"])
+          .attr("data-card-card_type", dataItem["card_type"])
+          .attr("data-card-card_title", dataItem["card_title"])
+          .attr("data-card-series", dataItem["series"])
+          .attr("data-card-tags", dataItem["tags"])
+    ));
+  
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl, {
+          html: true,
+          content: function () {
+            var cardID = popoverTriggerEl.getAttribute('data-card-id');
+            var cardTitle = popoverTriggerEl.getAttribute('data-card-card_title') || "";
+            var cardSeries = popoverTriggerEl.getAttribute('data-card-series') || "";
+            var cardUrl = popoverTriggerEl.getAttribute('data-card-url') || "#";
+            var cardType = popoverTriggerEl.getAttribute('data-card-type') || "";
+            var friendId = popoverTriggerEl.getAttribute('data-card-friend_id') || "";
+            var friendUrl = popoverTriggerEl.getAttribute('data-card-friend_url') || "#";
+            var country = popoverTriggerEl.getAttribute('data-card-country') || "未知";
+            var region = popoverTriggerEl.getAttribute('data-card-region') || "未知";
+            var cardBrand = popoverTriggerEl.getAttribute('data-card-card_brand') || "";
+            var sentDate = new Date(popoverTriggerEl.getAttribute('data-card-sent_data'));
+            var receivedData = new Date(popoverTriggerEl.getAttribute('data-card-received_data'));
+            var sentDataStr = sentDate.getFullYear() + "-" + (sentDate.getMonth() + 1) + "-" + sentDate.getDate();
+            var receivedDataStr = receivedData.getFullYear() + "-" + (receivedData.getMonth() + 1) + "-" + receivedData.getDate();
+            var title = cardTitle;
+            if (cardSeries !== "") {
+              if (cardTitle !== "") {
+                title = cardSeries + ' - ' + cardTitle;
+              } else {
+                title = cardSeries;
+              }
+            }
+            if (title === "") {
+              title = cardID;
+            }
+            if (cardBrand !== "") {
+              title = '【'+cardBrand+'】' + title;
+            }
+            var toOrFrom = cardType === "sent" ? "To" : "From";
+            return '<a href="' + cardUrl + '" target="_blank"><strong>' + title + '</strong></a><br>'+ toOrFrom +': <a href="'+friendUrl+'" target="_blank">'+friendId+'</a> ('+country+' - '+ region +')<br>' + sentDataStr + ' ~ ' + receivedDataStr;
+          }
+        })
+      })
+    });
+</script>

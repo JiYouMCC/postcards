@@ -1,0 +1,12 @@
+<footer id="bottom" class="mt-2">
+  <nav style="--bs-breadcrumb-divider: '|';" aria-label="breadcrumb">
+    <ol class="breadcrumb d-flex justify-content-center">
+      {% for link in site.data.ref %}
+      <li class="breadcrumb-item"><a class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover" target="_blank" href="{{ link.href }}">{{ link.title }}</a>
+      {% endfor %}
+    </ol>
+  </nav>
+</footer>
+<script>
+  feather.replace();
+</script>

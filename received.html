@@ -1,0 +1,100 @@
+---
+layout: default
+title: "我收到的明信片"
+---
+<header class="post-header">
+  <h1 class="post-title text-center mb-4">{{ page.title }}</h1>
+</header>
+<div class="container">
+  <div class="d-flex flex-wrap mb-1" style="row-gap: 0.25rem">
+    <div class="col-auto me-1">
+      <input id="inputTitle" type="text" class="form-control" name="title" placeholder="Title, ID, tag">
+    </div>
+    <div class="dropdown me-1">
+      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-country" data-bs-toggle="dropdown" aria-expanded="false">Country</button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-country" id="ul-country">
+        <li>
+          <div class="dropdown-item">
+            <input class="form-check-input me-1" type="checkbox" value="all" id="country-all"><label class="form-check-label" for="country-all">All</label>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="dropdown me-1">
+      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-region" data-bs-toggle="dropdown" aria-expanded="false">Region</button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-region" id="ul-region">
+        <li>
+          <div class="dropdown-item">
+            <input class="form-check-input me-1" type="checkbox" value="all" id="region-all"><label class="form-check-label" for="region-all">All</label>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="dropdown me-1">
+      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-type" data-bs-toggle="dropdown" aria-expanded="false">Type</button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-Type" id="ul-type">
+        <li>
+          <div class="dropdown-item">
+            <input class="form-check-input me-1" type="checkbox" value="all" id="type-all"><label class="form-check-label" for="type-all">All</label>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="dropdown me-1">
+      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-platform" data-bs-toggle="dropdown" aria-expanded="false">Platform</button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-platform" id="ul-platform">
+        <li>
+          <div class="dropdown-item">
+            <input class="form-check-input me-1" type="checkbox" value="all" id="platform-all"><label class="form-check-label" for="platform-all">All</label>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="col-auto me-1">
+      <input id="inputSender" type="text" list="datalistSender" class="form-control" name="sender" placeholder="Sender Name">
+      <datalist id="datalistSender"></datalist>
+    </div>
+    <a class="btn btn-primary me-1" data-bs-toggle="collapse" href="#collapseSentDate" role="button" aria-expanded="false" aria-controls="collapseSentDate">Sent</a>
+    <a class="btn btn-primary me-1" data-bs-toggle="collapse" href="#collapseReceivedDate" role="button" aria-expanded="false" aria-controls="collapseReceivedDate">Received</a>
+    <a class="btn btn-primary me-1" data-bs-toggle="collapse" href="#collapseTags" role="button" aria-expanded="false" aria-controls="collapseTags">Tags</a>
+    <a class="btn btn-info me-1" id="resetFilter" data-bs-toggle="collapse">Reset</a>
+  </div>
+  <div class="collapse mb-1" id="collapseSentDate">
+    <div class="input-group mb-0 row gy-2 gx-3 align-items-center">
+      <div class="col-auto"><strong>Sent Date</strong></div>
+      <div class="col-auto"><span>from</span></div>
+      <div class="col-auto"><input id="inputSentDateStart" type="date" class="form-control"></div>
+      <div class="col-auto"><span>to</span></div>
+      <div class="col-auto"><input id="inputSentDateEnd" type="date" class="form-control"></div>
+    </div>
+  </div>
+  <div class="collapse mb-1" id="collapseReceivedDate">
+    <div class="input-group mb-0 row gy-2 gx-3 align-items-center">
+      <div class="col-auto"><strong>Received Date</strong></div>
+      <div class="col-auto"><span>from</span></div>
+      <div class="col-auto"><input id="inputReceivedDateStart" type="date" class="form-control"></div>
+      <div class="col-auto"><span>to</span></div>
+      <div class="col-auto"><input id="inputReceivedDateEnd" type="date" class="form-control"></div>
+    </div>
+  </div>
+  <div class="collapse mb-1" id="collapseTags">
+    <div id="div-tags" class="d-flex flex-wrap">
+      <input id="tag-all" type="checkbox" class="form-check-input me-1" value="all">
+      <label class="form-check-label me-2" for="tag-all">All</label>
+    </div>
+  </div>
+  <div class="alert alert-light mt-2" role="alert">
+    Showing <strong id="searchCount">NA</strong> cards out of <strong id="cardCount">NA</strong> total. Displaying cards <strong id="cardstart">NA</strong> to <strong id="cardend">NA</strong>.
+  </div>
+  <div class="row mt-2" id='imageContainer'></div>
+</div>
+<nav>
+  <ul id="pagination" class="pagination justify-content-center"></ul>
+</nav>
+<script src="{{ "/js/postcard.js"}}"></script>
+<script type="text/javascript">
+  const csvData = {{ site.data.received | jsonify }};
+  PostcardCollection.Init(csvData)
+</script>
+
+
