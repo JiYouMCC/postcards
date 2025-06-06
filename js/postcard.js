@@ -13,7 +13,7 @@ function Capitalize(str) {
 const PostcardCollection = {
   _postData: undefined,
   _filterData: undefined,
-  _itemsPerPage: 12,
+  _itemsPerPage: 24,
   _currentPage: 1,
   Init: function(data) {
     PostcardCollection._postData = data.sort((a, b) => new Date(b['received_date']) - new Date(a['received_date']));
@@ -407,7 +407,7 @@ const PostcardCollection = {
     $("#imageContainer").empty();
     data.forEach(dataItem => {
       $("#imageContainer").append(
-        $("<div></div>").attr("id", "image_" + dataItem['id']).addClass("col-lg-3 col-md-4 mb-4 col-6 image-item px-1").append(
+        $("<div></div>").attr("id", "image_" + dataItem['id']).addClass("col-lg-2 col-md-4 mb-2 col-6 image-item px-1").append(
           $("<img></img>").addClass("img-fluid img-thumbnail postcard")
           .attr("src", `/received/${dataItem['id']}.jpg`)
           .attr("alt", dataItem['id'])
