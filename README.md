@@ -1,3 +1,1 @@
 # Postcards
-
-Split from weblog
