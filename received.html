@@ -91,7 +91,7 @@ title: "我收到的明信片"
 <nav>
   <ul id="pagination" class="pagination justify-content-center"></ul>
 </nav>
-<script src="{{ "/js/postcard.js"}}"></script>
+<script src="{{ site.baseurl }}{{ "/js/postcard.js"}}"></script>
 <script type="text/javascript">
   const csvData = {{ site.data.received | jsonify }};
   PostcardCollection.Init(csvData)

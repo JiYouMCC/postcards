@@ -1,7 +1,7 @@
 import csv
 
-source_file_path = "../../_data/postcard/Post-Hi_已登记_收方向_20250526093033.csv"
-target_file_path = "../../_data/postcard/received.csv"
+source_file_path = "../_data/Post-Hi_已登记_收方向_20250611101310.csv"
+target_file_path = "../_data/received.csv"
 
 
 with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_file:

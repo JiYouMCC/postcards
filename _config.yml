@@ -2,7 +2,7 @@ title: 嵇爾的明信片收藏册
 email: chengyi.ye+postcards.githubio@outlook.com
 description: >-
   嵇爾的明信片收藏册
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: "/postcards" # the subpath of your site, e.g. /blog
 url: "https://jiyoumcc.github.io"
 github_username:  JiYouMCC
 timezone: Asia/Shanghai

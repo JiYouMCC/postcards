@@ -15,6 +15,7 @@ const PostcardCollection = {
   _filterData: undefined,
   _itemsPerPage: 24,
   _currentPage: 1,
+  _baseUrl: "/postcards/",
   Init: function(data) {
     PostcardCollection._postData = data.sort((a, b) => new Date(b['received_date']) - new Date(a['received_date']));
     PostcardCollection._postData.forEach(item => {
@@ -409,7 +410,7 @@ const PostcardCollection = {
       $("#imageContainer").append(
         $("<div></div>").attr("id", "image_" + dataItem['id']).addClass("col-lg-2 col-md-4 mb-2 col-6 image-item px-1").append(
           $("<img></img>").addClass("img-fluid img-thumbnail postcard")
-          .attr("src", `/received/${dataItem['id']}.jpg`)
+          .attr("src", PostcardCollection._baseUrl + `received/${dataItem['id']}.jpg`)
           .attr("alt", dataItem['id'])
           .attr("title", dataItem['id'])
           .attr("data-bs-toggle", "popover")
@@ -431,7 +432,7 @@ const PostcardCollection = {
     // 在所有图片上添加 onerror 事件
     document.querySelectorAll('img').forEach(img => {
       img.onerror = function() {
-        this.src = '/postcard.svg'; // 替换为默认图片的路径
+        this.src = PostcardCollection._baseUrl + '/postcard.svg'; // 替换为默认图片的路径
       };
     });
 
