@@ -1,0 +1,53 @@
+---
+layout: default
+---
+<div class="container my-4">
+  <div class="row">
+    <!-- Section for Received Postcards -->
+    <div class="col-12 mb-4">
+      <h3>最近收到的明信片</h3>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-6 g-2">
+      {% assign postcards = site.data.received | reverse %}
+      {% for postcard in postcards | limit: 6 %}
+      <div class="col">
+        <div class="card h-100">
+          <div class="postcard-image-container">
+            <img src="{{ site.baseurl }}/received/{{ postcard.id }}.jpg" class="card-img-top" alt="Postcard Image">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{% if postcard.title == "" or postcard.title == null %}{{ postcard.id }}{% else %}{{ postcard.title }}{% endif %}</h5>
+            <p class="card-text">
+              {% assign s = postcard.sent_date | date: '%s' %}
+              {% assign r = postcard.received_date | date: '%s' %}
+              {% assign secondsSince = r | minus: s %}
+              {% assign hoursSince = secondsSince | divided_by: 60 | divided_by: 60 %}
+              {% assign daysSince = hoursSince | divided_by: 24 %}
+              <strong>寄片人:</strong> <a href="{{ postcard.friend_url }}" target="_blank">{{ postcard.friend_id }}</a><br>
+              <strong>用时:</strong> {{ daysSince }} 天<br>
+              <strong>来自:</strong> {{ postcard.country }}{% if postcard.region == "" or postcard.region == null %}{% else %} - {{ postcard.region }}{% endif %}<br>
+              <strong>平台:</strong> {{ postcard.platform }}
+            </p>
+            <a href="{{ postcard.url }}" class="btn btn-primary" target="_blank">查看详情</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      </div>
+    </div>
+<style>
+  .postcard-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 75%; /* Aspect ratio: 4:3 */
+    overflow: hidden;
+  }
+
+  .postcard-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
