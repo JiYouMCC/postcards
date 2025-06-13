@@ -410,7 +410,7 @@ const PostcardCollection = {
       $("#imageContainer").append(
         $("<div></div>").attr("id", "image_" + dataItem['id']).addClass("col-lg-2 col-md-4 mb-2 col-6 image-item px-1").append(
           $("<img></img>").addClass("img-fluid img-thumbnail postcard")
-          .attr("src", PostcardCollection._baseUrl + `received/${dataItem['id']}.jpg`)
+          .attr("src", PostcardCollection._baseUrl + `sent/${dataItem['id']}.jpg`)
           .attr("alt", dataItem['id'])
           .attr("title", dataItem['id'])
           .attr("data-bs-toggle", "popover")
