@@ -2,10 +2,20 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import csv
-post_link_list = [["配对","/sendpostcard/postcardDetail/1313757","CNSH41470"],["配对","/sendpostcard/postcardDetail/1313615","CNGD67745"],["配对","/sendpostcard/postcardDetail/1313072","CNTJ14839"],["活动","/sendpostcard/postcardDetail/1312989","CNTM70514"],["活动","/sendpostcard/postcardDetail/1312843","CNHB6320"],["活动","/sendpostcard/postcardDetail/1312784","CNTM70499"],["活动","/sendpostcard/postcardDetail/1312779","CNJS26776"],["配对","/sendpostcard/postcardDetail/1311976","CNXZ0673"],["活动","/sendpostcard/postcardDetail/1311846","CNHB6275"],["活动","/sendpostcard/postcardDetail/1311550","CNJS26682"],["配对","/sendpostcard/postcardDetail/1310802","CNJS26615"],["配对","/sendpostcard/postcardDetail/1310215","CNGZ3565"],["活动","/sendpostcard/postcardDetail/1309462","CNZJ29227"],["配对","/sendpostcard/postcardDetail/1309012","CNHA5479"],["活动","/sendpostcard/postcardDetail/1308825","CNBJ42987"],["活动","/sendpostcard/postcardDetail/1308704","CNGD67242"],["活动","/sendpostcard/postcardDetail/1308389","CNHK0892"],["活动","/sendpostcard/postcardDetail/1308226","CNZJ29115"],["活动","/sendpostcard/postcardDetail/1308177","CNHE8978"],["活动","/sendpostcard/postcardDetail/1308164","CNZJ29112"],["活动","/sendpostcard/postcardDetail/1308157","CNTM70051"],["活动","/sendpostcard/postcardDetail/1307854","CNSH40631"],["活动","/sendpostcard/postcardDetail/1307852","CNTM70000"],["活动","/sendpostcard/postcardDetail/1307790","CNBJ42867"],["活动","/sendpostcard/postcardDetail/1307754","CNTM69975"],["活动","/sendpostcard/postcardDetail/1307753","CNHK0876"],["配对","/sendpostcard/postcardDetail/1307481","CNHB6101"],["赠送","/sendpostcard/postcardDetail/1307363","CNHN14540"],["赠送","/sendpostcard/postcardDetail/1307341","CNLN10290"],["配对","/sendpostcard/postcardDetail/1306823","CNTM69880"],["活动","/sendpostcard/postcardDetail/1306151","CNCQ10676"],["赠送","/sendpostcard/postcardDetail/1306121","CNTJ14399"],["活动","/sendpostcard/postcardDetail/1306067","CNGD67023"],["配对","/sendpostcard/postcardDetail/1305922","CNGX10175"],["活动","/sendpostcard/postcardDetail/1305872","CNGD67008"],["活动","/sendpostcard/postcardDetail/1305807","CNSN4943"],["活动","/sendpostcard/postcardDetail/1305713","CNTM69720"],["活动","/sendpostcard/postcardDetail/1305616","CNHE8958"],["配对","/sendpostcard/postcardDetail/1305545","CNJL2362"],["活动","/sendpostcard/postcardDetail/1305514","CNGD66984"],["活动","/sendpostcard/postcardDetail/1305414","CNZJ28993"],["活动","/sendpostcard/postcardDetail/1305397","CNSH40243"],["活动","/sendpostcard/postcardDetail/1304877","CNTJ14292"],["活动","/sendpostcard/postcardDetail/1304787","CNGD66904"],["活动","/sendpostcard/postcardDetail/1304710","CNCQ10633"],["活动","/sendpostcard/postcardDetail/1304684","CNHA5442"],["活动","/sendpostcard/postcardDetail/1304645","CNHK0787"],["活动","/sendpostcard/postcardDetail/1304624","CNTJ14269"],["活动","/sendpostcard/postcardDetail/1304601","CNLN10185"],["活动","/sendpostcard/postcardDetail/1304599","CNSH40130"]]
+
+
+# received
+#mode = 0
+# sent
+mode = 1
+
+post_link_list = [["配对","/sendpostcard/postcardDetail/1314399","CNSH41550"],["配对","/sendpostcard/postcardDetail/1314354","CNSH41533"],["配对","/sendpostcard/postcardDetail/1313958","CNSH41494"],["配对","/sendpostcard/postcardDetail/1313715","CNSH41465"],["配对","/sendpostcard/postcardDetail/1313708","CNSH41464"],["活动","/sendpostcard/postcardDetail/1312990","CNSH41362"],["活动","/sendpostcard/postcardDetail/1312988","CNSH41361"],["配对","/sendpostcard/postcardDetail/1312886","CNSH41352"],["活动","/sendpostcard/postcardDetail/1312842","CNSH41340"],["活动","/sendpostcard/postcardDetail/1312783","CNSH41337"],["活动","/sendpostcard/postcardDetail/1312778","CNSH41335"],["配对","/sendpostcard/postcardDetail/1312667","CNSH41316"],["配对","/sendpostcard/postcardDetail/1312318","CNSH41243"],["配对","/sendpostcard/postcardDetail/1312225","CNSH41237"],["配对","/sendpostcard/postcardDetail/1312137","CNSH41228"],["配对","/sendpostcard/postcardDetail/1312056","CNSH41217"],["活动","/sendpostcard/postcardDetail/1311845","CNSH41192"],["配对","/sendpostcard/postcardDetail/1311767","CNSH41174"],["配对","/sendpostcard/postcardDetail/1311662","CNSH41164"],["活动","/sendpostcard/postcardDetail/1311549","CNSH41149"],["配对","/sendpostcard/postcardDetail/1311531","CNSH41146"],["配对","/sendpostcard/postcardDetail/1311427","CNSH41110"],["配对","/sendpostcard/postcardDetail/1311268","CNSH41076"],["配对","/sendpostcard/postcardDetail/1311162","CNSH41062"],["配对","/sendpostcard/postcardDetail/1310921","CNSH41043"],["配对","/sendpostcard/postcardDetail/1310839","CNSH41003"],["配对","/sendpostcard/postcardDetail/1310814","CNSH41000"],["配对","/sendpostcard/postcardDetail/1310488","CNSH40961"],["配对","/sendpostcard/postcardDetail/1310390","CNSH40941"],["配对","/sendpostcard/postcardDetail/1310255","CNSH40933"],["配对","/sendpostcard/postcardDetail/1310171","CNSH40923"],["配对","/sendpostcard/postcardDetail/1310096","CNSH40919"],["配对","/sendpostcard/postcardDetail/1309989","CNSH40917"],["配对","/sendpostcard/postcardDetail/1309918","CNSH40907"]]
 # ignore warnings
 requests.packages.urllib3.disable_warnings()
-target_file_path = "../_data/received.csv"
+if mode == 0:
+    target_file_path = "../_data/sent.csv"
+else:
+    target_file_path = "../_data/sent.csv"
 
 print('no,id,title,type,platform,friend_id,country,region,sent_date,received_date,tags,url,friend_url')
 
@@ -43,8 +53,8 @@ for url in post_link_list:
     user_links = soup.find_all(
         'a', href=lambda href: href and href.startswith('/userInfo/homePage'))
     if user_links:
-        new_line.append(user_links[0].get_text(strip=True))
-        print(user_links[0].get_text(strip=True), end='')
+        new_line.append(user_links[mode].get_text(strip=True))
+        print(user_links[mode].get_text(strip=True), end='')
     else:
         new_line.append("")
     print(',', end='')
@@ -54,11 +64,11 @@ for url in post_link_list:
     print('China,', end='')
 
     # 8. region
-    region_label = soup.find(
+    region_label = soup.find_all(
         'td', string=lambda string: string and "地区：" in string)
     if region_label:
         # Extract the region from the next td element
-        region_value = region_label.find_next('td').get_text(strip=True)
+        region_value = region_label[mode].find_next('td').get_text(strip=True)
         new_line.append(region_value)
         print(region_value, end='')
     else:
@@ -99,8 +109,8 @@ for url in post_link_list:
     print("https://icardyou.icu"+url[1]+',', end='')
 
     # 13. friend_url
-    new_line.append("https://icardyou.icu"+user_links[0]['href'])
-    print("https://icardyou.icu"+user_links[0]['href'])
+    new_line.append("https://icardyou.icu"+user_links[mode]['href'])
+    print("https://icardyou.icu"+user_links[mode]['href'])
 
     source_date.append(new_line)
     # sleep 10 sec

@@ -2,7 +2,7 @@
 import csv
 from datetime import datetime
 
-file_path = "../_data/received.csv"
+file_path = "../_data/sent.csv"
 
 with open(file_path, mode='r', encoding='utf-8') as file:
     reader = csv.DictReader(file)
@@ -26,7 +26,7 @@ def parse_date(date_string):
 
 
 for row in data:
-    row['parsed_date'] = parse_date(row['received_date'])
+    row['parsed_date'] = parse_date(row['sent_date'])
 
 sorted_data = sorted(
     [row for row in data if row['parsed_date'] is not None],
