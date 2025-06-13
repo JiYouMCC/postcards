@@ -6,7 +6,7 @@ layout: default
     <!-- Section for Received Postcards -->
     <div class="col-12 mb-4">
       <a class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover" href="{{ site.baseurl }}/received"><h3>最近收到的明信片</h3></a>
-      <div class="row row-cols-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-6 row-cols-xxl-6 g-2">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-6 g-2">
       {% assign postcards = site.data.received | reverse %}
       {% for postcard in postcards | limit: 6 %}
       <div class="col">
@@ -24,7 +24,7 @@ layout: default
               {% assign daysSince = hoursSince | divided_by: 24 %}
               <strong>寄片人:</strong> <a href="{{ postcard.friend_url }}" target="_blank">{{ postcard.friend_id }}</a><br>
               <strong>用时:</strong> {{ daysSince }} 天<br>
-              <strong>来自:</strong> {{ postcard.country }}{% if postcard.region == "" or postcard.region == null %}{% else %}-{{ postcard.region }}{% endif %}<br>
+              <strong>来自:</strong> {{ postcard.country }}{% if postcard.region == "" or postcard.region == null %}{% else %} - {{ postcard.region }}{% endif %}<br>
               <strong>平台:</strong> {{ postcard.platform }}
             </p>
             <a href="{{ postcard.url }}" class="btn btn-primary" target="_blank">查看详情</a>
@@ -37,7 +37,7 @@ layout: default
     </div>
     <div class="col-12 mb-4">
       <a class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover" href="{{ site.baseurl }}/sent"><h3>最近寄出的明信片</h3></a>
-      <div class="row row-cols-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-6 row-cols-xxl-6 g-2">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-6 g-2">
       {% assign postcards = site.data.sent | reverse %}
       {% for postcard in postcards | limit: 6 %}
       <div class="col">
