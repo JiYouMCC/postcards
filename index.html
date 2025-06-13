@@ -24,7 +24,7 @@ layout: default
               {% assign daysSince = hoursSince | divided_by: 24 %}
               <strong>寄片人:</strong> <a href="{{ postcard.friend_url }}" target="_blank">{{ postcard.friend_id }}</a><br>
               <strong>用时:</strong> {{ daysSince }} 天<br>
-              <strong>来自:</strong> {{ postcard.country }}{% if postcard.region == "" or postcard.region == null %}{% else %} - {{ postcard.region }}{% endif %}<br>
+              <strong>来自:</strong> {{ postcard.country }}{% if postcard.region == "" or postcard.region == null %}{% else %}-{{ postcard.region }}{% endif %}<br>
               <strong>平台:</strong> {{ postcard.platform }}
             </p>
             <a href="{{ postcard.url }}" class="btn btn-primary" target="_blank">查看详情</a>
