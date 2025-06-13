@@ -35,3 +35,23 @@ body {
 #ul-region, #ul-country {
     column-count: 3;
 }
+
+.img-thumbnail {
+    padding: 0px;
+}
+
+.postcard-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 75%; /* Aspect ratio: 4:3 */
+    overflow: hidden;
+}
+
+.postcard-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

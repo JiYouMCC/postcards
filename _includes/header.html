@@ -8,10 +8,10 @@
       <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link" href="{{ site.baseurl }}/received"><i data-feather="inbox"></i>&nbsp;收片</a>
+            <a class="nav-link" href="{{ site.baseurl }}/received"><i data-feather="inbox"></i>&nbsp;收片&nbsp;<span class="badge rounded-pill text-bg-light">{{ site.data.received.size }}</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ site.baseurl }}/sent"><i data-feather="send"></i>&nbsp;发片</a>
+            <a class="nav-link" href="{{ site.baseurl }}/sent"><i data-feather="send"></i>&nbsp;发片&nbsp;<span class="badge rounded-pill text-bg-light">{{ site.data.sent.size }}</span></a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ site.baseurl }}/calendar"><i data-feather="calendar"></i>&nbsp;收发日历</a>

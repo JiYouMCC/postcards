@@ -8,10 +8,10 @@ title: "我收到的明信片"
 <div class="container">
   <div class="d-flex flex-wrap mb-1" style="row-gap: 0.25rem">
     <div class="col-auto me-1">
-      <input id="inputTitle" type="text" class="form-control" name="title" placeholder="Title, ID, tag">
+      <input id="inputTitle" type="text" class="form-control form-control-sm" name="title" placeholder="Title, ID, tag">
     </div>
     <div class="dropdown me-1">
-      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-country" data-bs-toggle="dropdown" aria-expanded="false">Country</button>
+      <button class="btn btn-primary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton-country" data-bs-toggle="dropdown" aria-expanded="false">Country</button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-country" id="ul-country">
         <li>
           <div class="dropdown-item">
@@ -21,7 +21,7 @@ title: "我收到的明信片"
       </ul>
     </div>
     <div class="dropdown me-1">
-      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-region" data-bs-toggle="dropdown" aria-expanded="false">Region</button>
+      <button class="btn btn-primary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton-region" data-bs-toggle="dropdown" aria-expanded="false">Region</button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-region" id="ul-region">
         <li>
           <div class="dropdown-item">
@@ -31,7 +31,7 @@ title: "我收到的明信片"
       </ul>
     </div>
     <div class="dropdown me-1">
-      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-type" data-bs-toggle="dropdown" aria-expanded="false">Type</button>
+      <button class="btn btn-primary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton-type" data-bs-toggle="dropdown" aria-expanded="false">Type</button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-Type" id="ul-type">
         <li>
           <div class="dropdown-item">
@@ -41,7 +41,7 @@ title: "我收到的明信片"
       </ul>
     </div>
     <div class="dropdown me-1">
-      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton-platform" data-bs-toggle="dropdown" aria-expanded="false">Platform</button>
+      <button class="btn btn-primary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton-platform" data-bs-toggle="dropdown" aria-expanded="false">Platform</button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-platform" id="ul-platform">
         <li>
           <div class="dropdown-item">
@@ -51,30 +51,30 @@ title: "我收到的明信片"
       </ul>
     </div>
     <div class="col-auto me-1">
-      <input id="inputSender" type="text" list="datalistSender" class="form-control" name="sender" placeholder="Sender Name">
+      <input id="inputSender" type="text" list="datalistSender" class="form-control form-control-sm" name="sender" placeholder="Sender Name">
       <datalist id="datalistSender"></datalist>
     </div>
-    <a class="btn btn-primary me-1" data-bs-toggle="collapse" href="#collapseSentDate" role="button" aria-expanded="false" aria-controls="collapseSentDate">Sent</a>
-    <a class="btn btn-primary me-1" data-bs-toggle="collapse" href="#collapseReceivedDate" role="button" aria-expanded="false" aria-controls="collapseReceivedDate">Received</a>
-    <a class="btn btn-primary me-1" data-bs-toggle="collapse" href="#collapseTags" role="button" aria-expanded="false" aria-controls="collapseTags">Tags</a>
-    <a class="btn btn-info me-1" id="resetFilter" data-bs-toggle="collapse">Reset</a>
+    <a class="btn btn-primary me-1 btn-sm" data-bs-toggle="collapse" href="#collapseSentDate" role="button" aria-expanded="false" aria-controls="collapseSentDate">Sent</a>
+    <a class="btn btn-primary me-1 btn-sm" data-bs-toggle="collapse" href="#collapseReceivedDate" role="button" aria-expanded="false" aria-controls="collapseReceivedDate">Received</a>
+    <a class="btn btn-primary me-1 btn-sm" data-bs-toggle="collapse" href="#collapseTags" role="button" aria-expanded="false" aria-controls="collapseTags">Tags</a>
+    <a class="btn btn-info me-1 btn-sm" id="resetFilter" data-bs-toggle="collapse">Reset</a>
   </div>
   <div class="collapse mb-1" id="collapseSentDate">
     <div class="input-group mb-0 row gy-2 gx-3 align-items-center">
       <div class="col-auto"><strong>Sent Date</strong></div>
       <div class="col-auto"><span>from</span></div>
-      <div class="col-auto"><input id="inputSentDateStart" type="date" class="form-control"></div>
+      <div class="col-auto"><input id="inputSentDateStart" type="date" class="form-control form-control-sm"></div>
       <div class="col-auto"><span>to</span></div>
-      <div class="col-auto"><input id="inputSentDateEnd" type="date" class="form-control"></div>
+      <div class="col-auto"><input id="inputSentDateEnd" type="date" class="form-control form-control-sm"></div>
     </div>
   </div>
   <div class="collapse mb-1" id="collapseReceivedDate">
     <div class="input-group mb-0 row gy-2 gx-3 align-items-center">
       <div class="col-auto"><strong>Received Date</strong></div>
       <div class="col-auto"><span>from</span></div>
-      <div class="col-auto"><input id="inputReceivedDateStart" type="date" class="form-control"></div>
+      <div class="col-auto"><input id="inputReceivedDateStart" type="date" class="form-control form-control-sm"></div>
       <div class="col-auto"><span>to</span></div>
-      <div class="col-auto"><input id="inputReceivedDateEnd" type="date" class="form-control"></div>
+      <div class="col-auto"><input id="inputReceivedDateEnd" type="date" class="form-control form-control-sm"></div>
     </div>
   </div>
   <div class="collapse mb-1" id="collapseTags">
