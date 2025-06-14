@@ -5,6 +5,7 @@
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item">
@@ -27,10 +28,10 @@
             </ul>
           </li>
         </ul>
-      </div>
-      <span class="navbar-text">
-        最后更新： <datatime datetime="{{ site.time | date: '%Y-%m-%dT%H:%M:%S%z' }}">{{ site.time | date: '%Y年%m月%d日' }}</data>
+        <span class="navbar-text">最后更新： <datatime datetime="{{ site.time | date: '%Y-%m-%dT%H:%M:%S%z' }}">{{ site.time | date: '%Y年%m月%d日' }}</datatime>
       </span>
+      </div>
+
     </div>
   </nav>
 </header>
