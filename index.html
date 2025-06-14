@@ -31,6 +31,11 @@ layout: default
 </div>
 
 <script>
+  document.querySelectorAll('img').forEach(img => {
+      img.onerror = function() {
+        this.src = "{{ site.baseurl }}/postcard.svg"; // 替换为默认图片的路径
+      };
+    });
   function RefreshPopoverListeners() {
     const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     const popoverList = popoverTriggerList.map(function(popoverTriggerEl) {

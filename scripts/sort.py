@@ -13,7 +13,8 @@ def parse_date(date_string):
         '%m/%d/%Y %H:%M',
         '%Y-%m-%d %H:%M:%S',
         '%d/%b/%Y',
-        '%Y-%m-%d %H:%M'
+        '%Y-%m-%d %H:%M',
+        '%d-%b-%y'
     ]
     
     for date_format in date_formats:
