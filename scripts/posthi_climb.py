@@ -5,7 +5,7 @@ import csv
 # sent = 1
 mode = 1
 
-source_file_path = "../_data/Post-Hi_已登记_寄方向_20250616134958.csv"
+source_file_path = "../_data/Post-Hi_已登记_寄方向_20250616225326.csv"
 
 if mode == 0:
     target_file_path = "../_data/received.csv"
