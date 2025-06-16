@@ -1,7 +1,16 @@
 import csv
 
+
+# received = 0
+# sent = 1
+mode = 0
+
 source_file_path = "../_data/Post-Hi_已登记_收方向_20250615134223.csv"
-target_file_path = "../_data/received.csv"
+
+if mode == 0:
+    target_file_path = "../_data/received.csv"
+else:
+    target_file_path = "../_data/sent.csv"
 
 
 with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_file:
@@ -39,6 +48,8 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
                     area = row_source[7].split(" ")[1]
                     if area.endswith("省") or area.endswith("市"):
                         area = area[:-1]
+                    if area.endswith("自治区"):
+                        area = area[:-3]
                     new_row.append(area)
                     new_row.append(row_source[9])
                     new_row.append(row_source[10])
