@@ -357,18 +357,30 @@ const PostcardCollection = {
           const country = popoverTriggerEl.getAttribute('data-card-country') || "";
           const region = popoverTriggerEl.getAttribute('data-card-region') || "";
           const sentDate = new Date(popoverTriggerEl.getAttribute('data-card-sent_date'));
-          const receivedDate = new Date(popoverTriggerEl.getAttribute('data-card-received_date'));
+          let receivedDate = null;
+          if (popoverTriggerEl.getAttribute('data-card-received_date')) {
+            receivedDate = new Date(popoverTriggerEl.getAttribute('data-card-received_date'));
+          }
           const tags = popoverTriggerEl.getAttribute('data-card-tags') || "";
           const platform = popoverTriggerEl.getAttribute('data-card-platform');
-          const days = Math.floor((receivedDate - sentDate) / (1000 * 60 * 60 * 24));
+          let days = null;
+          let receivedDataStr = null;
+          if(receivedDate) {
+            days = Math.floor((receivedDate - sentDate) / (1000 * 60 * 60 * 24));
+            receivedDataStr = `${receivedDate.getFullYear()}-${receivedDate.getMonth() + 1}-${receivedDate.getDate()}`;
+          }
           const sentDataStr = `${sentDate.getFullYear()}-${sentDate.getMonth() + 1}-${sentDate.getDate()}`;
-          const receivedDataStr = `${receivedDate.getFullYear()}-${receivedDate.getMonth() + 1}-${receivedDate.getDate()}`;
           const location = region ? `<a href="?countries=${country}" style="cursor: pointer;">${country}</a> - <a href="?countries=${country}&regions=${region}" style="cursor: pointer;">${region}</a>` : `<a href="?countries=${country}" target="_blank" style="cursor: pointer;">${country}</a>`;
           let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
           resultHtml += `<br><strong>To</strong> <a href="?&receiver=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
           resultHtml += `<br><strong>On</strong> <a href="?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
           resultHtml += `<br><strong>By</strong> <a href="?types=${cardType}" style="cursor: pointer;">${cardType}</a>`;
-          resultHtml += `<br>${sentDataStr} ~ ${receivedDataStr} (${days} days)<br>`;
+          resultHtml += `<br>${sentDataStr} ~`;
+          if (receivedDate) {
+            resultHtml += ` ${receivedDataStr} (${days} days)<br>`;
+          } else {
+            resultHtml += ` Expired<br>`;
+          }
           tags.split(',').forEach(tag => {
             resultHtml += `<a href="?tags=${tag}" style="cursor: pointer;"><span class="me-1 badge text-bg-primary">${tag}</span></a>`;
           });
