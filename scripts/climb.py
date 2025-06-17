@@ -8,7 +8,7 @@ import csv
 # sent = 1
 mode = 1
 
-post_link_list = [["配对","/sendpostcard/postcardDetail/1314199","CNSH41523"]]
+post_link_list = [["配对","/sendpostcard/postcardDetail/1314853","CNSH41616"]]
 # ignore warnings
 requests.packages.urllib3.disable_warnings()
 if mode == 0:
