@@ -3,7 +3,7 @@ from datetime import datetime
 
 # received = 0
 # sent = 1
-mode = 0
+mode = 1
 
 if mode == 0:
     file_path = "../_data/received.csv"
