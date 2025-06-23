@@ -29,4 +29,11 @@ layout: default
     </div>
   </div>
 </div>
+<script>
+  document.querySelectorAll('img').forEach(img => {
+  img.onerror = function() {
+    this.src = "{{ site.baseurl }}/postcard.svg";
+  }
+});
+</script>
 <script src="{{ site.baseurl }}{{ "/js/index.js"}}"></script>

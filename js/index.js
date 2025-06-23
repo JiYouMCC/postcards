@@ -1,9 +1,3 @@
-document.querySelectorAll('img').forEach(img => {
-  img.onerror = function() {
-    this.src = "{{ site.baseurl }}/postcard.svg";
-  }
-});
-
 function RefreshPopoverListeners() {
   const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
   const popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
