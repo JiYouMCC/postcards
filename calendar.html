@@ -1,0 +1,21 @@
+---
+layout: whole
+---
+  <div class="justify-content-center d-flex flex-wrap mb-1">
+    <div class="form-check form-group d-flex align-items-center mb-2 me-2">
+      <input class="form-check-input me-2" type="checkbox" id="showSent" checked onchange="refresh()">
+      <label class="form-check-label mb-0" for="showSent">显示发出的数据</label>
+    </div>
+    <div class="form-check form-group d-flex align-items-center mb-2">
+      <input class="form-check-input me-2" type="checkbox" id="showReceived" checked checked onchange="refresh()">
+      <label class="form-check-label mb-0" for="showReceived">显示收到的数据</label>
+    </div>
+  </div>
+<div align="center" id="myCanvas" width="846" height="300"></div>
+<script src="{{ site.baseurl }}{{ "/lib/d3.v7.min.js"}}"></script>
+<script src="{{ site.baseurl }}{{ "/js/received-data.js"}}"></script>
+<script src="{{ site.baseurl }}{{ "/js/sent-data.js"}}"></script>
+<script src="{{ site.baseurl }}{{ "/js/calendar.js"}}"></script>
+<script>
+  console.log("不知道为什么Jekyll的liquid没法处理各种格式的日期\n它完全认不出ICY的日期格式\n所以没法提前用Jekyll生成静态的索引\n目前每次都把收发的数据全部拉下在客户端进行group处理\n感觉又费带宽又费CPU\n回头想想有什么比较好的办法");
+</script>

@@ -1,4 +1,4 @@
 ---
 title: sent cards data
 ---
-const csvData = {{ site.data.sent | jsonify }};
+const sentData = {{ site.data.sent | jsonify }};
