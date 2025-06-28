@@ -58,9 +58,9 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
 
   var now = new Date();
   //如果今天不是星期日，留出一周的空格
-  if (now.getDay() != 0) {
+  //if (now.getDay() != 0) {
     dayCount -= 7
-  }
+  //}
 
   var start = new Date();
   start.setDate(now.getDate() - dayCount);
