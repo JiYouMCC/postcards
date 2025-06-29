@@ -11,39 +11,6 @@ var dayName = ['日', '一', '二', '三', '四', '五', '六'];
 var monthName = ["㋀", "㋁", "㋂", "㋃", "㋄", "㋅", "㋆", "㋇", "㋈", "㋉", "㋊", "㋋"];
 var multiplier = 1.5;
 
-function getPostcardGroupData() {
-  var result = [];
-  for (var i = 0; i < receivedData.length; i++) {
-    var date = receivedData[i]['received_date'];
-    date = new Date(date).toDateString();
-    var theData = result.find(i => new Date(i.date).toDateString() == new Date(date).toDateString());
-    if (theData) {
-      theData.received += 1;
-    } else {
-      result.push({
-        "date": date,
-        "received": 1,
-        "sent": 0
-      })
-    }
-  }
-  for (var i = 0; i < sentData.length; i++) {
-    var date = sentData[i]['sent_date'];
-    date = new Date(date).toDateString();
-    var theData = result.find(i => new Date(i.date).toDateString() == new Date(date).toDateString());
-    if (theData) {
-      theData.sent += 1;
-    } else {
-      result.push({
-        "date": date,
-        "received": 0,
-        "sent": 1
-      })
-    }
-  }
-  return result;
-}
-
 function getEarlistDate(data) {
   if (!data || data.length == 0) {
     return new Date();
@@ -179,10 +146,9 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
 function refresh() {
   var showSent = document.getElementById("showSent").checked;
   var showReceived = document.getElementById("showReceived").checked;
-  generateCalender(data, getEarlist, showSent, showReceived);
+  generateCalender(groupedData, getEarlist, showSent, showReceived);
 }
 
-var data = getPostcardGroupData();
-var getEarlist = getEarlistDate(data);
+var getEarlist = getEarlistDate(groupedData);
 
 refresh();
