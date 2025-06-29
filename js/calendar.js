@@ -100,10 +100,10 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
       .attr("ry", size / 8)
       .attr("data-bs-toggle","tooltip")
       .attr("data-bs-html","true")
-      .attr("title", "<b>" + date.getFullYear().toString() + "-" +
-        String(date.getMonth() + 1).padStart(2, '0') + "-" +
-        String(date.getDate()).padStart(2, '0') +
-        "</b><br>收： " + received + "<br>发： " + sent);
+      .attr("title", 
+        "<b>" + date.getFullYear().toString() + "-" + String(date.getMonth() + 1).padStart(2, '0') + "-" + String(date.getDate()).padStart(2, '0') + "</b>" +
+          (showReceived ? "<br>收： " + received : "") + 
+          (showSent ? "<br>发： " + sent : ""));
     if (showMonth) {
       if (date.getDate() == 1) {
         monthText.append("text")
@@ -148,7 +148,9 @@ function refresh() {
   var showSent = document.getElementById("showSent").checked;
   var showReceived = document.getElementById("showReceived").checked;
   generateCalender(groupedData, getEarlist, showSent, showReceived);
-  $('[data-bs-toggle="tooltip"]').tooltip();
+  $(document).ready(function(){
+    $('[data-bs-toggle="tooltip"]').tooltip();
+  });
 }
 
 var getEarlist = getEarlistDate(groupedData);
