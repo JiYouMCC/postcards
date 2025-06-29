@@ -148,6 +148,7 @@ function refresh() {
   var showSent = document.getElementById("showSent").checked;
   var showReceived = document.getElementById("showReceived").checked;
   generateCalender(groupedData, getEarlist, showSent, showReceived);
+  $('[data-bs-toggle="tooltip"]').tooltip();
 }
 
 var getEarlist = getEarlistDate(groupedData);
