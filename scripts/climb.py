@@ -8,7 +8,7 @@ import csv
 # sent = 1
 mode = 1
 
-post_link_list = [["配对","/sendpostcard/postcardDetail/1314935","CNSH41632"]]
+post_link_list = [["配对","/sendpostcard/postcardDetail/1316748","CNSH41861"],["配对","/sendpostcard/postcardDetail/1316494","CNSH41846"],["配对","/sendpostcard/postcardDetail/1316414","CNSH41831"],["配对","/sendpostcard/postcardDetail/1316299","CNSH41816"],["配对","/sendpostcard/postcardDetail/1316212","CNSH41809"],["配对","/sendpostcard/postcardDetail/1316102","CNSH41798"],["配对","/sendpostcard/postcardDetail/1316039","CNSH41768"],["配对","/sendpostcard/postcardDetail/1315928","CNSH41751"],["配对","/sendpostcard/postcardDetail/1315741","CNSH41730"],["活动","/sendpostcard/postcardDetail/1315691","CNSH41721"],["配对","/sendpostcard/postcardDetail/1315610","CNSH41714"],["配对","/sendpostcard/postcardDetail/1315541","CNSH41706"],["配对","/sendpostcard/postcardDetail/1315417","CNSH41700"],["赠送","/sendpostcard/postcardDetail/1315337","CNSH41695"],["配对","/sendpostcard/postcardDetail/1315292","CNSH41693"],["配对","/sendpostcard/postcardDetail/1315210","CNSH41679"],["配对","/sendpostcard/postcardDetail/1315024","CNSH41641"],["配对","/sendpostcard/postcardDetail/1315019","CNSH41640"],["配对","/sendpostcard/postcardDetail/1314935","CNSH41632"],["配对","/sendpostcard/postcardDetail/1314853","CNSH41616"],["配对","/sendpostcard/postcardDetail/1314784","CNSH41604"],["配对","/sendpostcard/postcardDetail/1314670","CNSH41575"],["配对","/sendpostcard/postcardDetail/1314605","CNSH41567"],["配对","/sendpostcard/postcardDetail/1314399","CNSH41550"],["配对","/sendpostcard/postcardDetail/1314354","CNSH41533"],["配对","/sendpostcard/postcardDetail/1314199","CNSH41523"],["配对","/sendpostcard/postcardDetail/1314155","CNSH41520"],["配对","/sendpostcard/postcardDetail/1314035","CNSH41515"],["配对","/sendpostcard/postcardDetail/1313958","CNSH41494"],["配对","/sendpostcard/postcardDetail/1313715","CNSH41465"],["配对","/sendpostcard/postcardDetail/1313708","CNSH41464"],["配对","/sendpostcard/postcardDetail/1313438","CNSH41418"],["配对","/sendpostcard/postcardDetail/1313189","CNSH41394"],["配对","/sendpostcard/postcardDetail/1313041","CNSH41364"],["活动","/sendpostcard/postcardDetail/1312990","CNSH41362"],["活动","/sendpostcard/postcardDetail/1312988","CNSH41361"],["配对","/sendpostcard/postcardDetail/1312886","CNSH41352"],["活动","/sendpostcard/postcardDetail/1312842","CNSH41340"],["活动","/sendpostcard/postcardDetail/1312783","CNSH41337"],["配对","/sendpostcard/postcardDetail/1312781","CNSH41336"],["活动","/sendpostcard/postcardDetail/1312778","CNSH41335"]]
 # ignore warnings
 requests.packages.urllib3.disable_warnings()
 if mode == 0:
@@ -113,7 +113,7 @@ for url in post_link_list:
 
     source_date.append(new_line)
     # sleep 10 sec
-    time.sleep(5)
+    time.sleep(2)
 
 with open(target_file_path, mode='r', newline='', encoding='utf-8') as target_file:
     with open(target_file_path, mode='a', newline='', encoding='utf-8') as target_file_write:
