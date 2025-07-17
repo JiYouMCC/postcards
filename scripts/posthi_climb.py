@@ -3,9 +3,9 @@ import csv
 
 # received = 0
 # sent = 1
-mode = 0
+mode = 1
 
-source_file_path = "../_data/Post-Hi_已登记_收方向_20250617215256.csv"
+source_file_path = "../_data/Post-Hi_已登记_寄方向_20250717093944.csv"
 
 if mode == 0:
     target_file_path = "../_data/received.csv"
@@ -26,7 +26,7 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
                 if reader_source.index(row_source) == 0:
                     continue
                 for row_target in reader_target:
-                    if row_source[0] == row_target[1]:
+                    if row_source[0] == row_target[1] or row_target[1].startswith(row_source[0] + "-"):
                         print("编号已存在，跳过")
                         break
                 else:
@@ -38,7 +38,7 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
                     new_row.append("")
                     new_row.append(row_source[0])
                     new_row.append("")
-                    new_row.append("MATCH" if row_source[1] == "匹配" else row_source[1])
+                    new_row.append("MATCH" if row_source[1] == "匹配" else "活动" if row_source[1] == "社区活动" else row_source[1])
                     new_row.append("Post-Hi")
                     new_row.append(row_source[5])
                     country = row_source[7].split(" ")[0]
