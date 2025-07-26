@@ -3,9 +3,11 @@ import csv
 
 # received = 0
 # sent = 1
-mode = 1
+mode = 0
 
-source_file_path = "../_data/Post-Hi_已登记_寄方向_20250717093944.csv"
+exclude_list = ["PHCNGD-0767"]
+
+source_file_path = "../_data/Post-Hi_已登记_收方向_20250726101622.csv"
 
 if mode == 0:
     target_file_path = "../_data/received.csv"
@@ -28,6 +30,9 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
                 for row_target in reader_target:
                     if row_source[0] == row_target[1] or row_target[1].startswith(row_source[0] + "-"):
                         print("编号已存在，跳过")
+                        break
+                    if row_source[0] in exclude_list:
+                        print(row_source[0]+"编号在排除列表中，跳过")
                         break
                 else:
                     # 如果没有相同的编号，则写入目标文件
