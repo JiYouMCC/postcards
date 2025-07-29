@@ -91,10 +91,12 @@ title: "我寄出的明信片"
 <nav>
   <ul id="pagination" class="pagination justify-content-center"></ul>
 </nav>
+<script>
+  feather.replace();
+</script>
 <script src="{{ site.baseurl }}{{ "/js/sent.js"}}"></script>
 <script src="{{ site.baseurl }}{{ "/js/sent-data.js"}}"></script>
 <script type="text/javascript">
-  feather.replace();
   PostcardCollection.Init(sentData)
 </script>
 
