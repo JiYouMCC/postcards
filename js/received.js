@@ -60,74 +60,6 @@ const PostcardCollection = {
     handleCheckboxChange('#type-all', '#ul-type .form-check-input', '#dropdownMenuButton-type');
     handleCheckboxChange('#platform-all', '#ul-platform .form-check-input', '#dropdownMenuButton-platform');
 
-    // country和region联动
-    $('#ul-country .form-check-input').on('change', function() {
-      const selectedCountries = $('#ul-country .form-check-input:checked').not('#country-all').map(function() {
-        return $(this).val();
-      }).get();
-      const selectedRegions = $('#ul-region .form-check-input:checked').not('#region-all').map(function() {
-        return $(this).val();
-      }).get();
-
-      const regionList = new Set();
-      if (selectedCountries.length === 0) {
-        PostcardCollection._postData.forEach(item => {
-          if (item['region']) {
-            regionList.add(item['region']);
-          }
-        });
-      } else {
-        PostcardCollection._postData.filter(item => selectedCountries.includes(item['country'])).forEach(item => {
-          if (item['region']) {
-            regionList.add(item['region']);
-          }
-        });
-      }
-
-      $('#ul-region').empty();
-      $('#ul-region').append(
-        $("<li></li>").append(
-          $("<div></div>").addClass("dropdown-item").append(
-            $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", "all").attr("id", "region-all"),
-            $("<label></label>").addClass("form-check-label").attr("for", "region-all").text("All")
-          )
-        )
-      );
-
-      const sortedRegionList = Array.from(regionList).sort((a, b) => {
-        const textA = a.toLowerCase();
-        const textB = b.toLowerCase();
-        return textA.localeCompare(textB, 'zh-CN');
-      });
-
-      sortedRegionList.forEach(region => {
-        $('#ul-region').append(
-          $("<li></li>").append(
-            $("<div></div>").addClass("dropdown-item").append(
-              $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", region).attr("id", `region_${region}`),
-              $("<label></label>").addClass("form-check-label").attr("for", `region_${region}`).text(region)
-            )
-          )
-        );
-        if (selectedRegions.includes(region))
-          $(`#region_${region}`).prop('checked', true);
-      });
-
-      const selectedOptions = $('#ul-region .form-check-input:checked').not('#region-all').map(function() {
-        return $(this).val();
-      }).get();
-
-      handleCheckboxChange('#region-all', '#ul-region .form-check-input', '#dropdownMenuButton-region');
-
-      PostcardCollection._UpdateDropdownText('#dropdownMenuButton-region', selectedOptions);
-
-      $('#ul-region .form-check-input').on('change', Debounce(() => {
-        PostcardCollection.GenerateFilter();
-        PostcardCollection.RefreshImageContainer();
-        PostcardCollection.UpdateUrlParameters();
-      }, 100));
-    });
-
     $('#tag-all').on('change', function() {
       const isChecked = $(this).is(':checked');
       $('#div-tags .form-check-input').prop('checked', isChecked);
@@ -297,29 +229,96 @@ const PostcardCollection = {
       }
     };
 
+    const updateListFromMap = (selector, map, idPrefix) => {
+      const items = Array.from(map.entries()).sort((a, b) => {
+        const countryA = a[0].toLowerCase();
+        const countryB = b[0].toLowerCase();
+        return countryA.localeCompare(countryB, 'zh-CN');
+      });
+      //$(selector).empty();
+      items.forEach(([region, count]) => {
+        $(selector).append(
+          $("<li></li>").append(
+            $("<div></div>").addClass("dropdown-item d-flex justify-content-between align-items-center").append(
+              $("<div></div>").append(
+                $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", region).attr("id", `${idPrefix}_${region}`),
+                $("<label></label>").addClass("form-check-label").attr("for", `${idPrefix}_${region}`).text(`${region}`)
+              ),
+              $("<span></span>").addClass("badge rounded-pill bg-secondary ms-2").text(`${count}`)
+            )
+          )
+        );
+      });
+    }
+    const updateRegionList = (regionMap) => {
+      const selector = "#ul-region";
+      const idPrefix = 'region';
+      const items = Array.from(regionMap.entries()).sort((a, b) => {
+        const countryA = a[0].toLowerCase();
+        const countryB = b[0].toLowerCase();
+        return countryA.localeCompare(countryB, 'zh-CN');
+      });
+      //$(selector).empty();
+      items.forEach(([region, count]) => {
+        $(selector).append(
+          $("<li></li>").append(
+            $("<div></div>").addClass("dropdown-item").append(
+              $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", region).attr("id", `${idPrefix}_${region}`),
+              $("<label></label>").addClass("form-check-label").attr("for", `${idPrefix}_${region}`).text(`${region}`).append(
+              $("<span></span>").addClass("badge rounded-pill text-bg-primary ms-2").text(`${count}`))
+            )
+          )
+        );
+      });
+    }
+
     $("#cardCount").text(PostcardCollection._postData.length);
     $("#searchCount").text(data.length);
 
-    const countryList = new Set();
-    const typeList = new Set();
-    const platformList = new Set();
+    const countryMap = new Map();
+    const typeMap = new Map();
+    const platformMap = new Map();
     const friendList = new Set();
-    const regionList = new Set();
+    const regionMap = new Map();
     const tagList = new Set();
 
     data.forEach(item => {
-      if (item['country']) countryList.add(item['country']);
-      if (item['type']) typeList.add(item['type']);
-      if (item['platform']) platformList.add(item['platform']);
+      if (item['country']) {
+        if (!countryMap.has(item['country'])) {
+          countryMap.set(item['country'], 0);
+        }
+        countryMap.set(item['country'], countryMap.get(item['country']) + 1);
+      }
+
+      if (item['type']) {
+        if (!typeMap.has(item['type'])) {
+          typeMap.set(item['type'], 0);
+        }
+        typeMap.set(item['type'], typeMap.get(item['type']) + 1);
+      }
+
+      if (item['platform']) {
+        if (!platformMap.has(item['platform'])) {
+          platformMap.set(item['platform'], 0);
+        }
+        platformMap.set(item['platform'], platformMap.get(item['platform']) + 1);
+      }
+     
       if (item['friend_id']) friendList.add(item['friend_id']);
-      if (item['region']) regionList.add(item['region']);
+      if (item['region']) {
+        if (!regionMap.has(item['region'])) {
+          regionMap.set(item['region'], 0);
+        }
+        regionMap.set(item['region'], regionMap.get(item['region']) + 1);
+      }
+
       if (item['tags']) item['tags'].forEach(tag => tagList.add(tag));
     });
 
-    updateList("#ul-country", countryList, 'country');
-    updateList("#ul-type", typeList, 'type');
-    updateList("#ul-platform", platformList, 'platform');
-    updateList("#ul-region", regionList, 'region');
+    updateListFromMap("#ul-country",countryMap,'country');
+    updateListFromMap("#ul-type", typeMap, 'type');
+    updateListFromMap("#ul-platform", platformMap, 'platform');    
+    updateListFromMap("#ul-region", regionMap, 'region');
     updateList("#div-tags", tagList, 'tag');
 
     friendList.forEach(friend => {
