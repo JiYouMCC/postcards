@@ -34,6 +34,7 @@ body {
 
 #ul-region, #ul-country {
     column-count: 3;
+    column-gap: 0px;
 }
 
 .img-thumbnail {
