@@ -14,8 +14,19 @@
           <li class="nav-item">
             <a class="nav-link {% if page.url == '/sent.html' %}active{% endif %}" href="{{ site.baseurl }}/sent"><i data-feather="send"></i>&nbsp;寄片&nbsp;<span class="badge rounded-pill text-bg-light">{{ site.data.sent.size }}</span></a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link {% if page.url == '/calendar.html' %}active{% endif %}" href="{{ site.baseurl }}/calendar"><i data-feather="calendar"></i>&nbsp;收发日历</a>
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i data-feather="pie-chart"></i>&nbsp;数据分析<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item {% if page.url == '/calendar.html' %}active{% endif %}" href="{{ site.baseurl }}/calendar"><i data-feather="calendar"></i>&nbsp;收发日历</a>
+                </li>
+                <li>
+                  <a class="dropdown-item {% if page.url == '/pictures.html' %}active{% endif %}" href="{{ site.baseurl }}/pictures"><i data-feather="clipboard"></i>&nbsp;收片张贴版</a>
+                </li>
+                <li>
+                  <a class="dropdown-item {% if page.url == '/geo.html' %}active{% endif %}" href="{{ site.baseurl }}/geo"><i data-feather="map"></i>&nbsp;收发地图</a>
+                </li>
+            </ul>
           </li>
           <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i data-feather="user"></i>&nbsp;联系我<span class="caret"></span></a>

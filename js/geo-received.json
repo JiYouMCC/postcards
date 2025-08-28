@@ -1,0 +1,11 @@
+---
+title: grouped cards data
+---
+{% assign china_records = site.data.received | where: "country", "China" %}
+{% assign grouped_by_region = china_records | group_by: "region" %}
+[
+{% for group in grouped_by_region %}
+
+  { "province": "{{ group.name }}", "count": {{ group.items | size }} }{% if forloop.last == false %},{% endif %}
+{% endfor %}
+]
