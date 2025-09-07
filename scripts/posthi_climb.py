@@ -5,9 +5,9 @@ import csv
 # sent = 1
 mode = 0
 
-exclude_list = ["PHCNGD-0767"]
+exclude_list = ["PHCNGD-0767","PHCNZJ-1410"]
 
-source_file_path = "../_data/Post-Hi_已登记_收方向_20250726101622.csv"
+source_file_path = "../_data/Post-Hi_已登记_收方向_20250907161904.csv"
 
 if mode == 0:
     target_file_path = "../_data/received.csv"
@@ -36,8 +36,8 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
                         break
                 else:
                     # 如果没有相同的编号，则写入目标文件
-                    print ("编号不存在，写入目标文件")
-                    print ("编号:", row_source[0])
+                    print("编号不存在，写入目标文件")
+                    print("编号:", row_source[0])
                     # no,id,title,type,platform,friend_id,country,region,sent_date,received_date,tags,url,friend_url
                     new_row = []
                     new_row.append("")
@@ -62,4 +62,3 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
                     new_row.append("https://www.post-hi.com/card/" + row_source[0])
                     new_row.append(row_source[6])
                     writer.writerow(new_row)
-

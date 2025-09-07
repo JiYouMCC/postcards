@@ -8,6 +8,7 @@ file_grouped_path = "../_data/grouped.csv"
 grouped_map = {}
 grouped_result = []
 
+
 def parse_date(date_string):
     date_formats = [
         '%m/%d/%Y %H:%M',
@@ -24,6 +25,7 @@ def parse_date(date_string):
             continue
 
     return None
+
 
 with open(file_received_path, mode='r', encoding='utf-8') as file_received:
     file_received_reader = csv.DictReader(file_received)
@@ -43,33 +45,33 @@ for row in data_sent:
 for row in data_received:
     date = row["parsed_date"]
     if date in grouped_map:
-        grouped_map[date]["received"] +=1
+        grouped_map[date]["received"] += 1
     else:
         grouped_map[date] = {
-            "received" : 1,
-            "sent" : 0
+            "received": 1,
+            "sent": 0
         }
 
 for row in data_sent:
     date = row["parsed_date"]
     if date in grouped_map:
-        grouped_map[date]["sent"] +=1
+        grouped_map[date]["sent"] += 1
     else:
         grouped_map[date] = {
-            "received" : 0,
-            "sent" : 1
+            "received": 0,
+            "sent": 1
         }
 
 for key in grouped_map.keys():
     grouped_result.append({
-        "date":key,
-        "received":grouped_map[key]["received"],
-        "sent":grouped_map[key]["sent"]
+        "date": key,
+        "received": grouped_map[key]["received"],
+        "sent": grouped_map[key]["sent"]
     })
 
 
 with open(file_grouped_path, mode='w', encoding='utf-8', newline='') as file:
-    fieldnames = ["date","received","sent"]
+    fieldnames = ["date", "received", "sent"]
     writer = csv.DictWriter(file, fieldnames=fieldnames)
     writer.writeheader()
     for row in grouped_result:

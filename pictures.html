@@ -14,14 +14,11 @@ title: "最近收片张贴版"
   }
 
   #canvas {
-    background: #D2B48C;
-    box-shadow: 0 0 0 12px #8B7B5A, 0 0 40px 8px #bfa77a; /* 画框效果 */
-    border-radius: 12px;
     display: block;
   }
 </style>
 <div class="canvas-frame">
-  <canvas id="canvas" width="1024" height="793"></canvas>
+  <canvas id="canvas" width="1024" height="768"></canvas>
 </div>
 
 <script>
@@ -29,8 +26,9 @@ title: "最近收片张贴版"
   const ctx = canvas.getContext('2d');
   // 图片URL列表
   const receivedImageUrls = [
+    {% assign monthpostcards = site.data.received | where_exp: "postcard", "postcard.received_date >= '2025-07-01'"| where_exp: "postcard", "postcard.received_date <= '2025-08-01'"| reverse %}
     {% assign postcards = site.data.received | reverse %}
-    {% for postcard in postcards limit: 64 %}
+    {% for postcard in postcards limit: 48 %}
     "{{ site.baseurl }}/received/{{ postcard.id }}.jpg",
     {% endfor %}
   ];
@@ -148,16 +146,36 @@ title: "最近收片张贴版"
     const rows = 6;
     const cols = 8;
     const baseSize = 160;
-    const pendding = 50;
-    const overlap = 1 - (1024 - pendding * 2) / cols / baseSize;
+    const pendding = 80;
+    const overlap = 1 - (canvas.width - pendding * 2) / cols / baseSize;
     const angleOffset = 10;
     const offset = 10;
+
+    // 绘制 #D2B48C 的底色
+    ctx.fillStyle = "#D2B48C";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 绘制画框
+    ctx.strokeStyle = "#8B7B5A";
+    ctx.lineWidth = 12;
+    ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
+    ctx.strokeStyle = "#bfa77a";
+    ctx.lineWidth = 8;
+    ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
+    ctx.strokeStyle = "#fff8dc";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(24, 24, canvas.width - 48, canvas.height - 48);
 
     // 绘制明信片
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
       //按序选择图片
-      const image = receivedImages[row * cols + col] || receivedImages[0]; // 如果没有足够的图片，使用第一张图片
+      const image = receivedImages[row * cols + col]; //|| receivedImages[0]; 
+      // 如果没有足够的图片， 直接跳过
+      if (!image) continue; 
+
+
+      //如果没有足够的图片，使用第一张图片
       // 根据图片实际宽高比决定明信片是横向还是纵向
       const imgRatio = image.width / image.height;
       const isHorizontal = imgRatio >= 1; // 宽度大于或等于高度则为横向

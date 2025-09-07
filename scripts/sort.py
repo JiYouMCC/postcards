@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime
 
+
 def parse_date(date_string):
     date_formats = [
             '%m/%d/%Y %H:%M',
@@ -18,6 +19,7 @@ def parse_date(date_string):
 
     return None
 
+
 for mode in [0, 1]:
     if mode == 0:
         file_path = "../_data/received.csv"
@@ -28,7 +30,8 @@ for mode in [0, 1]:
         data = list(reader)
 
     for row in data:
-        row['parsed_date'] = parse_date(row['received_date' if mode == 0 else 'sent_date'])
+        row['parsed_date'] = parse_date(
+            row['received_date' if mode == 0 else 'sent_date'])
 
     sorted_data = sorted(
         [row for row in data if row['parsed_date'] is not None],
