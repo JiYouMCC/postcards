@@ -7,7 +7,7 @@ mode = 0
 
 exclude_list = ["PHCNGD-0767","PHCNZJ-1410"]
 
-source_file_path = "../_data/Post-Hi_已登记_收方向_20250907161904.csv"
+source_file_path = "../_data/Post-Hi_已登记_收方向_20250915103623.csv"
 
 if mode == 0:
     target_file_path = "../_data/received.csv"
