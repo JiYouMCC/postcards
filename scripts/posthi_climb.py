@@ -3,11 +3,12 @@ import csv
 
 # received = 0
 # sent = 1
-mode = 0
+# sent expired = 2
+mode = 2
 
 exclude_list = ["PHCNGD-0767", "PHCNZJ-1410", "PHCNFJ-1299"]
 
-source_file_path = "../_data/Post-Hi_已登记_收方向_20250923111220.csv"
+source_file_path = "../_data/Post-Hi_漂流中_寄方向_20250923111231.csv"
 
 if mode == 0:
     target_file_path = "../_data/received.csv"
@@ -25,6 +26,13 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
             writer = csv.writer(target_file_write)
 
             for row_source in reader_source:
+                if mode == 2 and row_source[1] != "已过期":
+                    print("不是过期寄出片，跳过")
+                    continue
+                if mode == 2:
+                    prefix = 1
+                else:
+                    prefix = 0
                 if reader_source.index(row_source) == 0:
                     continue
                 for row_target in reader_target:
@@ -43,22 +51,26 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
                     new_row.append("")
                     new_row.append(row_source[0])
                     new_row.append("")
-                    new_row.append("MATCH" if row_source[1] == "匹配" else "活动" if row_source[1] == "社区活动" else row_source[1])
+                    new_row.append("MATCH" if row_source[1 + prefix] == "匹配" else "活动" if row_source[1+ prefix] == "社区活动" else row_source[1+ prefix])
                     new_row.append("Post-Hi")
-                    new_row.append(row_source[5])
-                    country = row_source[7].split(" ")[0]
+                    new_row.append(row_source[5 + prefix])
+                    country = row_source[7 + prefix].split(" ")[0]
                     if country == "中国":
                         country = "China"
                     new_row.append(country)
-                    area = row_source[7].split(" ")[1]
+                    area = row_source[7 + prefix].split(" ")[1]
                     if area.endswith("省") or area.endswith("市"):
                         area = area[:-1]
                     if area.endswith("自治区"):
                         area = area[:-3]
                     new_row.append(area)
-                    new_row.append(row_source[9])
-                    new_row.append(row_source[10])
+                    if mode == 2:
+                        new_row.append(row_source[15])
+                        new_row.append("")
+                    else:
+                        new_row.append(row_source[9])
+                        new_row.append(row_source[10])
                     new_row.append("")
                     new_row.append("https://www.post-hi.com/card/" + row_source[0])
-                    new_row.append(row_source[6])
+                    new_row.append(row_source[6 + prefix])
                     writer.writerow(new_row)
