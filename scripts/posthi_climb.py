@@ -5,9 +5,9 @@ import csv
 # sent = 1
 mode = 0
 
-exclude_list = ["PHCNGD-0767","PHCNZJ-1410"]
+exclude_list = ["PHCNGD-0767", "PHCNZJ-1410", "PHCNFJ-1299"]
 
-source_file_path = "../_data/Post-Hi_已登记_收方向_20250915103623.csv"
+source_file_path = "../_data/Post-Hi_已登记_收方向_20250923111220.csv"
 
 if mode == 0:
     target_file_path = "../_data/received.csv"
