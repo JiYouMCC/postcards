@@ -92,7 +92,7 @@ const PostcardCollection = {
     }, 100));
 
     // 其他checkbox和日期挂钩
-    $('#ul-country .form-check-input, #ul-region .form-check-input, #ul-type .form-check-input, #ul-platform .form-check-input, #div-tags .form-check-input, #collapseSentDate .form-control, #collapseReceivedDate .form-control').on('change', Debounce(() => {
+    $('#ul-country .form-check-input, #ul-region .form-check-input, #ul-type .form-check-input, #ul-platform .form-check-input, #div-tags .form-check-input, #collapseSentDate .form-control, #collapseReceivedDate .form-control,#expiredReceivedDate' ).on('change', Debounce(() => {
       PostcardCollection.GenerateFilter();
       PostcardCollection.RefreshImageContainer();
     }, 100));
@@ -143,6 +143,7 @@ const PostcardCollection = {
     const receivedDateStart = params.get('receivedDateStart') || '';
     const receivedDateEnd = params.get('receivedDateEnd') || '';
     const page = params.get('page') || 1;
+    const expiredReceivedDate = params.get('expiredReceivedDate') === 'true' || false;
 
     setCheckboxValues('#ul-country .form-check-input', countries);
     setCheckboxValues('#ul-region .form-check-input', regions);
@@ -150,13 +151,14 @@ const PostcardCollection = {
     setCheckboxValues('#ul-platform .form-check-input', platforms);
     setCheckboxValues('#div-tags .form-check-input', tags);
 
+
     $('#inputTitle').val(title);
     $('#inputReceiver').val(receiver);
     $('#inputSentDateStart').val(sentDateStart);
     $('#inputSentDateEnd').val(sentDateEnd);
     $('#inputReceivedDateStart').val(receivedDateStart);
     $('#inputReceivedDateEnd').val(receivedDateEnd);
-
+    $('#expiredReceivedDate').prop('checked', expiredReceivedDate);
 
     const selectedCountries = $("#ul-country .form-check-input" + ':checked').not("#country-all").map(function() {
       return $(this).val();
@@ -442,6 +444,7 @@ const PostcardCollection = {
     const sentDateEnd = $('#inputSentDateEnd').val();
     const receivedDateStart = $('#inputReceivedDateStart').val();
     const receivedDateEnd = $('#inputReceivedDateEnd').val();
+    const expiredReceivedDate = $('#expiredReceivedDate').is(':checked');
 
     PostcardCollection._filterData = PostcardCollection._postData.filter(item => {
       const isTitleMatch = !selectedTitle || (item['title'] && item['title'].includes(selectedTitle)) || (item['id'] && item['id'].includes(selectedTitle)) || item['tags'].some(tag => tag.includes(selectedTitle));
@@ -453,7 +456,8 @@ const PostcardCollection = {
       const isFriendMatch = !selectedFriend || (item['friend_id'] && item['friend_id'].includes(selectedFriend));
       const isSentDateMatch = (!sentDateStart || new Date(item['sent_date']) >= new Date(sentDateStart)) && (!sentDateEnd || new Date(item['sent_date']) <= new Date(sentDateEnd));
       const isReceivedDateMatch = (!receivedDateStart || new Date(item['received_date']) >= new Date(receivedDateStart)) && (!receivedDateEnd || new Date(item['received_date']) <= new Date(receivedDateEnd));
-      return isTitleMatch && isCountryMatch && isRegionMatch && isTypeMatch && isPlatformMatch && isTagMatch && isFriendMatch && isSentDateMatch && isReceivedDateMatch;
+      const isExpiredMatch = !expiredReceivedDate || !item['received_date'];
+      return isTitleMatch && isCountryMatch && isRegionMatch && isTypeMatch && isPlatformMatch && isTagMatch && isFriendMatch && isSentDateMatch && isReceivedDateMatch && isExpiredMatch;
     });
   },
   RefreshPagenation: function() {
@@ -610,6 +614,12 @@ const PostcardCollection = {
     const currentPage = PostcardCollection._currentPage;
     if (currentPage && currentPage > 1) {
       params.set('page', currentPage);
+    }
+
+    // expiredReceivedDate
+    const expiredReceivedDate = $('#expiredReceivedDate').is(':checked');
+    if (expiredReceivedDate) {
+      params.set('expiredReceivedDate', true);
     }
 
     const newUrl = `${window.location.pathname}?${params.toString()}`;
