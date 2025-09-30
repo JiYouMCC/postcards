@@ -1,5 +1,5 @@
 ---
-layout: whole
+layout: default
 title: "最近收片张贴版"
 ---
 <header class="post-header">
@@ -18,7 +18,7 @@ title: "最近收片张贴版"
   }
 </style>
 <div class="canvas-frame">
-  <canvas id="canvas" width="1024" height="768"></canvas>
+  <canvas id="canvas" width="1024" height="808"></canvas>
 </div>
 
 <script>
@@ -26,7 +26,7 @@ title: "最近收片张贴版"
   const ctx = canvas.getContext('2d');
   // 图片URL列表
   const receivedImageUrls = [
-    {% assign monthpostcards = site.data.received | where_exp: "postcard", "postcard.received_date >= '2025-07-01'"| where_exp: "postcard", "postcard.received_date <= '2025-08-01'"| reverse %}
+    {% assign postcards1 = site.data.received | where_exp: "postcard", "postcard.received_date >= '2025-09-01'"| where_exp: "postcard", "postcard.received_date <= '2025-10-01'"| reverse %}
     {% assign postcards = site.data.received | reverse %}
     {% for postcard in postcards limit: 48 %}
     "{{ site.baseurl }}/received/{{ postcard.id }}.jpg",
