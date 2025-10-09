@@ -6,9 +6,9 @@ import csv
 # sent expired = 2
 mode = 2
 
-exclude_list = ["PHCNGD-0767", "PHCNZJ-1410", "PHCNFJ-1299"]
+exclude_list = ["PHCNGD-0767", "PHCNZJ-1410", "PHCNFJ-1299", "PHCNSH-1876", "PHCNSC-0865"]
 
-source_file_path = "../_data/Post-Hi_漂流中_寄方向_20250923111231.csv"
+source_file_path = "../_data/Post-Hi_漂流中_寄方向_20251009132152.csv"
 
 if mode == 0:
     target_file_path = "../_data/received.csv"
