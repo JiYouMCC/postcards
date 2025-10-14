@@ -1,0 +1,189 @@
+---
+title: posting board script
+---
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+// 图片URL列表
+const receivedImageUrls = [
+  {% assign postcards1 = site.data.received | where_exp: "postcard","postcard.received_date >= '2025-09-01'" | where_exp: "postcard","postcard.received_date <= '2025-10-01'" | reverse %}
+  {% assign postcards = site.data.received | reverse %}
+  {% for postcard in postcards limit: 48 %}"{{ site.baseurl }}/received/{{ postcard.id }}.jpg", 
+  {% endfor %}
+];
+
+//随机打乱图片的顺序
+receivedImageUrls.sort(() => Math.random() - 0.5);
+
+// 预加载所有图片
+const receivedImages = [];
+let loadedCount = 0;
+
+function preloadImages() {
+  receivedImageUrls.forEach(url => {
+    const img = new Image();
+    img.onload = () => {
+      loadedCount++;
+      if (loadedCount === receivedImageUrls.length) {
+        init();
+      }
+    };
+    img.onerror = () => {
+      console.error(`Failed to load image: ${url}`);
+      loadedCount++;
+      if (loadedCount === receivedImageUrls.length) {
+        init();
+      }
+    };
+    img.src = url;
+    receivedImages.push(img);
+  });
+}
+
+// 绘制带弧度的明信片（使用图片并保持原始宽高比）
+function drawCurvedPostcardWithImage(x, y, width, height, angle, image) {
+  ctx.save();
+  ctx.translate(x + width / 2, y + height / 2);
+  ctx.rotate(angle * Math.PI / 180);
+
+  // 绘制弯曲的纸张效果
+  ctx.beginPath();
+
+  // 控制点的偏移量
+  const curveOffset = height * 0.05; // 弯曲程度
+  const edgeOffset = width * 0.05; // 边缘偏移
+
+  // 开始绘制路径
+  ctx.moveTo(-width / 2, -height / 2);
+
+  // 上边弧线
+  ctx.bezierCurveTo(
+    -width / 4, -height / 2 - curveOffset,
+    width / 4, -height / 2 - curveOffset,
+    width / 2, -height / 2
+  );
+
+  // 右边
+  ctx.bezierCurveTo(
+    width / 2 + edgeOffset, -height / 4,
+    width / 2 + edgeOffset, height / 4,
+    width / 2, height / 2
+  );
+
+  // 下边弧线
+  ctx.bezierCurveTo(
+    width / 4, height / 2 + curveOffset,
+    -width / 4, height / 2 - curveOffset,
+    -width / 2, height / 2
+  );
+
+  // 左边
+  ctx.bezierCurveTo(
+    -width / 2 - edgeOffset, height / 4,
+    -width / 2 - edgeOffset, -height / 4,
+    -width / 2, -height / 2
+  );
+
+  // 裁剪路径，使图像仅在路径内部显示
+  ctx.clip();
+
+  // 设置阴影
+  ctx.shadowColor = 'rgba(0,0,0,0.3)';
+  ctx.shadowBlur = 15;
+  ctx.shadowOffsetX = 5;
+  ctx.shadowOffsetY = 5;
+
+  // 保持宽高比例绘制图片
+  const imgRatio = image.width / image.height;
+  const cardRatio = width / height;
+
+  let drawWidth, drawHeight, offsetX, offsetY;
+
+  if (imgRatio > cardRatio) {
+    // 图片比较宽，以高度为基准
+    drawHeight = height;
+    drawWidth = height * imgRatio;
+    offsetX = -(drawWidth - width) / 2;
+    offsetY = 0;
+  } else {
+    // 图片比较高，以宽度为基准
+    drawWidth = width;
+    drawHeight = width / imgRatio;
+    offsetX = 0;
+    offsetY = -(drawHeight - height) / 2;
+  }
+
+  // 绘制图像（保持宽高比）
+  ctx.drawImage(image, -width / 2 + offsetX, -height / 2 + offsetY, drawWidth, drawHeight);
+  ctx.restore();
+}
+
+// 初始化
+function init() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const rows = 6;
+  const cols = 8;
+  const baseSize = 160 - 16;
+  const pendding = 80;
+  const overlap = 1 - (canvas.width - pendding * 2) / cols / baseSize;
+  const angleOffset = 10;
+  const offset = 10;
+
+  // 绘制 #D2B48C 的底色
+  ctx.fillStyle = "#D2B48C";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 绘制画框
+  ctx.strokeStyle = "#8B7B5A";
+  ctx.lineWidth = 12;
+  ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
+  ctx.strokeStyle = "#bfa77a";
+  ctx.lineWidth = 8;
+  ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
+  ctx.strokeStyle = "#fff8dc";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(24, 24, canvas.width - 48, canvas.height - 48);
+
+  // 绘制明信片
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      //按序选择图片
+      const image = receivedImages[row * cols + col]; //|| receivedImages[0]; 
+      // 如果没有足够的图片， 直接跳过
+      if (!image) continue;
+
+
+      //如果没有足够的图片，使用第一张图片
+      // 根据图片实际宽高比决定明信片是横向还是纵向
+      const imgRatio = image.width / image.height;
+      const isHorizontal = imgRatio >= 1; // 宽度大于或等于高度则为横向
+
+      // 根据图片方向设置明信片尺寸
+      const width = isHorizontal ? baseSize : baseSize * imgRatio;
+      const height = isHorizontal ? baseSize / imgRatio : baseSize;
+      // 计算基础位置
+      let x = pendding + col * baseSize * (1 - overlap) - (baseSize - height) / 2;
+      let y = pendding + row * baseSize * (1 - overlap) - (baseSize - width) / 2;
+
+      // 添加随机偏移
+      x += (Math.random() - 0.5) * offset;
+      y += (Math.random() - 0.5) * offset;
+      // 随机旋转角度（范围稍微小一点）
+      const angle = (Math.random() - 0.5) * angleOffset;
+      // 绘制明信片
+      drawCurvedPostcardWithImage(x, y, width, height, angle, image);
+    }
+  }
+}
+
+// 开始预加载图片
+if (receivedImageUrls.length > 0) {
+  preloadImages();
+} else {
+  // 没有图片URL时不绘制
+  ctx.font = "20px Arial";
+  ctx.fillText("请添加图片URL", canvas.width / 2 - 80, canvas.height / 2);
+}
+
+// 点击刷新
+canvas.addEventListener('click', init);

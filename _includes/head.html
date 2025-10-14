@@ -2,13 +2,14 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
   <title>{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %} - {{ site.title | escape }}</title>
-  <script src="{{ site.baseurl }}{{ "/lib/feather.min.js"}}"></script>
   <link href="{{ site.baseurl }}{{ "/bootstrap/css/bootstrap.css"}}" rel="stylesheet">
   <link href="{{ site.baseurl }}{{ "/css/gutools.css"}}" rel="stylesheet">
-  <link rel="Shortcut Icon" href="{{ "/favicon.ico" }}" type="image/x-icon">
-  <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
+  <link rel="Shortcut Icon" href="{{ "/favicon.ico" }}" type="image/x-icon">  
   <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
+  <script src="{{ site.baseurl }}{{ "/lib/feather.min.js"}}"></script>
   <script src="{{ site.baseurl }}{{ "/lib/jquery.min.js"}}"></script>
   <script src="{{ site.baseurl }}{{ "/bootstrap/js/bootstrap.bundle.min.js"}}"></script>
+  {% if page.use_d3 %}<script src="{{ site.baseurl }}{{ "/lib/d3.v7.min.js"}}"></script>{% endif %}
 </head>

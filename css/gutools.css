@@ -70,3 +70,25 @@ body {
 .feather-refresh-ccw {
     animation: rotate .7s infinite linear;
 }
+
+/*收片张贴版*/
+.posting-board-canvas-frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 40px 0;
+}
+
+.posting-board-canvas-frame #canvas {
+    display: block;
+}
+
+/*地图*/
+*.geo-tooltip {
+    position: absolute;
+    background-color: #000;;
+    border-radius: 5px;
+    color: #fff;
+    padding: 5px 15px 5px 15px;
+    pointer-events: none;
+}*
