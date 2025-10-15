@@ -10,12 +10,6 @@ const svg = d3.select("#map")
   .attr("width", width)
   .attr("height", height);
 
-// Tooltip
-const tooltip = d3.select("body")
-  .append("div")
-  .attr("class", "geo-tooltip")
-  .style("opacity", 0);
-
 // Projection and path
 const projection = d3.geoMercator()
   .center([104, 35]) // Center on China
@@ -83,21 +77,13 @@ Promise.all([
     .attr("class", "province border")
     .attr("fill", "rgba(0, 0, 0, 0.01)")
     .attr("stroke", "#000")
-    .attr("cursor", "pointer")
     .attr("stroke-width", 0.5)
-    .on("mouseover", function(event, d) {
-      tooltip.transition().duration(200).style("opacity", 0.9);
-      tooltip.html(`<center><strong>${d.properties.name}</strong><br>收: ${receivedCount[d.properties.name] || 0}<br>发: ${sentCount[d.properties.name] || 0}</center>`)
-        .style("left", (event.pageX + 5) + "px")
-        .style("top", (event.pageY - 28) + "px");
-    }).on("mouseout", () => {
-      tooltip.style("opacity", 0);
-    }).on("click", function(event, d) {
-      const region = d.properties.name;
-      const url = `{{ site.baseurl }}/received?region=${encodeURIComponent(region)}`;
-      global.open(url, "_blank");
+    .attr("data-bs-toggle","tooltip")
+    .attr("data-bs-html","true")
+    .attr("title", d => {
+      return `<strong>${d.properties.name}</strong><br>收: ${receivedCount[d.properties.name] || 0}<br>发: ${sentCount[d.properties.name] || 0}`;
     });
-
+  $('[data-bs-toggle="tooltip"]').tooltip();
 
   // Checkbox event listeners
   d3.select("#showSent").on("change", function() {
