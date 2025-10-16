@@ -550,7 +550,7 @@ no,id,title,type,platform,friend_id,country,region,sent_date,received_date,tags,
 ,CNBJ44219,,活动,icardyou,马丁card,China,北京,2025-09-14 22:38,2025-09-18 20:44,,https://icardyou.icu/sendpostcard/postcardDetail/1324849,https://icardyou.icu/userInfo/homePage?userId=42405
 ,PHCNJS-2010,,寄片,Post-Hi,记事本,China,江苏,2025-09-16 14:07:34,2025-09-18 20:51:51,,https://www.post-hi.com/card/PHCNJS-2010,https://www.post-hi.com/user/01JDYK3N18BBW1C4VWW9FMTBHG
 ,CNSH43122,,MATCH,icardyou,Major K,China,上海,2025-09-11 20:59,2025-09-20 20:31,,https://icardyou.icu/sendpostcard/postcardDetail/1324645,https://icardyou.icu/userInfo/homePage?userId=35926
-,PHCNSX-0167,,回寄,Post-Hi,满状态,China,山西,2025-08-30 21:49:28,2025-09-20 20:43:44,,https://www.post-hi.com/card/PHCNSX-0167,https://www.post-hi.com/user/01K0VFSHDQV6E7555G7MD4RRY7
+,PHCNSX-0167,,寄片,Post-Hi,满状态,China,山西,2025-08-30 21:49:28,2025-09-20 20:43:44,,https://www.post-hi.com/card/PHCNSX-0167,https://www.post-hi.com/user/01K0VFSHDQV6E7555G7MD4RRY7
 ,PHCNSH-2480,,MATCH,Post-Hi,三文鱼茶茶,China,上海,2025-09-17 15:26:32,2025-09-20 20:54:42,,https://www.post-hi.com/card/PHCNSH-2480,https://www.post-hi.com/user/01JP4JB8J2B4DPCDNH1XR7VWVY
 ,PHCNZJ-3327,,寄片,Post-Hi,等不闲,China,浙江,2025-09-13 15:48:50,2025-09-22 20:33:46,,https://www.post-hi.com/card/PHCNZJ-3327,https://www.post-hi.com/user/01JY3BY33G34M4DERFX2JFFR3X
 ,PHCNJS-2076,,MATCH,Post-Hi,知野,China,江苏,2025-09-20 15:08:47,2025-09-22 20:42:49,,https://www.post-hi.com/card/PHCNJS-2076,https://www.post-hi.com/user/01K31JYPQFZYDYDGKH1WX7QF4R
@@ -559,7 +559,7 @@ no,id,title,type,platform,friend_id,country,region,sent_date,received_date,tags,
 ,PHCNSH-2530,,寄片,Post-Hi,廉乐,China,上海,2025-09-18 19:49:49,2025-09-23 21:05:43,,https://www.post-hi.com/card/PHCNSH-2530,https://www.post-hi.com/user/01JZJYJ4H2T1QXFW16QGXHM2JN
 ,PHCNJX-0887-1,,MATCH,Post-Hi,Sean_W,China,江西,2025-09-23 14:17:15,2025-09-25 20:27:16,,https://www.post-hi.com/card/PHCNJX-0887,https://www.post-hi.com/user/01K47NS5EBYAY554DSKDQJJN46
 ,PHCNJX-0887-2,,MATCH,Post-Hi,Sean_W,China,江西,2025-09-23 14:17:15,2025-09-25 20:27:16,,https://www.post-hi.com/card/PHCNJX-0887,https://www.post-hi.com/user/01K47NS5EBYAY554DSKDQJJN46
-,PHMY-0037,,回寄,Post-Hi,CL,马来西亚,,2025-07-19 19:43:31,2025-09-26 19:59:40,,https://www.post-hi.com/card/PHMY-0037,https://www.post-hi.com/user/01JQXMCDV1G9ZPX158VQ6D2KND
+,PHMY-0037,,寄片,Post-Hi,CL,马来西亚,,2025-07-19 19:43:31,2025-09-26 19:59:40,,https://www.post-hi.com/card/PHMY-0037,https://www.post-hi.com/user/01JQXMCDV1G9ZPX158VQ6D2KND
 ,PHCNGD-4363,,MATCH,Post-Hi,乌啼,China,广东,2025-09-23 15:18:41,2025-09-27 18:39:36,,https://www.post-hi.com/card/PHCNGD-4363,https://www.post-hi.com/user/01K4E7113E3RXJEMP796ZQY49X
 ,PHCNZJ-3622,,寄片,Post-Hi,等不闲,China,浙江,2025-09-26 12:15:24,2025-09-28 09:17:30,,https://www.post-hi.com/card/PHCNZJ-3622,https://www.post-hi.com/user/01JY3BY33G34M4DERFX2JFFR3X
 ,CNSC9534,,MATCH,icardyou,归塘,China,四川,2025-09-23 19:43,2025-09-28 09:50,,https://icardyou.icu/sendpostcard/postcardDetail/1324503,https://icardyou.icu/userInfo/homePage?userId=29999
@@ -574,10 +574,12 @@ no,id,title,type,platform,friend_id,country,region,sent_date,received_date,tags,
 ,PHCNSH-2680,,MATCH,Post-Hi,Nicole1219,China,上海,2025-10-02 16:25:08,2025-10-07 20:31:55,,https://www.post-hi.com/card/PHCNSH-2680,https://www.post-hi.com/user/01JY3PG9JJS691T8YXDMYXA40E
 ,PHCNSH-2710,,寄片,Post-Hi,Nicole1219,China,上海,2025-10-02 16:24:55,2025-10-07 20:42:02,,https://www.post-hi.com/card/PHCNSH-2710,https://www.post-hi.com/user/01JY3PG9JJS691T8YXDMYXA40E
 ,PHCNSC-1219,,MATCH,Post-Hi,Colirile,China,四川,,2025-10-09 20:49:09,,https://www.post-hi.com/card/PHCNSC-1219,https://www.post-hi.com/user/01JVP83332522GSF5GCC0HE979
-,CNCQ11245,,赠送,icardyou,风儿...,China,重庆,2025-10-05 10:08,2025-10-09 20:57,,https://icardyou.icu/sendpostcard/postcardDetail/1326417,https://icardyou.icu/userInfo/homePage?userId=13303
+,CNCQ11245,,寄片,icardyou,风儿...,China,重庆,2025-10-05 10:08,2025-10-09 20:57,,https://icardyou.icu/sendpostcard/postcardDetail/1326417,https://icardyou.icu/userInfo/homePage?userId=13303
 ,PHCNHN-2155,,MATCH,Post-Hi,Morroc,China,湖南,2025-09-29 21:28:06,2025-10-10 20:43:03,,https://www.post-hi.com/card/PHCNHN-2155,https://www.post-hi.com/user/01JZ38HFGD8R8PF34HZCHH0MQM
 ,PHCNZJ-4035,,寄片,Post-Hi,嗯嗯大王,China,浙江,2025-10-09 22:02:52,2025-10-12 14:22:44,,https://www.post-hi.com/card/PHCNZJ-4035,https://www.post-hi.com/user/01JWZM3N2KCDV82FC2XSW8W88W
 ,PHCNGX-0353-1,,寄片,Post-Hi,东洋辐变锤头鲨,China,广西壮族,2025-10-08 17:14:03,2025-10-12 14:37:28,,https://www.post-hi.com/card/PHCNGX-0353,https://www.post-hi.com/user/01JX317C0Y2S4FQAFXQDAW9RY0
 ,PHCNGX-0353-2,,寄片,Post-Hi,东洋辐变锤头鲨,China,广西壮族,2025-10-08 17:14:03,2025-10-12 14:37:28,,https://www.post-hi.com/card/PHCNGX-0353,https://www.post-hi.com/user/01JX317C0Y2S4FQAFXQDAW9RY0
 ,CNSC9578,,MATCH,icardyou,羽（佛系清片中）,China,四川,2025-10-05 19:27,2025-10-12 14:47,,https://icardyou.icu/sendpostcard/postcardDetail/1325822,https://icardyou.icu/userInfo/homePage?userId=40041
 ,PHCNSH-2815,,MATCH,Post-Hi,三文鱼茶茶,China,上海,2025-10-10 09:03:55,2025-10-12 15:01:09,,https://www.post-hi.com/card/PHCNSH-2815,https://www.post-hi.com/user/01JP4JB8J2B4DPCDNH1XR7VWVY
+,PHCNSC-1256,,寄片,Post-Hi,Gabrielle,China,四川,2025-10-10 19:14:24,2025-10-13 19:56:47,,https://www.post-hi.com/card/PHCNSC-1256,https://www.post-hi.com/user/01K0N9PHRJY5EM1JEHD2F72NX2
+,CNZJ30167,,寄片,icardyou,爬上树的猴,China,浙江,2025-10-14 17:20,2025-10-16 07:14,,https://icardyou.icu/sendpostcard/postcardDetail/1327012,https://icardyou.icu/userInfo/homePage?userId=42280

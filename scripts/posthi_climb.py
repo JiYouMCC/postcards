@@ -4,11 +4,11 @@ import csv
 # received = 0
 # sent = 1
 # sent expired = 2
-mode = 2
+mode = 0
 
 exclude_list = ["PHCNGD-0767", "PHCNZJ-1410", "PHCNFJ-1299", "PHCNSH-1876", "PHCNSC-0865"]
 
-source_file_path = "../_data/Post-Hi_漂流中_寄方向_20251009132152.csv"
+source_file_path = "../_data/Post-Hi_已登记_收方向_20251016095120.csv"
 
 if mode == 0:
     target_file_path = "../_data/received.csv"
@@ -51,7 +51,14 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
                     new_row.append("")
                     new_row.append(row_source[0])
                     new_row.append("")
-                    new_row.append("MATCH" if row_source[1 + prefix] == "匹配" else "活动" if row_source[1+ prefix] == "社区活动" else row_source[1+ prefix])
+                    card_type = row_source[1 + prefix]
+                    if card_type == "匹配":
+                        card_type = "MATCH"
+                    elif card_type == "社区活动":
+                        card_type = "活动"
+                    if card_type == "回寄" or card_type == "赠送":
+                        card_type = "寄片"
+                    new_row.append(card_type)
                     new_row.append("Post-Hi")
                     new_row.append(row_source[5 + prefix])
                     country = row_source[7 + prefix].split(" ")[0]
