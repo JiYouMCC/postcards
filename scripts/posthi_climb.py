@@ -4,11 +4,12 @@ import csv
 # received = 0
 # sent = 1
 # sent expired = 2
-mode = 0
+mode = 2
 
-exclude_list = ["PHCNGD-0767", "PHCNZJ-1410", "PHCNFJ-1299", "PHCNSH-1876", "PHCNSC-0865"]
+exclude_list = ["PHCNGD-0767", "PHCNZJ-1410", "PHCNFJ-1299",
+                "PHCNSH-1876", "PHCNSC-0865", "PHCNZJ-3796"]
 
-source_file_path = "../_data/Post-Hi_已登记_收方向_20251021101047.csv"
+source_file_path = "../_data/Post-Hi_漂流中_寄方向_20251102223456.csv"
 
 if mode == 0:
     target_file_path = "../_data/received.csv"
