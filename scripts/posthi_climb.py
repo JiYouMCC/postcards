@@ -69,6 +69,14 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
                     area = row_source[7 + prefix].split(" ")[1]
                     if area.endswith("省") or area.endswith("市"):
                         area = area[:-1]
+                    if area.endswith("壮族自治区"):
+                        area = area[:-5]
+                    if area.endswith("回族自治区"):
+                        area = area[:-5]
+                    if area.endswith("维吾尔族自治区"):
+                        area = area[:-7]
+                    if area.endswith("特别行政区"):
+                        area = area[:-5]
                     if area.endswith("自治区"):
                         area = area[:-3]
                     new_row.append(area)
