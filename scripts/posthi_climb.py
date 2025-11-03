@@ -65,6 +65,10 @@ with open(source_file_path, mode='r', newline='', encoding='utf-8') as source_fi
                     country = row_source[7 + prefix].split(" ")[0]
                     if country == "中国":
                         country = "China"
+                    if country == "日本":
+                        country = "Japan"
+                    if country == "马来西亚":
+                        country = "Malaysia"
                     new_row.append(country)
                     area = row_source[7 + prefix].split(" ")[1]
                     if area.endswith("省") or area.endswith("市"):
