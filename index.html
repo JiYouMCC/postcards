@@ -8,7 +8,7 @@ layout: default
         <a class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover" href="{{ site.baseurl }}/received"><h3>最近收到的明信片</h3></a>
         <div class="row mt-2">
           {% assign postcards = site.data.received | reverse %}
-          {% for postcard in postcards limit: 6 %}
+          {% for postcard in postcards limit: 12 %}
             <div id="image_{{ postcard.id }}" class="col-lg-2 col-md-4 mb-2 col-6 image-item px-1">
               <img class="img-fluid img-thumbnail postcard" src="{{ site.baseurl }}/received/{{ postcard.id }}.jpg" alt="{{ postcard.id }}" title="{{ postcard.id }}" data-bs-toggle="popover" data-bs-placement="bottom" data-card-id="{{ postcard.id }}" data-card-url="{{ postcard.url }}" data-card-title="{{ postcard.title }}" data-card-platform="{{ postcard.platform }}" data-card-friend_id="{{ postcard.friend_id }}" data-card-friend_url="{{ postcard.friend_url }}" data-card-country="{{ postcard.country }}" data-card-region="{{ postcard.region }}" data-card-sent_date="{{ postcard.sent_date}}" data-card-received_date="{{ postcard.received_date }}" data-card-type="{{ postcard.type }}" data-card-tags="{{ postcard.tags }}" data-card-mode="received">
             </div>
@@ -19,7 +19,7 @@ layout: default
         <a class="link-underline link-underline-opacity-0 link-underline-opacity-100-hover" href="{{ site.baseurl }}/sent"><h3>最近寄出的明信片</h3></a>
         <div class="row mt-2">
           {% assign postcards = site.data.sent | reverse %}
-          {% for postcard in postcards limit: 6 %}
+          {% for postcard in postcards limit: 12 %}
             <div id="image_{{ postcard.id }}" class="col-lg-2 col-md-4 mb-2 col-6 image-item px-1">
               <img class="img-fluid img-thumbnail postcard" src="{{ site.baseurl }}/sent/{{ postcard.id }}.jpg" alt="{{ postcard.id }}" title="{{ postcard.id }}" data-bs-toggle="popover" data-bs-placement="bottom" data-card-id="{{ postcard.id }}" data-card-url="{{ postcard.url }}" data-card-title="{{ postcard.title }}" data-card-platform="{{ postcard.platform }}" data-card-friend_id="{{ postcard.friend_id }}" data-card-friend_url="{{ postcard.friend_url }}" data-card-country="{{ postcard.country }}" data-card-region="{{ postcard.region }}" data-card-sent_date="{{ postcard.sent_date}}" data-card-received_date="{{ postcard.received_date }}" data-card-type="{{ postcard.type }}" data-card-tags="{{ postcard.tags }}" data-card-mode="sent">
             </div>

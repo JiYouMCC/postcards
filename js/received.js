@@ -453,18 +453,24 @@ const PostcardCollection = {
     const sentDateEnd = $('#inputSentDateEnd').val();
     const receivedDateStart = $('#inputReceivedDateStart').val();
     const receivedDateEnd = $('#inputReceivedDateEnd').val();
+    let selectedFriendUrl = [];
+    if (selectedFriend) {
+      let itemList = PostcardCollection._postData.filter(item => item['friend_id'] && item['friend_id'].includes(selectedFriend))
+      selectedFriendUrl = itemList.map(item => item['friend_url']);
+      selectedFriendUrl = Array.from(new Set(selectedFriendUrl));
+    }
 
     PostcardCollection._filterData = PostcardCollection._postData.filter(item => {
-      const isTitleMatch = !selectedTitle || (item['title'] && item['title'].includes(selectedTitle)) || (item['id'] && item['id'].includes(selectedTitle)) || item['tags'].some(tag => tag.includes(selectedTitle));
+      const isTitleMatch = !selectedTitle || (item['title'] && item['title'].includes(selectedTitle)) || (item['friend_id'] && item['friend_id'].includes(selectedTitle)) || (item['friend_url'] && item['friend_url'].includes(selectedTitle)) || item['tags'].some(tag => tag.includes(selectedTitle));
       const isCountryMatch = !selectedCountries.length || selectedCountries.includes(item['country']);
       const isRegionMatch = !selectedRegions.length || selectedRegions.includes(item['region']);
       const isTypeMatch = !selectedTypes.length || selectedTypes.includes(item['type']);
       const isPlatformMatch = !selectedPlatforms.length || selectedPlatforms.includes(item['platform']);
       const isTagMatch = !selectedTags.length || selectedTags.some(tag => item['tags'].includes(tag));
-      const isFriendMatch = !selectedFriend || (item['friend_id'] && item['friend_id'].includes(selectedFriend));
+      const isFriendUrlMatch = !selectedFriend || (item['friend_url'] && selectedFriendUrl.includes(item['friend_url']));
       const isSentDateMatch = (!sentDateStart || new Date(item['sent_date']) >= new Date(sentDateStart)) && (!sentDateEnd || new Date(item['sent_date']) <= new Date(sentDateEnd));
       const isReceivedDateMatch = (!receivedDateStart || new Date(item['received_date']) >= new Date(receivedDateStart)) && (!receivedDateEnd || new Date(item['received_date']) <= new Date(receivedDateEnd));
-      return isTitleMatch && isCountryMatch && isRegionMatch && isTypeMatch && isPlatformMatch && isTagMatch && isFriendMatch && isSentDateMatch && isReceivedDateMatch;
+      return isTitleMatch && isCountryMatch && isRegionMatch && isTypeMatch && isPlatformMatch && isTagMatch && isFriendUrlMatch && isSentDateMatch && isReceivedDateMatch;
     });
   },
   RefreshPagenation: function() {
