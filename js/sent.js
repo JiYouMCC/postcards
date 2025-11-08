@@ -453,7 +453,7 @@ const PostcardCollection = {
     }
 
     PostcardCollection._filterData = PostcardCollection._postData.filter(item => {
-      const isTitleMatch = !selectedTitle || (item['title'] && item['title'].includes(selectedTitle)) || (item['friend_id'] && item['friend_id'].includes(selectedTitle)) || (item['friend_url'] && item['friend_url'].includes(selectedTitle)) || item['tags'].some(tag => tag.includes(selectedTitle));
+      const isTitleMatch = !selectedTitle || (item['title'] && item['title'].includes(selectedTitle)) || (item['id'] && item['id'].includes(selectedTitle)) || (item['friend_id'] && item['friend_id'].includes(selectedTitle)) || (item['friend_url'] && item['friend_url'].includes(selectedTitle)) || item['tags'].some(tag => tag.includes(selectedTitle));
       const isCountryMatch = !selectedCountries.length || selectedCountries.includes(item['country']);
       const isRegionMatch = !selectedRegions.length || selectedRegions.includes(item['region']);
       const isTypeMatch = !selectedTypes.length || selectedTypes.includes(item['type']);
