@@ -84,7 +84,10 @@ def process(mode, source_file_path):
                             new_row.append(row_source[15])
                             new_row.append("")
                         else:
-                            new_row.append(row_source[9])
+                            if row_source[9] == "":
+                                new_row.append(row_source[8])
+                            else:
+                                new_row.append(row_source[9])
                             new_row.append(row_source[10])
                         new_row.append("")
                         new_row.append("https://www.post-hi.com/card/" + row_source[0])
