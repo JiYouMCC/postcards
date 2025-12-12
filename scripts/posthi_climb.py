@@ -1,13 +1,24 @@
 import csv
+import glob
+import os
 
 
 exclude_list = ["PHCNGD-0767", "PHCNZJ-1410", "PHCNFJ-1299",
                 "PHCNSH-1876", "PHCNSC-0865", "PHCNZJ-3796",
-                "PHCNJX-0993"]
+                "PHCNJX-0993", "PHCNGD-5164"]
 
-expired_sent_source_file_path = "../_data/Post-Hi_漂流中_寄方向_20251125093127.csv"
-sent_source_file_path = "../_data/Post-Hi_已登记_寄方向_20251125093116.csv"
-received_source_file_path = "../_data/Post-Hi_已登记_收方向_20251125093123.csv"
+
+def get_latest_file(pattern):
+    files = glob.glob(pattern)
+    if not files:
+        raise FileNotFoundError("[Error] 找不到符合模式的文件: {}".format(pattern))
+    return max(files, key=os.path.getctime)
+
+
+expired_sent_source_file_path = get_latest_file("../_data/Post-Hi_漂流中_寄方向_*.csv")
+sent_source_file_path = get_latest_file("../_data/Post-Hi_已登记_寄方向_*.csv")
+received_source_file_path = get_latest_file("../_data/Post-Hi_已登记_收方向_*.csv")
+
 
 def process(mode, source_file_path):
     if mode == 0:

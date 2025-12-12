@@ -80,6 +80,7 @@ no,id,title,type,platform,friend_id,country,region,sent_date,received_date,tags,
 ,ES-619917,,MATCH,POSTCROSSING,Comadivine,Spain,,27/Jul/2020,26/Aug/2020,,https://www.postcrossing.com/postcards/ES-619917,https://www.postcrossing.com/user/Comadivine
 ,CNGD35558,忆江南最忆是西塘,活动,icardyou,李小狸,China,广东,8/7/2020 12:00,8/26/2020 20:27,古镇 西塘 景点 猫的天空之城,https://icardyou.icu/sendpostcard/postcardDetail/1080480,https://icardyou.icu/userInfo/homePage?userId=37221
 ,RU-7986263,,MATCH,POSTCROSSING,Ksenia1410,Russia,,20/Jul/2020,30/Aug/2020,,https://www.postcrossing.com/postcards/RU-7986263,https://www.postcrossing.com/user/Ksenia1410
+,CNHE2329,,活动,icardyou,Todd,China,河北,2020-06-26 12:04,2020-09-01 13:20,,https://icardyou.icu/sendpostcard/postcardDetail/1076826,https://icardyou.icu/userInfo/homePage?userId=37849
 ,CA-1017667,,MATCH,POSTCROSSING,canadaposter,Canada,,14/Jul/2020,9/Sep/2020,,https://www.postcrossing.com/postcards/CA-1017667,https://www.postcrossing.com/user/canadaposter
 ,CNSH18617,上海城隍庙九曲桥,寄片,icardyou,Major K,China,上海,10/6/2020 9:58,10/8/2020 8:50,上海 景点 邮资片,https://icardyou.icu/sendpostcard/postcardDetail/1097648,https://icardyou.icu/userInfo/homePage?userId=35926
 ,CNSH18548,上海交通大学徐汇校区人文地图,活动,icardyou,萧宇(只寄不收),China,上海,10/5/2020 10:57,10/8/2020 8:52,学校 上海交通大学 地图,https://icardyou.icu/sendpostcard/postcardDetail/1097251,https://icardyou.icu/userInfo/homePage?userId=38583
@@ -658,3 +659,15 @@ no,id,title,type,platform,friend_id,country,region,sent_date,received_date,tags,
 ,PHCNSD-2700,,MATCH,Post-Hi,蝶依,China,山东,2025-12-02 01:55:58,2025-12-04 13:31:14,,https://www.post-hi.com/card/PHCNSD-2700,https://www.post-hi.com/user/01K5D5Q09ZQ07XE5KWZ5J7BFCA
 ,PHCNGD-6180,,MATCH,Post-Hi,CAI,China,广东,2025-12-01 20:41:04,2025-12-04 21:05:07,,https://www.post-hi.com/card/PHCNGD-6180,https://www.post-hi.com/user/01K09WY5XR2MKNAWJRX5C4CST4
 ,CNSD16021,,寄片,icardyou,liliya,China,山东,2025-12-02 00:24,2025-12-06 10:48,,https://icardyou.icu/sendpostcard/postcardDetail/1330295,https://icardyou.icu/userInfo/homePage?userId=42527
+,PHCNZJ-5536,,MATCH,Post-Hi,币胜客,China,浙江,2025-12-06 15:12:54,2025-12-08 20:19:47,,https://www.post-hi.com/card/PHCNZJ-5536,https://www.post-hi.com/user/01JE0T2FY6GXJ1WZB77EK11545
+,CNTM71890,,活动,icardyou,王木木,China,,2025-12-06 17:06,2025-12-08 20:36,,https://icardyou.icu/sendpostcard/postcardDetail/1329782,https://icardyou.icu/userInfo/homePage?userId=20897
+,PHCNBJ-2718,,活动,Post-Hi,NoNickname,China,北京,2025-12-06 16:54:04,2025-12-08 20:51:07,,https://www.post-hi.com/card/PHCNBJ-2718,https://www.post-hi.com/user/01K0EWWK01C4J1YDWDBP5W5DZD
+,CNGD69717,,MATCH,icardyou,--PINCA,China,广东,2025-12-04 10:22,2025-12-08 21:00,,https://icardyou.icu/sendpostcard/postcardDetail/1330575,https://icardyou.icu/userInfo/homePage?userId=42576
+,PHCNSH-3367,,MATCH,Post-Hi,Nicole1219,China,上海,2025-11-13 16:20:38,2025-12-09 20:17:33,,https://www.post-hi.com/card/PHCNSH-3367,https://www.post-hi.com/user/01JY3PG9JJS691T8YXDMYXA40E
+,PHCNJX-1122,,MATCH,Post-Hi,小郑睡不醒,China,江西,2025-11-30 19:50:17,2025-12-09 20:24:24,,https://www.post-hi.com/card/PHCNJX-1122,https://www.post-hi.com/user/01K359M5N095XGTD97RHBHKKGH
+,PHCNGD-6249,,MATCH,Post-Hi,猴🐒,China,广东,2025-12-05 16:06:45,2025-12-09 20:29:55,,https://www.post-hi.com/card/PHCNGD-6249,https://www.post-hi.com/user/01K0AERCX9JE607W2RFNQNYXPB
+,PHCNTW-0022,,寄片,Post-Hi,流星雨,China,台湾,2025-11-28 08:59:52,2025-12-10 20:45:22,,https://www.post-hi.com/card/PHCNTW-0022,https://www.post-hi.com/user/01K84YZQDVZQ18QQMKPN2WDP1F
+,PHCNHN-2661,,MATCH,Post-Hi,彧郁昱,China,湖南,2025-12-06 19:05:35,2025-12-10 21:02:50,,https://www.post-hi.com/card/PHCNHN-2661,https://www.post-hi.com/user/01JE3XTPMF0GN9N73JAWCES7KD
+,PHCNSC-1426,,MATCH,Post-Hi,bb,China,四川,2025-12-10 13:08:58,2025-12-11 20:02:34,,https://www.post-hi.com/card/PHCNSC-1426,https://www.post-hi.com/user/01K9HM2GB3ZD5JJ7HZBR2BZTYC
+,PHCNTJ-1522,,寄片,Post-Hi,其实是一只海豹,China,天津,2025-12-08 20:32:39,2025-12-11 20:21:19,,https://www.post-hi.com/card/PHCNTJ-1522,https://www.post-hi.com/user/01JWYYQP9PHH4K0Q8AHRJB1PNQ
+,PHCNZJ-5601,,MATCH,Post-Hi,戴戴,China,浙江,2025-12-09 17:42:17,2025-12-11 20:38:10,,https://www.post-hi.com/card/PHCNZJ-5601,https://www.post-hi.com/user/01JZ7WN0AJ6VT4GHCBR3M0SQ2N
