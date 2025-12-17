@@ -244,6 +244,17 @@ const PostcardCollection = {
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-region', []);
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-type', []);
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-platform', []);
+      // 重置region list
+      const regionMap = new Map();
+      PostcardCollection._postData.forEach(item => {
+        if (item['region']) {
+          if (!regionMap.has(item['region'])) {
+            regionMap.set(item['region'], 0);
+          }
+          regionMap.set(item['region'], regionMap.get(item['region']) + 1);
+        }
+      });
+      PostcardCollection._UpdateDropDownListFromMap("#ul-region", regionMap, 'region');
       $("#inputTitle,#inputSender").width("12ch");
       new bootstrap.Collapse('#collapseTags', {
         toggle: false
