@@ -70,3 +70,18 @@ body {
 .feather-refresh-ccw {
     animation: rotate .7s infinite linear;
 }
+
+
+summary::before {
+  content: "+";
+  margin-right: 0.5em;
+}
+
+details[open] summary::before {
+  content: "-";
+}
+
+
+summary {
+  cursor: pointer;
+}

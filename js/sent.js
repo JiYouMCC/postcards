@@ -71,7 +71,7 @@ const PostcardCollection = {
       const isChecked = $(this).is(':checked');
       $(itemSelector).prop('checked', isChecked);
     });
-    
+
     $(itemSelector).not(allSelector).on('change', function() {
       const allChecked = $(itemSelector).not(allSelector).length === $(itemSelector).not(allSelector).filter(':checked').length;
       $(allSelector).prop('checked', allChecked);
@@ -96,7 +96,7 @@ const PostcardCollection = {
   },
 
   _UpdateDrowdownList: function(selector, items, idPrefix) {
-    // tag 专用    
+    // tag 专用
     if (idPrefix === 'tag') {
       //$(selector).empty();
       //排序
@@ -114,6 +114,44 @@ const PostcardCollection = {
         )
       });
     }
+  },
+
+  _UpdateDropDownListFromRegionMap: function(selector, map, idPrefix) {
+    // region专用
+    const items = Array.from(map.entries()).sort((a, b) => {
+      const countryA = a[0].toLowerCase();
+      const countryB = b[0].toLowerCase();
+      return countryA.localeCompare(countryB, 'zh-CN');
+    });
+    items.forEach(([country, regionMap]) => {
+      const regionItems = Array.from(regionMap.entries()).sort((a, b) => {
+        const regionA = a[0].toLowerCase();
+        const regionB = b[0].toLowerCase();
+        return regionA.localeCompare(regionB, 'zh-CN');
+      });
+
+      let div = $("<ul></ul>").addClass("list-unstyled mb-0");
+      regionItems.forEach(([region, count]) => {
+        div.append(
+          $("<li></li>").append(
+            $("<div></div>").addClass("dropdown-item d-flex justify-content-between align-items-center").append(
+              $("<div></div>").append(
+                $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", region).attr("id", `${idPrefix}_${region}`),
+                $("<label></label>").addClass("form-check-label").attr("for", `${idPrefix}_${region}`).text(`${region}`)
+              ),
+              $("<span></span>").addClass("badge rounded-pill bg-secondary ms-2").text(`${count}`)
+            )
+          )
+        );
+      });
+
+      $(selector).append(
+        $("<details></details>").append(
+          $("<summary></summary>").addClass("dropdown-header d-flex align-items-center").text(`${country}`),
+          div
+        )
+      );
+    });
   },
 
   _UpdateDropDownListFromMap: function(selector, map, idPrefix) {
@@ -179,9 +217,15 @@ const PostcardCollection = {
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-type', []);
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-platform', []);
       $("#inputTitle,#inputReceiver").width("12ch");
-      new bootstrap.Collapse('#collapseTags', {toggle: false}).hide();
-      new bootstrap.Collapse('#collapseSentDate', {toggle: false}).hide();
-      new bootstrap.Collapse('#collapseReceivedDate', {toggle: false}).hide();
+      new bootstrap.Collapse('#collapseTags', {
+        toggle: false
+      }).hide();
+      new bootstrap.Collapse('#collapseSentDate', {
+        toggle: false
+      }).hide();
+      new bootstrap.Collapse('#collapseReceivedDate', {
+        toggle: false
+      }).hide();
       PostcardCollection._currentPage = 1;
       PostcardCollection.GenerateFilter();
       PostcardCollection.RefreshImageContainer();
@@ -210,7 +254,7 @@ const PostcardCollection = {
     const receivedDateEnd = params.get('receivedDateEnd') || '';
     const page = params.get('page') || 1;
     const expiredReceivedDate = params.get('expiredReceivedDate') === 'true' || false;
-    
+
     PostcardCollection._SetCheckboxValues('#ul-country .form-check-input', countries);
     PostcardCollection._SetCheckboxValues('#ul-region .form-check-input', regions);
     PostcardCollection._SetCheckboxValues('#ul-type .form-check-input', types);
@@ -305,10 +349,18 @@ const PostcardCollection = {
       }
       if (item['friend_id']) friendList.add(item['friend_id']);
       if (item['region']) {
-        if (!regionMap.has(item['region'])) {
-          regionMap.set(item['region'], 0);
+        // 二级 map
+        if (!regionMap.has(item['country'])) {
+          let map = new Map();
+          map.set(item['region'], 1);
+          regionMap.set(item['country'], map);
+        } else {
+          let map = regionMap.get(item['country']);
+          if (!map.has(item['region'])) {
+            map.set(item['region'], 0);
+          }
+          map.set(item['region'], map.get(item['region']) + 1);
         }
-        regionMap.set(item['region'], regionMap.get(item['region']) + 1);
       }
       if (item['tags']) item['tags'].forEach(tag => tagList.add(tag));
     });
@@ -316,7 +368,7 @@ const PostcardCollection = {
     PostcardCollection._UpdateDropDownListFromMap("#ul-country", countryMap, 'country');
     PostcardCollection._UpdateDropDownListFromMap("#ul-type", typeMap, 'type');
     PostcardCollection._UpdateDropDownListFromMap("#ul-platform", platformMap, 'platform');
-    PostcardCollection._UpdateDropDownListFromMap("#ul-region", regionMap, 'region');
+    PostcardCollection._UpdateDropDownListFromRegionMap("#ul-region", regionMap, 'region');
     PostcardCollection._UpdateDrowdownList("#div-tags", tagList, 'tag');
 
     $("#datalistReceiver").empty();
