@@ -1,6 +1,7 @@
 import csv
 import glob
 import os
+from date_format import parse_date, format_date
 
 
 exclude_list = ["PHCNGD-0767", "PHCNZJ-1410", "PHCNFJ-1299",
@@ -93,14 +94,14 @@ def process(mode, source_file_path):
                             area = area[:-3]
                         new_row.append(area)
                         if mode == 2:
-                            new_row.append(row_source[15])
+                            new_row.append(format_date(parse_date(row_source[15]))
                             new_row.append("")
                         else:
                             if row_source[9] == "":
-                                new_row.append(row_source[8])
+                                new_row.append(format_date(parse_date(row_source[8]))
                             else:
-                                new_row.append(row_source[9])
-                            new_row.append(row_source[10])
+                                new_row.append(format_date(parse_date(row_source[9]))
+                            new_row.append(format_date(parse_date(row_source[10]))
                         new_row.append("")
                         new_row.append("https://www.post-hi.com/card/" + row_source[0])
                         new_row.append(row_source[6 + prefix])

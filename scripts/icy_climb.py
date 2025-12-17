@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup
+from date_format import parse_date, format_date
+import csv
 import requests
 import time
-import csv
-
 
 exclude_list = ["CNSH42434", "CNSH42824"]
 
@@ -89,6 +89,8 @@ def process(mode, post_link_list):
         if send_time_label:
             # Extract the date and time from the next td element
             send_time_value = send_time_label.find_next('td').get_text(strip=True)
+            send_time_value = parse_date(send_time_value)
+            send_time_value = format_date(send_time_value)
             new_line.append(send_time_value)
             print(send_time_value, end='')
         else:
@@ -96,13 +98,15 @@ def process(mode, post_link_list):
         print(',', end='')
 
         # 10. received_date
-        send_time_label = soup.find(
+        received_time_label = soup.find(
             'td', string=lambda string: string and "到达时间：" in string)
-        if send_time_label:
+        if received_time_label:
             # Extract the date and time from the next td element
-            send_time_value = send_time_label.find_next('td').get_text(strip=True)
-            new_line.append(send_time_value)
-            print(send_time_value, end='')
+            received_time_value = received_time_label.find_next('td').get_text(strip=True)
+            received_time_value = parse_date(received_time_value)
+            received_time_value = format_date(received_time_value)
+            new_line.append(received_time_value)
+            print(received_time_value, end='')
         else:
             new_line.append("")
         print(',', end='')

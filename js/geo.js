@@ -26,11 +26,15 @@ Promise.all([
 ]).then(([geoData, sentData, receivedData]) => {
   const sentCount = {};
   const receivedCount = {};
+  const sentDeliveryDays = {};
+  const receivedDeliveryDays = {};
   sentData.forEach(d => {
     sentCount[d.province] = d.count;
+    sentDeliveryDays[d.province] = d.avgDeliveryDays;
   });
   receivedData.forEach(d => {
     receivedCount[d.province] = d.count;
+    receivedDeliveryDays[d.province] = d.avgDeliveryDays;
   });
 
   const sentColorScale = d3.scaleSequential(d3.interpolateBlues).domain([0, d3.max(Object.values(sentCount))]);
@@ -81,7 +85,7 @@ Promise.all([
     .attr("data-bs-toggle","tooltip")
     .attr("data-bs-html","true")
     .attr("title", d => {
-      return `<strong>${d.properties.name}</strong><br>收: ${receivedCount[d.properties.name] || 0}<br>发: ${sentCount[d.properties.name] || 0}`;
+      return `<strong>${d.properties.name}</strong><br>收: ${receivedCount[d.properties.name] || 0}张 平均${receivedDeliveryDays[d.properties.name] || "-"}天</br>发: ${sentCount[d.properties.name] || 0}张 平均${sentDeliveryDays[d.properties.name] || "-"}天`;
     });
   $('[data-bs-toggle="tooltip"]').tooltip();
 

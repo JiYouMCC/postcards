@@ -4,11 +4,20 @@ from datetime import datetime
 
 def parse_date(date_string):
     date_formats = [
-            '%m/%d/%Y %H:%M',
-            '%Y-%m-%d %H:%M:%S',
-            '%d/%b/%Y',
-            '%Y-%m-%d %H:%M',
-            '%d-%b-%y'
+        # 2/Nov/2019
+        '%d/%b/%Y',
+        # 20-Dec-21
+        '%d-%b-%y',
+        # 4/10/2020 0:18
+        '%m/%d/%Y %H:%M',
+        # 2025-07-07 14:21:15
+        '%Y-%m-%d %H:%M:%S',
+        # 2025-12-09 07:53
+        '%Y-%m-%d %H:%M',
+        # 2025-12-14 19:46:59 +08:00
+        '%Y-%m-%d %H:%M:%S %z',
+        # 6/26/2021
+        '%m/%d/%Y',
     ]
 
     for date_format in date_formats:

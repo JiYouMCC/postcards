@@ -66,8 +66,18 @@ function extractTableDataToCSV() {
         const friendId = friendCell.textContent.trim();
         const friendUrl = friendCell.querySelector('a') ? friendCell.querySelector('a').href : '';
         const country = countryCell.textContent.trim();
-        const sentDate = sentDateCell.textContent.trim();
-        const receivedDate = receivedDateCell.textContent.trim();
+        let sentDate = sentDateCell.textContent.trim();
+        if (!sentDate) {
+            let sdate = new Date(sentDate);
+            sdate.setUTCHours(0, 0, 0, 0);
+            sentDate = sdate.toISOString().slice(0, 19).replace('T', ' ');
+        }
+        let receivedDate = receivedDateCell.textContent.trim();
+        if (!receivedDate) {
+            let rdate = new Date(receivedDate);
+            rdate.setUTCHours(0, 0, 0, 0);
+            receivedDate = rdate.toISOString().slice(0, 19).replace('T', ' ');
+        }
 
         csvData.push([
             '', // no
