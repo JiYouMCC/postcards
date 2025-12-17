@@ -11,6 +11,9 @@ function Debounce(func, wait) {
 
 function Capitalize(str) {
   // 首字母大写
+  if (str === "region") {
+    return "Region/City";
+  }
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
@@ -57,21 +60,18 @@ const PostcardCollection = {
     } else {
       text = text.join(', ');
     }
-    if (selector === '#dropdownMenuButton-region' && !text) {
-      text = 'Region / City';
-    } else {
-      $(selector).text(text || Capitalize(selector.split('-')[1]));
-    }
+    $(selector).text(text || Capitalize(selector.split('-')[1]));
   },
 
   _HandleCheckboxChange: function(allSelector, itemSelector, dropdownSelector) {
     // 处理复选框变化
     $(allSelector).off('change');
+    $(itemSelector).off('change');
     $(allSelector).on('change', function() {
       const isChecked = $(this).is(':checked');
       $(itemSelector).prop('checked', isChecked);
     });
-    $(itemSelector).off('change');
+    
     $(itemSelector).not(allSelector).on('change', function() {
       const allChecked = $(itemSelector).not(allSelector).length === $(itemSelector).not(allSelector).filter(':checked').length;
       $(allSelector).prop('checked', allChecked);
@@ -147,70 +147,6 @@ const PostcardCollection = {
     PostcardCollection._HandleCheckboxChange('#type-all', '#ul-type .form-check-input', '#dropdownMenuButton-type');
     PostcardCollection._HandleCheckboxChange('#platform-all', '#ul-platform .form-check-input', '#dropdownMenuButton-platform');
 
-    // country和region联动
-    $('#ul-country .form-check-input').on('change', function() {
-      const selectedCountries = $('#ul-country .form-check-input:checked').not('#country-all').map(function() {
-        return $(this).val();
-      }).get();
-      const selectedRegions = $('#ul-region .form-check-input:checked').not('#region-all').map(function() {
-        return $(this).val();
-      }).get();
-
-      const regionMap = new Map();
-
-      if (selectedCountries.length === 0) {
-        // 全选
-        PostcardCollection._postData.forEach(item => {
-          if (item['region']) {
-            if (!regionMap.has(item['region'])) {
-              regionMap.set(item['region'], 0);
-            }
-            regionMap.set(item['region'], regionMap.get(item['region']) + 1);
-          }
-        });
-      } else {
-        PostcardCollection._postData.filter(item => selectedCountries.includes(item['country'])).forEach(item => {
-          if (item['region']) {
-            if (!regionMap.has(item['region'])) {
-              regionMap.set(item['region'], 0);
-            }
-            regionMap.set(item['region'], regionMap.get(item['region']) + 1);
-          }
-        });
-      }
-
-      $('#ul-region').empty();
-      $('#ul-region').append(
-        $("<li></li>").append(
-          $("<div></div>").addClass("dropdown-item").append(
-            $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", "all").attr("id", "region-all"),
-            $("<label></label>").addClass("form-check-label").attr("for", "region-all").text("All")
-          )
-        )
-      );
-
-      PostcardCollection._UpdateDropDownListFromMap("#ul-region", regionMap, 'region');
-      selectedRegions.forEach(region => {
-        if ($(`#region_${region}`).length) {
-          $(`#region_${region}`).prop('checked', true);
-        }
-      });
-
-      const selectedOptions = $('#ul-region .form-check-input:checked').not('#region-all').map(function() {
-        return $(this).val();
-      }).get();
-
-      PostcardCollection._HandleCheckboxChange('#region-all', '#ul-region .form-check-input', '#dropdownMenuButton-region');
-      PostcardCollection._UpdateDropdownText('#dropdownMenuButton-region', selectedOptions);
-
-      $('#ul-region .form-check-input').off('change');
-      $('#ul-region .form-check-input').on('change', Debounce(() => {
-        PostcardCollection.GenerateFilter();
-        PostcardCollection.RefreshImageContainer();
-        PostcardCollection.UpdateUrlParameters();
-      }, 100));
-    });
-
     $('#tag-all').on('change', function() {
       const isChecked = $(this).is(':checked');
       $('#div-tags .form-check-input').prop('checked', isChecked);
@@ -242,17 +178,6 @@ const PostcardCollection = {
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-region', []);
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-type', []);
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-platform', []);
-      // 重置region list
-      const regionMap = new Map();
-      PostcardCollection._postData.forEach(item => {
-        if (item['region']) {
-          if (!regionMap.has(item['region'])) {
-            regionMap.set(item['region'], 0);
-          }
-          regionMap.set(item['region'], regionMap.get(item['region']) + 1);
-        }
-      });
-      PostcardCollection._UpdateDropDownListFromMap("#ul-region", regionMap, 'region');
       $("#inputTitle,#inputReceiver").width("12ch");
       new bootstrap.Collapse('#collapseTags', {toggle: false}).hide();
       new bootstrap.Collapse('#collapseSentDate', {toggle: false}).hide();
