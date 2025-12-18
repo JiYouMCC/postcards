@@ -1,3 +1,7 @@
+---
+title: gutools.css
+---
+
 .icon {
     width: 17px;
     height: 17px;
@@ -71,17 +75,17 @@ body {
     animation: rotate .7s infinite linear;
 }
 
-
 summary::before {
-  content: "+";
-  margin-right: 0.5em;
+    content: url("{{ site.baseurl }}{{ "/plus-square.svg"}}");
+    margin-right: 0.25em;
+    height: 22px;
 }
 
 details[open] summary::before {
-  content: "-";
+    content: url("{{ site.baseurl }}{{ "/minus-square.svg"}}");
 }
 
-
 summary {
-  cursor: pointer;
+    cursor: pointer;
+    padding-left: 12px !important;
 }
