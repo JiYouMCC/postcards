@@ -76,16 +76,37 @@ body {
 }
 
 summary::before {
-    content: url("{{ site.baseurl }}{{ "/plus-square.svg"}}");
+    content: url("{{ site.baseurl }}{{ "/plus-circle.svg"}}");
     margin-right: 0.25em;
     height: 22px;
 }
 
 details[open] summary::before {
-    content: url("{{ site.baseurl }}{{ "/minus-square.svg"}}");
+    content: url("{{ site.baseurl }}{{ "/minus-circle.svg"}}");
 }
 
 summary {
     cursor: pointer;
-    padding-left: 12px !important;
+}
+
+input[type="checkbox"] {
+  display: none;
+}
+
+input[type="checkbox"] + label::before {
+    content: url("{{ site.baseurl }}{{ "/square.svg"}}");
+    margin-right: 0.25em;
+}
+
+input[type="checkbox"]:checked + label::before {
+    content: url("{{ site.baseurl }}{{ "/check-square.svg"}}");
+}
+
+label.form-check-label {
+    display: flex;
+}
+
+/* label with for set point */
+label[for] {
+    cursor: pointer;
 }

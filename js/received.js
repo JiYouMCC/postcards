@@ -135,10 +135,8 @@ const PostcardCollection = {
         div.append(
           $("<li></li>").append(
             $("<div></div>").addClass("dropdown-item d-flex justify-content-between align-items-center").append(
-              $("<div></div>").append(
-                $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", region).attr("id", `${idPrefix}_${region}`),
-                $("<label></label>").addClass("form-check-label").attr("for", `${idPrefix}_${region}`).text(`${region}`)
-              ),
+              $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", region).attr("id", `${idPrefix}_${region}`),
+              $("<label></label>").addClass("form-check-label").attr("for", `${idPrefix}_${region}`).text(`${region}`),
               $("<span></span>").addClass("badge rounded-pill bg-secondary ms-2").text(`${count}`)
             )
           )
