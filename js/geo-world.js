@@ -1,7 +1,7 @@
 ---
 title: geo script
 ---
-const width = 900, height = 900;
+const width = 605, height = 605;
 
 // SVG container
 const svg = d3.select("#map")
@@ -13,7 +13,7 @@ const svg = d3.select("#map")
 svg.append("circle")
   .attr("cx", width / 2)
   .attr("cy", height / 2)
-  .attr("r", 400)
+  .attr("r", 300)
   .attr("fill", "#eeeeee")
   .attr("stroke", "#777777")
   .attr("stroke-width", 2);
@@ -49,7 +49,7 @@ function enableButtons() {
 // Projection and path
 const projection = d3.geoOrthographic()
   .center([0, 0])
-  .scale(400)
+  .scale(300)
   .translate([width / 2, height / 2])
   .rotate([-121, -30]);
 
@@ -85,8 +85,8 @@ const controls = d3.select("#map")
   .append("div")
   .attr("class", "globe-controls")
   .style("position", "absolute")
-  .style("top", "50px")
-  .style("left", "50px")
+  .style("top", "0px")
+  .style("left", "0px")
   .style("z-index", "1000");
 
 controls.append("div")
