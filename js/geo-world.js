@@ -85,8 +85,8 @@ const controls = d3.select("#map")
   .append("div")
   .attr("class", "globe-controls")
   .style("position", "absolute")
-  .style("top", "150px")
-  .style("left", "150px")
+  .style("top", "50px")
+  .style("left", "50px")
   .style("z-index", "1000");
 
 controls.append("div")
