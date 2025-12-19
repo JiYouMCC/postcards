@@ -56,7 +56,7 @@ const projection = d3.geoOrthographic()
 const path = d3.geoPath().projection(projection);
 
 // 平滑旋转函数
-function rotateGlobe(deltaLon, deltaLat, duration = 800) {
+function rotateGlobe(deltaLon, deltaLat, duration = 0) {
   disableButtons();
 
   const currentRotate = projection.rotate();
@@ -109,7 +109,7 @@ d3.select("#rotateDown").on("click", () => rotateGlobe(0, 60));
 d3.select("#rotateReset").on("click", () => {
   const currentRotate = projection.rotate();
   d3.transition()
-    .duration(800)
+    .duration(0)
     .ease(d3.easeCubicInOut)
     .tween("rotate", function() {
       const interpolate = d3.interpolate(currentRotate, [-121, -30]);
