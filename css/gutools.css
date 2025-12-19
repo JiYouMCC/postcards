@@ -76,13 +76,13 @@ body {
 }
 
 summary::before {
-    content: url("{{ site.baseurl }}{{ "/plus-circle.svg"}}");
+    content: url("{{ site.baseurl }}{{ "/icon/plus-circle.svg"}}");
     margin-right: 0.25em;
     height: 22px;
 }
 
 details[open] summary::before {
-    content: url("{{ site.baseurl }}{{ "/minus-circle.svg"}}");
+    content: url("{{ site.baseurl }}{{ "/icon/minus-circle.svg"}}");
 }
 
 summary {
@@ -94,12 +94,12 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"] + label::before {
-    content: url("{{ site.baseurl }}{{ "/square.svg"}}");
+    content: url("{{ site.baseurl }}{{ "/icon/square.svg"}}");
     margin-right: 0.25em;
 }
 
 input[type="checkbox"]:checked + label::before {
-    content: url("{{ site.baseurl }}{{ "/check-square.svg"}}");
+    content: url("{{ site.baseurl }}{{ "/icon/check-square.svg"}}");
 }
 
 label.form-check-label {
