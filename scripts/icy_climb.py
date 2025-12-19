@@ -4,7 +4,7 @@ import csv
 import requests
 import time
 
-exclude_list = ["CNSH42434", "CNSH42824"]
+exclude_list = ["CNSH42434", "CNSH42824", "CNHE2329"]
 
 sent_link_list = []
 
