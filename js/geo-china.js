@@ -1,14 +1,14 @@
 ---
 title: geo script
 ---
-const width = 800,
+const width = 1024,
   height = 600;
 
 // SVG container
 const svg = d3.select("#map")
   .append("svg")
   .attr("width", width)
-    .attr("height", height);
+  .attr("height", height);
 
 // 添加Bootstrap spinner加载指示器
 const loadingIndicator = d3.select("#map")

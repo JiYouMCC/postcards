@@ -1,7 +1,7 @@
 ---
-    title: geo script
+title: geo script
 ---
-const width = 960, height = 600;
+const width = 1026, height = 514;
 
 // SVG container
 const svg = d3.select("#map")
@@ -26,8 +26,8 @@ const loadingIndicator = d3.select("#map")
     <div class="mt-2">加载地图数据中...</div>
   `);
 
-// Projection and path - 改用Robinson投影
-const projection = d3.geoWinkel3()
+// Projection and path
+const projection = d3.geoNaturalEarth1()
     .center([0, 0])
     .scale(180)
     .translate([width / 2, height / 2]);
