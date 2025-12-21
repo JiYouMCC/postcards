@@ -100,10 +100,11 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
       .attr("ry", size / 8)
       .attr("data-bs-toggle","tooltip")
       .attr("data-bs-html","true")
-      .attr("title", 
-        "<b>" + date.getFullYear().toString() + "-" + String(date.getMonth() + 1).padStart(2, '0') + "-" + String(date.getDate()).padStart(2, '0') + "</b>" +
-          (showReceived ? "<br>收： " + received : "") + 
-          (showSent ? "<br>发： " + sent : ""));
+      .attr("title",  d=> {
+        return "<b>" + date.getFullYear().toString() + "-" + String(date.getMonth() + 1).padStart(2, '0') + "-" + String(date.getDate()).padStart(2, '0') + "</b>" +
+          (showReceived ? "<br>收： " + received + `<a class='text-decoration-none link-light' href='received/?receivedDateStart=${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T00%3A00&receivedDateEnd=${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T23%3A59' target='_blank'>🔗</a>` : "") + 
+          (showSent ? "<br>发： " + sent + `<a class='text-decoration-none link-light' href='sent/?sentDateStart=${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T00%3A00&sentDateEnd=${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T23%3A59' target='_blank'>🔗</a>` : "");
+      });
     if (showMonth) {
       if (date.getDate() == 1) {
         monthText.append("text")
