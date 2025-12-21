@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+from date_format import parse_date 
 
 file_received_path = "../_data/received.csv"
 file_sent_path = "../_data/sent.csv"
@@ -7,25 +8,6 @@ file_grouped_path = "../_data/grouped.csv"
 
 grouped_map = {}
 grouped_result = []
-
-
-def parse_date(date_string):
-    date_formats = [
-        '%m/%d/%Y %H:%M',
-        '%Y-%m-%d %H:%M:%S',
-        '%d/%b/%Y',
-        '%Y-%m-%d %H:%M',
-        '%d-%b-%y'
-    ]
-
-    for date_format in date_formats:
-        try:
-            return datetime.strptime(date_string, date_format)
-        except ValueError:
-            continue
-
-    return None
-
 
 with open(file_received_path, mode='r', encoding='utf-8') as file_received:
     file_received_reader = csv.DictReader(file_received)
@@ -37,10 +19,12 @@ with open(file_sent_path, mode='r', encoding='utf-8') as file_sent:
 
 
 for row in data_received:
-    row['parsed_date'] = parse_date(row['received_date']).strftime("%Y-%m-%d")
+    parsed_date = parse_date(row['received_date'])
+    row['parsed_date'] = parsed_date.strftime("%Y-%m-%d")
 
 for row in data_sent:
-    row['parsed_date'] = parse_date(row['sent_date']).strftime("%Y-%m-%d")
+    parsed_date = parse_date(row['sent_date'])
+    row['parsed_date'] = parsed_date.strftime("%Y-%m-%d")
 
 for row in data_received:
     date = row["parsed_date"]
