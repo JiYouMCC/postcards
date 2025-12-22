@@ -135,7 +135,6 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
         const link = (type, count) => `<br>${type}： ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received? receivedDateStart' : 'sent?sentDateStart'}=${dateStr}T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${dateStr}T23%3A59' target='_blank'>🔗</a>`;
         return `<b>${dateStr}</b>${showReceived ? link('收', received) : ''}${showSent ? link('发', sent) : ''}`;
       });
-    const yearlyTotals = calculateYearlyTotals(data);
     if (showMonth) {
       if (date.getDate() == 1) {
         monthText.append("text")
@@ -228,5 +227,6 @@ function refresh() {
 }
 
 var getEarlist = getEarlistDate(groupedData);
+var yearlyTotals = calculateYearlyTotals(groupedData);
 
 refresh();
