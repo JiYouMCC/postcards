@@ -11,6 +11,36 @@ var dayName = ['日', '一', '二', '三', '四', '五', '六'];
 var monthName = ["㋀", "㋁", "㋂", "㋃", "㋄", "㋅", "㋆", "㋇", "㋈", "㋉", "㋊", "㋋"];
 var multiplier = 1.5;
 
+function calculateYearlyTotals(data) {
+  const yearlyTotals = {};
+
+  data.forEach(item => {
+    const year = new Date(item.date).getFullYear();
+    if (!yearlyTotals[year]) {
+      yearlyTotals[year] = {
+        sent: 0,
+        received: 0,
+        monthlyTotals: {}
+      };
+    }
+    yearlyTotals[year].sent += parseInt(item.sent) || 0;
+    yearlyTotals[year].received += parseInt(item.received) || 0;
+
+    // for monthly
+    const month = new Date(item.date).getMonth() + 1; // Months are zero-based
+    if (!yearlyTotals[year].monthlyTotals[month]) {
+      yearlyTotals[year].monthlyTotals[month] = {
+        sent: 0,
+        received: 0
+      };
+    }
+    yearlyTotals[year].monthlyTotals[month].sent += parseInt(item.sent) || 0;
+    yearlyTotals[year].monthlyTotals[month].received += parseInt(item.received) || 0;
+  });
+
+  return yearlyTotals;
+}
+
 function getEarlistDate(data) {
   if (!data || data.length == 0) {
     return new Date();
@@ -26,7 +56,7 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
   var now = new Date();
   //如果今天不是星期日，留出一周的空格
   //if (now.getDay() != 0) {
-    dayCount -= 7
+  dayCount -= 7
   //}
 
   var start = new Date();
@@ -98,13 +128,14 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
       .attr("fill", color)
       .attr("rx", size / 8)
       .attr("ry", size / 8)
-      .attr("data-bs-toggle","tooltip")
-      .attr("data-bs-html","true")
-      .attr("title",  d=> {
-        return "<b>" + date.getFullYear().toString() + "-" + String(date.getMonth() + 1).padStart(2, '0') + "-" + String(date.getDate()).padStart(2, '0') + "</b>" +
-          (showReceived ? "<br>收： " + received + `<a class='text-decoration-none link-light' href='received?receivedDateStart=${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T00%3A00&receivedDateEnd=${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T23%3A59' target='_blank'>🔗</a>` : "") + 
-          (showSent ? "<br>发： " + sent + `<a class='text-decoration-none link-light' href='sent?sentDateStart=${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T00%3A00&sentDateEnd=${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T23%3A59' target='_blank'>🔗</a>` : "");
+      .attr("data-bs-toggle", "tooltip")
+      .attr("data-bs-html", "true")
+      .attr("title", d => {
+        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        const link = (type, count) => `<br>${type}： ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received? receivedDateStart' : 'sent?sentDateStart'}=${dateStr}T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${dateStr}T23%3A59' target='_blank'>🔗</a>`;
+        return `<b>${dateStr}</b>${showReceived ? link('收', received) : ''}${showSent ? link('发', sent) : ''}`;
       });
+    const yearlyTotals = calculateYearlyTotals(data);
     if (showMonth) {
       if (date.getDate() == 1) {
         monthText.append("text")
@@ -115,7 +146,31 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
           .text(monthName[date.getMonth()])
           .attr("font-size", (size - 3) + "px")
           .attr("font-family", fontFamily)
-          .attr("fill", "#055");
+          .attr("fill", "#055")
+          .attr("data-bs-toggle", "tooltip")
+          .attr("data-bs-html", "true")
+          .style("cursor", "pointer")
+          .attr("title", d => {
+            const month = date.getMonth();
+            const year = date.getFullYear();
+            const link = (type, count, year, month) => {
+              if (count === 0) {
+                return '';
+              }
+              let startDate = `${year}-${String(month+1).padStart(2, '0')}-01T00%3A00`;
+              let endDate = `${year}-${String(month+2).padStart(2, '0')}-01T00%3A00`;
+              return `<br>${type}： ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${startDate}&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${endDate}' target='_blank'>🔗</a>`;
+            }
+            let received = 0;
+            let sent = 0;
+            if (yearlyTotals[year]) {
+              if (yearlyTotals[year].monthlyTotals[month + 1]) {
+                received = yearlyTotals[year].monthlyTotals[month + 1].received || 0;
+                sent = yearlyTotals[year].monthlyTotals[month + 1].sent || 0;
+              }
+            }
+            return `<b>${year}年${date.getMonth() + 1}月</b>${showReceived ? link('收', received, year,month) : ''}${showSent ? link('发', sent, year,month) : ''}`;
+          });
       }
     }
 
@@ -140,7 +195,25 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
         .attr("font-size", (size + 2) + "px")
         .attr("font-family", fontFamily)
         .attr("transform", "rotate(90, " + (canvasWidth - size * 2) + ", " + rowCenterY + ")") // Rotate 90 degrees
-        .attr("fill", "#055");
+        .attr("fill", "#055")
+        .attr("data-bs-toggle", "tooltip")
+        .attr("data-bs-html", "true")
+        .style("cursor", "pointer")
+        .attr("title", d => {
+          const link = (type, count, year) => {
+            if (count === 0) {
+              return '';
+            }
+            return `<br>${type}： ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${year}-01-01T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${year}-12-31T23%3A59' target='_blank'>🔗</a>`;
+          }
+          let received = 0;
+          let sent = 0;
+          if (yearlyTotals[year]) {
+            received = yearlyTotals[year].received || 0;
+            sent = yearlyTotals[year].sent || 0;
+          }
+          return `<b>${year}</b>${showReceived ? link('收', received, year) : ''}${showSent ? link('发', sent, year) : ''}`;
+        });
     }
   }
 }
@@ -149,7 +222,7 @@ function refresh() {
   var showSent = document.getElementById("showSent").checked;
   var showReceived = document.getElementById("showReceived").checked;
   generateCalender(groupedData, getEarlist, showSent, showReceived);
-  $(document).ready(function(){
+  $(document).ready(function() {
     $('[data-bs-toggle="tooltip"]').tooltip();
   });
 }
@@ -157,4 +230,3 @@ function refresh() {
 var getEarlist = getEarlistDate(groupedData);
 
 refresh();
-
