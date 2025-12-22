@@ -10,6 +10,7 @@ var fontFamily = "Segoe UI, Tahoma, Arial, Microsoft YaHei, sans-serif";
 var dayName = ['日', '一', '二', '三', '四', '五', '六'];
 var monthName = ["㋀", "㋁", "㋂", "㋃", "㋄", "㋅", "㋆", "㋇", "㋈", "㋉", "㋊", "㋋"];
 var multiplier = 1.5;
+var isInitialized = false; // Track if calendar has been generated
 
 function calculateYearlyTotals(data) {
   const yearlyTotals = {};
@@ -47,6 +48,101 @@ function getEarlistDate(data) {
   }
   data.sort((a, b) => new Date(a.date) - new Date(b.date));
   return new Date(data[0].date);
+}
+
+// Helper function to calculate color based on sent and received counts
+function calculateColor(sent, received) {
+  var baseColor = 0xE;
+  var color = "#" +
+    (baseColor - Math.min(Math.round(sent * multiplier) + Math.round(received * multiplier), baseColor - 1)).toString(16) +
+    (baseColor - Math.min(Math.round(sent * multiplier), baseColor - 1)).toString(16) +
+    (baseColor - Math.min(Math.round(received * multiplier), baseColor - 1)).toString(16);
+  return color;
+}
+
+// Helper function to generate tooltip for date boxes
+function generateDateTooltip(dateStr, received, sent, showReceived, showSent) {
+  const link = (type, count) => `<br>${type}： ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${dateStr}T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${dateStr}T23%3A59' target='_blank'>🔗</a>`;
+  return `<b>${dateStr}</b>${showReceived ? link('收', received) : ''}${showSent ? link('发', sent) : ''}`;
+}
+
+// Helper function to generate tooltip for month labels
+function generateMonthTooltip(year, month, showReceived, showSent) {
+  const link = (type, count, year, month) => {
+    if (count === 0) {
+      return '';
+    }
+    let startDate = `${year}-${String(month+1).padStart(2, '0')}-01T00%3A00`;
+    let endDate = `${year}-${String(month+2).padStart(2, '0')}-01T00%3A00`;
+    return `<br>${type}： ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${startDate}&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${endDate}' target='_blank'>🔗</a>`;
+  }
+  let received = 0;
+  let sent = 0;
+  if (yearlyTotals[year]) {
+    if (yearlyTotals[year].monthlyTotals[month + 1]) {
+      received = yearlyTotals[year].monthlyTotals[month + 1].received || 0;
+      sent = yearlyTotals[year].monthlyTotals[month + 1].sent || 0;
+    }
+  }
+  return `<b>${year}年${month + 1}月</b>${showReceived ? link('收', received, year, month) : ''}${showSent ? link('发', sent, year, month) : ''}`;
+}
+
+// Helper function to generate tooltip for year labels
+function generateYearTooltip(year, showReceived, showSent) {
+  const link = (type, count, year) => {
+    if (count === 0) {
+      return '';
+    }
+    return `<br>${type}： ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${year}-01-01T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${year}-12-31T23%3A59' target='_blank'>🔗</a>`;
+  }
+  let received = 0;
+  let sent = 0;
+  if (yearlyTotals[year]) {
+    received = yearlyTotals[year].received || 0;
+    sent = yearlyTotals[year].sent || 0;
+  }
+  return `<b>${year}</b>${showReceived ? link('收', received, year) : ''}${showSent ? link('发', sent, year) : ''}`;
+}
+
+// Fast update function that only changes colors and tooltips
+function updateCalendar(data, showSent, showReceived) {
+  // Update all date boxes
+  d3.selectAll('.calendar-day-box').each(function() {
+    const dateStr = d3.select(this).attr('data-date');
+    const date = new Date(dateStr);
+    
+    var theData = data.find(i => new Date(i.date).toDateString() == date.toDateString());
+    var received = 0;
+    var sent = 0;
+    if (theData) {
+      received = showReceived ? theData.received || 0 : 0;
+      sent = showSent ? theData.sent || 0 : 0;
+    }
+    
+    // Update color
+    const color = calculateColor(sent, received);
+    d3.select(this).attr("fill", color);
+    
+    // Update tooltip
+    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const tooltip = generateDateTooltip(formattedDate, received, sent, showReceived, showSent);
+    d3.select(this).attr("title", tooltip);
+  });
+  
+  // Update month tooltips
+  d3.selectAll('.calendar-month-label').each(function() {
+    const year = parseInt(d3.select(this).attr('data-year'));
+    const month = parseInt(d3.select(this).attr('data-month'));
+    const tooltip = generateMonthTooltip(year, month, showReceived, showSent);
+    d3.select(this).attr("title", tooltip);
+  });
+  
+  // Update year tooltips
+  d3.selectAll('.calendar-year-label').each(function() {
+    const year = parseInt(d3.select(this).attr('data-year'));
+    const tooltip = generateYearTooltip(year, showReceived, showSent);
+    d3.select(this).attr("title", tooltip);
+  });
 }
 
 function generateCalender(data, earlistDate, showSent, showReceived) {
@@ -108,11 +204,7 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
       sent = showSent ? theData.sent || 0 : 0;
     }
 
-    var baseColor = 0xE; // Base color for the calendar boxes
-    var color = "#" +
-      (baseColor - Math.min(Math.round(sent * multiplier) + Math.round(received * multiplier), baseColor - 1)).toString(16) +
-      (baseColor - Math.min(Math.round(sent * multiplier), baseColor - 1)).toString(16) +
-      (baseColor - Math.min(Math.round(received * multiplier), baseColor - 1)).toString(16);
+    var color = calculateColor(sent, received);
     var x = offset + (showWeekday ? (size + gap) : 0) + (size + gap) * (Math.floor(i / 7));
     var y = offset + (showMonth ? (size + gap) : 0) + (size + gap) * date.getDay();
     var monthY = offset + (size / 2);
@@ -120,7 +212,11 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
     y += (Math.floor(dayCount / 7 / weekinline) - Math.floor(i / 7 / weekinline)) * ((showMonth ? (size + gap) : 0) + 7 * (size + gap) + lineGap);
     monthY += (Math.floor(dayCount / 7 / weekinline) - Math.floor(i / 7 / weekinline)) * ((showMonth ? (size + gap) : 0) + 7 * (size + gap) + lineGap);
 
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    
     box.append("rect")
+      .attr("class", "calendar-day-box")
+      .attr("data-date", date.toISOString())
       .attr("x", x)
       .attr("y", y)
       .attr("width", size)
@@ -130,51 +226,35 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
       .attr("ry", size / 8)
       .attr("data-bs-toggle", "tooltip")
       .attr("data-bs-html", "true")
-      .attr("title", d => {
-        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        const link = (type, count) => `<br>${type}： ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received? receivedDateStart' : 'sent?sentDateStart'}=${dateStr}T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${dateStr}T23%3A59' target='_blank'>🔗</a>`;
-        return `<b>${dateStr}</b>${showReceived ? link('收', received) : ''}${showSent ? link('发', sent) : ''}`;
-      });
+      .attr("title", generateDateTooltip(dateStr, received, sent, showReceived, showSent));
+      
     if (showMonth) {
       if (date.getDate() == 1) {
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        
         monthText.append("text")
+          .attr("class", "calendar-month-label")
+          .attr("data-year", year)
+          .attr("data-month", month)
           .attr("x", x + size / 2)
           .attr("y", monthY)
           .attr("text-anchor", "middle")
           .attr("alignment-baseline", "central")
-          .text(monthName[date.getMonth()])
+          .text(monthName[month])
           .attr("font-size", (size - 3) + "px")
           .attr("font-family", fontFamily)
           .attr("fill", "#055")
           .attr("data-bs-toggle", "tooltip")
           .attr("data-bs-html", "true")
           .style("cursor", "pointer")
-          .attr("title", d => {
-            const month = date.getMonth();
-            const year = date.getFullYear();
-            const link = (type, count, year, month) => {
-              if (count === 0) {
-                return '';
-              }
-              let startDate = `${year}-${String(month+1).padStart(2, '0')}-01T00%3A00`;
-              let endDate = `${year}-${String(month+2).padStart(2, '0')}-01T00%3A00`;
-              return `<br>${type}： ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${startDate}&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${endDate}' target='_blank'>🔗</a>`;
-            }
-            let received = 0;
-            let sent = 0;
-            if (yearlyTotals[year]) {
-              if (yearlyTotals[year].monthlyTotals[month + 1]) {
-                received = yearlyTotals[year].monthlyTotals[month + 1].received || 0;
-                sent = yearlyTotals[year].monthlyTotals[month + 1].sent || 0;
-              }
-            }
-            return `<b>${year}年${date.getMonth() + 1}月</b>${showReceived ? link('收', received, year,month) : ''}${showSent ? link('发', sent, year,month) : ''}`;
-          });
+          .attr("title", generateMonthTooltip(year, month, showReceived, showSent));
       }
     }
 
     date.setDate(date.getDate() + 1);
   }
+  
   if (showYear) {
     for (var j = 0; j < Math.ceil(dayCount / weekinline); j++) {
       var rowStartDate = new Date();
@@ -186,6 +266,8 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
 
       // Add year text to the right side of the row
       svg.append("text")
+        .attr("class", "calendar-year-label")
+        .attr("data-year", year)
         .attr("x", canvasWidth - size * 2) // Position on the right side
         .attr("y", rowCenterY) // Align to the center of the row
         .attr("text-anchor", "middle")
@@ -198,31 +280,42 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
         .attr("data-bs-toggle", "tooltip")
         .attr("data-bs-html", "true")
         .style("cursor", "pointer")
-        .attr("title", d => {
-          const link = (type, count, year) => {
-            if (count === 0) {
-              return '';
-            }
-            return `<br>${type}： ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${year}-01-01T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${year}-12-31T23%3A59' target='_blank'>🔗</a>`;
-          }
-          let received = 0;
-          let sent = 0;
-          if (yearlyTotals[year]) {
-            received = yearlyTotals[year].received || 0;
-            sent = yearlyTotals[year].sent || 0;
-          }
-          return `<b>${year}</b>${showReceived ? link('收', received, year) : ''}${showSent ? link('发', sent, year) : ''}`;
-        });
+        .attr("title", generateYearTooltip(year, showReceived, showSent));
     }
   }
+  isInitialized = true;
 }
 
 function refresh() {
+  const loadingIndicator = d3.select("#myCanvas")
+    .append("div")
+    .attr("class", "loading-indicator text-center")
+    .style("position", "absolute")
+    .style("top", "50%")
+    .style("left", "50%")
+    .style("transform", "translate(-50%, -50%)")
+    .html(`
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">加载中……</span>
+    </div>
+    <div class="mt-2">加载中……</div>
+  `);
   var showSent = document.getElementById("showSent").checked;
   var showReceived = document.getElementById("showReceived").checked;
-  generateCalender(groupedData, getEarlist, showSent, showReceived);
+  
+  if (!isInitialized) {
+    // First time - generate the full calendar
+    generateCalender(groupedData, getEarlist, showSent, showReceived);
+  } else {
+    // Update only colors and tooltips
+    updateCalendar(groupedData, showSent, showReceived);
+  }
+  
+  // Destroy and reinitialize tooltips
+  $('[data-bs-toggle="tooltip"]').tooltip('dispose');
   $(document).ready(function() {
     $('[data-bs-toggle="tooltip"]').tooltip();
+    loadingIndicator.remove();
   });
 }
 
