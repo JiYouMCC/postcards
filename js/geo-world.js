@@ -56,7 +56,6 @@ Promise.all([
 ]).then(([geoData, sentData, receivedData]) => {
     loadingIndicator.remove();
 
-
     const sentCount = {};
     const receivedCount = {};
     const sentDeliveryDays = {};
@@ -119,7 +118,7 @@ Promise.all([
             return "rgba(0, 0, 0, 0.01)";
         })
         .attr("stroke", "#000")
-        .attr("stroke-width", 0.5)
+        .attr("stroke-width", 0.1)
         .attr("data-bs-toggle", "tooltip")
         .attr("data-bs-html", "true")
         .attr("title", d => {

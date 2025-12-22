@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime, timezone, timedelta
 
+
 def parse_date(date_string):
     """Parse a date string into a datetime object."""
     date_formats = [
@@ -44,7 +45,7 @@ def format_date(date_obj, tz_offset=timezone(timedelta(hours=8))):
         return None
 
 
-def process_file(file_path, date_fields): 
+def process_file(file_path, date_fields):
     """Process a CSV file to convert and sort date fields."""
     with open(file_path, mode='r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
@@ -74,6 +75,11 @@ def process_file(file_path, date_fields):
     print(f"File {file_path} has been processed and updated.")
 
 
-# Process both received.csv and sent.csv
-process_file("../_data/received.csv", ["received_date", "sent_date"])
-process_file("../_data/sent.csv", ["received_date", "sent_date"])
+def main():
+    # Process both received.csv and sent.csv
+    process_file("../_data/received.csv", ["received_date", "sent_date"])
+    process_file("../_data/sent.csv", ["received_date", "sent_date"])
+
+
+if __name__ == "__main__":
+    main()
