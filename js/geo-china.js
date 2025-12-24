@@ -103,7 +103,7 @@ Promise.all([
     .attr("data-bs-html","true")
     .attr("ata-bs-auto-close", "outside")
     .attr("title", d => {
-      return `<strong>${d.properties.name}</strong><br>收: ${receivedCount[d.properties.name] || 0}张<a class="text-decoration-none link-light" href="received/?regions=${d.properties.name}" target="_blank">🔗</a>平均${receivedDeliveryDays[d.properties.name] || "-"}天</br>发: ${sentCount[d.properties.name] || 0}张<a class="text-decoration-none link-light" href="sent/?regions=${d.properties.name}" target="_blank">🔗</a>平均${sentDeliveryDays[d.properties.name] || "-"}天`;
+      return `<strong>${d.properties.name}</strong><br>收: ${receivedCount[d.properties.name] || 0}张<a class="text-decoration-none link-light" href="received?regions=${d.properties.name}" target="_blank">🔗</a>平均${receivedDeliveryDays[d.properties.name] || "-"}天</br>发: ${sentCount[d.properties.name] || 0}张<a class="text-decoration-none link-light" href="sent?regions=${d.properties.name}" target="_blank">🔗</a>平均${sentDeliveryDays[d.properties.name] || "-"}天`;
     });
   $('[data-bs-toggle="tooltip"]').tooltip();
 
