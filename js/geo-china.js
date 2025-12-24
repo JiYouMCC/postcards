@@ -20,9 +20,7 @@ const loadingIndicator = d3.select("#map")
     .style("transform", "translate(-50%, -50%)")
     .html(`
     <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">加载中...</span>
     </div>
-    <div class="mt-2">加载地图数据中...</div>
   `);
 
 // Projection and path
@@ -103,7 +101,7 @@ Promise.all([
     .attr("data-bs-html","true")
     .attr("ata-bs-auto-close", "outside")
     .attr("title", d => {
-      return `<strong>${d.properties.name}</strong><br>收: ${receivedCount[d.properties.name] || 0}张<a class="text-decoration-none link-light" href="received?regions=${d.properties.name}" target="_blank">🔗</a>平均${receivedDeliveryDays[d.properties.name] || "-"}天</br>发: ${sentCount[d.properties.name] || 0}张<a class="text-decoration-none link-light" href="sent?regions=${d.properties.name}" target="_blank">🔗</a>平均${sentDeliveryDays[d.properties.name] || "-"}天`;
+      return `<strong>${d.properties.name}</strong><br>📥${receivedCount[d.properties.name] || 0}<a class="text-decoration-none link-light" href="received?regions=${d.properties.name}" target="_blank">🔗</a>avg ${receivedDeliveryDays[d.properties.name] || "-"} day(s)</br>📤${sentCount[d.properties.name] || 0}<a class="text-decoration-none link-light" href="sent?regions=${d.properties.name}" target="_blank">🔗</a>avg ${sentDeliveryDays[d.properties.name] || "-"} day(s)`;
     });
   $('[data-bs-toggle="tooltip"]').tooltip();
 

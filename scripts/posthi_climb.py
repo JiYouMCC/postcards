@@ -65,9 +65,9 @@ def process(mode, source_file_path):
                         if card_type == "匹配":
                             card_type = "MATCH"
                         elif card_type == "社区活动":
-                            card_type = "活动"
+                            card_type = "GAME"
                         if card_type == "回寄" or card_type == "赠送":
-                            card_type = "寄片"
+                            card_type = "GIVE"
                         new_row.append(card_type)
                         new_row.append("Post-Hi")
                         new_row.append(row_source[5 + prefix])

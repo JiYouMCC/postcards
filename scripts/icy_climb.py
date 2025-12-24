@@ -48,7 +48,9 @@ def process(mode, post_link_list):
         if card_type == '配对':
             card_type = 'MATCH'
         if card_type == '回寄' or card_type == '赠送':
-            card_type = '寄片'
+            card_type = 'GIVE'
+        if card_type == '活动':
+            card_type = 'GAME'
         new_line.append(card_type)
         print(card_type + ',', end='')
 

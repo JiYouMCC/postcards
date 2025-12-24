@@ -1,7 +1,7 @@
 <header>
   <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top" data-bs-theme="dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="{{ site.baseurl }}/" title="{{ site.description }}"><i data-feather="home"></i> {{ site.title | escape }} </a>
+      <a class="navbar-brand" href="{{ site.baseurl }}/" title="{{ site.title }}"><i data-feather="home"></i> <span data-localize="JiYou's Postcard Collection">{{ site.title | escape }}</span> </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -9,30 +9,30 @@
       <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link {% if page.url == '/received.html' %}active{% endif %}" href="{{ site.baseurl }}/received"><i data-feather="inbox"></i>&nbsp;收片&nbsp;<span class="badge rounded-pill text-bg-light">{{ site.data.received.size }}</span></a>
+            <a class="nav-link {% if page.url == '/received.html' %}active{% endif %}" href="{{ site.baseurl }}/received"><i data-feather="inbox"></i>&nbsp;<span data-localize="Received">收片</span>&nbsp;<span class="badge rounded-pill text-bg-light">{{ site.data.received.size }}</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if page.url == '/sent.html' %}active{% endif %}" href="{{ site.baseurl }}/sent"><i data-feather="send"></i>&nbsp;寄片&nbsp;<span class="badge rounded-pill text-bg-light">{{ site.data.sent.size }}</span></a>
+            <a class="nav-link {% if page.url == '/sent.html' %}active{% endif %}" href="{{ site.baseurl }}/sent"><i data-feather="send"></i>&nbsp;<span data-localize="Sent">寄片</span>&nbsp;<span class="badge rounded-pill text-bg-light">{{ site.data.sent.size }}</span></a>
           </li>
           <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i data-feather="pie-chart"></i>&nbsp;数据分析<span class="caret"></span></a>
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i data-feather="pie-chart"></i>&nbsp;<span data-localize="Analytics">数据分析</span><span class="caret"></span></a>
             <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item {% if page.url == '/calendar.html' %}active{% endif %}" href="{{ site.baseurl }}/calendar"><i data-feather="calendar"></i>&nbsp;收发日历</a>
+                  <a class="dropdown-item {% if page.url == '/calendar.html' %}active{% endif %}" href="{{ site.baseurl }}/calendar"><i data-feather="calendar"></i>&nbsp;<span data-localize="Calendar">收发日历</span></a>
                 </li>
                 <li>
-                  <a class="dropdown-item {% if page.url == '/posting-board.html' %}active{% endif %}" href="{{ site.baseurl }}/posting-board"><i data-feather="clipboard"></i>&nbsp;收片张贴版</a>
+                  <a class="dropdown-item {% if page.url == '/posting-board.html' %}active{% endif %}" href="{{ site.baseurl }}/posting-board"><i data-feather="clipboard"></i>&nbsp;<span data-localize="Received Gallery">收片张贴版</span></a>
                 </li>
                 <li>
-                  <a class="dropdown-item {% if page.url == '/geo-world.html' %}active{% endif %}" href="{{ site.baseurl }}/geo-world"><i data-feather="globe"></i>&nbsp;世界收发地图</a>
+                  <a class="dropdown-item {% if page.url == '/geo-world.html' %}active{% endif %}" href="{{ site.baseurl }}/geo-world"><i data-feather="globe"></i>&nbsp;<span data-localize="World Map">世界收发地图</span></a>
                 </li>
                 <li>
-                  <a class="dropdown-item {% if page.url == '/geo-china.html' %}active{% endif %}" href="{{ site.baseurl }}/geo-china"><i data-feather="map"></i>&nbsp;中国收发地图</a>
+                  <a class="dropdown-item {% if page.url == '/geo-china.html' %}active{% endif %}" href="{{ site.baseurl }}/geo-china"><i data-feather="map"></i>&nbsp;<span data-localize="China Map">中国收发地图</span></a>
                 </li>
             </ul>
           </li>
           <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i data-feather="user"></i>&nbsp;联系我<span class="caret"></span></a>
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i data-feather="user"></i>&nbsp;<span data-localize="Contact">联系我</span><span class="caret"></span></a>
             <ul class="dropdown-menu">
               {% for p in site.data.platform %}
                 <li>
@@ -41,11 +41,16 @@
               {% endfor %}
             </ul>
           </li>
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+              <i data-feather="globe"></i>&nbsp;<span data-localize="Language">English</span><span class="caret">
+            </a>
+            <ul id="dropdown_language" class="dropdown-menu"></ul>
+          </li>
         </ul>
-        <span class="navbar-text">最后更新： <datatime datetime="{{ site.time | date: '%Y-%m-%dT%H:%M:%S%z' }}">{{ site.time | date: '%Y年%m月%d日' }}</datatime>
+        <span class="navbar-text"><span data-localize="Last Updated">最后更新：</span> <datatime datetime="{{ site.time | date: '%Y-%m-%dT%H:%M:%S%z' }}">{{ site.time | date: '%Y-%m-%d' }}</datatime>
       </span>
       </div>
-
     </div>
   </nav>
 </header>

@@ -21,9 +21,7 @@ const loadingIndicator = d3.select("#map")
     .style("z-index", "10000")
     .html(`
     <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">加载中...</span>
     </div>
-    <div class="mt-2">加载地图数据中...</div>
   `);
 
 // Projection and path
@@ -125,7 +123,7 @@ Promise.all([
             if (d.properties.SOVEREIGNT === "China" || d.properties.SOVEREIGNT === "Taiwan") {
                 return `<strong>${d.properties.SOVEREIGNT}</strong><br><a class="link-light" href="geo-china">Jump to China Map</a</br>`;
             }
-            return `<strong>${d.properties.SOVEREIGNT}</strong><br>收: ${receivedCount[d.properties.SOVEREIGNT] || 0}张 平均${receivedDeliveryDays[d.properties.SOVEREIGNT] || "-"}天</br>发: ${sentCount[d.properties.SOVEREIGNT] || 0}张 平均${sentDeliveryDays[d.properties.SOVEREIGNT] || "-"}天`;
+            return `<strong>${d.properties.SOVEREIGNT}</strong><br>📥${receivedCount[d.properties.SOVEREIGNT] || 0}<a class="text-decoration-none link-light" href="received?country=${d.properties.SOVEREIGNT}" target="_blank">🔗</a> avg ${receivedDeliveryDays[d.properties.SOVEREIGNT] || "-"} day(s)</br>📤${sentCount[d.properties.SOVEREIGNT] || 0}<a class="text-decoration-none link-light" href="received?country=${d.properties.SOVEREIGNT}" target="_blank">🔗</a> avg ${sentDeliveryDays[d.properties.SOVEREIGNT] || "-"} day(s)`;
         });
 
 
