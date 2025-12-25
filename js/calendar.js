@@ -231,6 +231,7 @@ function refresh() {
   generateCalender(groupedData, getEarlist, showSent, showReceived);
   $(document).ready(function() {
     $('[data-bs-toggle="tooltip"]').tooltip();
+    let language_code = "en";
     if (Cookies.get("local_language_code")) {
         language_code = Cookies.get("local_language_code");
     }
