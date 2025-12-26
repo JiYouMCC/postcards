@@ -60,8 +60,7 @@ const PostcardCollection = {
     } else {
       text = text.join(', ');
     }
-
-    $(selector).text(text || Capitalize(selector.split('-')[1]));
+    $(selector).text(text || $(selector).attr("original-text"));
   },
 
   _HandleCheckboxChange: function(allSelector, itemSelector, dropdownSelector) {
