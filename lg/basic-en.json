@@ -52,5 +52,10 @@
     "Reset": "Reset",
     "Sender Name": "Sender Name",
     "Receiver Name": "Receiver Name",
-    "Only show expired cards": "Only show expired cards"
+    "Only show expired cards": "Only show expired cards",
+    "Showing ": "Showing ",
+    " cards out of ": " cards out of ",
+    " total. Displaying cards ": " total. Displaying cards ",
+    " to ": " to ",
+    ".": "."
 }

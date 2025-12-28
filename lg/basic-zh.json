@@ -52,5 +52,10 @@
     "Reset": "重置",
     "Sender Name": "发件人",
     "Receiver Name": "收件人",
-    "Only show expired cards": "只显示过期明信片"
+    "Only show expired cards": "只显示过期明信片",
+    "Showing ": "筛选出 ",
+    " cards out of ": " 张片，一共有 ",
+    " total. Displaying cards ": " 张片。目前显示第 ",
+    " to ": " 张到第 ",
+    ".": " 张。"
 }
