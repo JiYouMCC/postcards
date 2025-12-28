@@ -235,7 +235,7 @@ function refresh() {
     if (Cookies.get("local_language_code")) {
         language_code = Cookies.get("local_language_code");
     }
-    localize(language_code)
+    localize.localize(language_code)
   });
 }
 
