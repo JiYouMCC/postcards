@@ -63,6 +63,23 @@ var localize = {
           var value = json[key];
           self.localizeElement(elem, key, value);
         });
+        // for tooltip, the data-bs-original-title will be html, and process it again
+        $("[data-bs-toggle='tooltip']").each(function() {
+          var elem = $($(this));
+          var original_title = elem.attr("data-bs-original-title");
+          var $elements = $(original_title);
+          $elements.each(function() {
+            if (!$(this).attr("data-localize")) {
+              return;
+            }
+            var $inner_elem = $(this);
+            var inner_key = $inner_elem.attr("data-localize");
+            var inner_value = json[inner_key];
+            localize.localizeElement($inner_elem, inner_key, inner_value);
+          });
+          var newTooltipString = $('<div>').append($elements. clone()).html();
+          elem.attr("data-bs-original-title", newTooltipString);
+        });
         if (callback) {
           callback();
         }
@@ -82,7 +99,7 @@ var localize = {
           return this.localizeImageElement(elem, key, value);
         } else if (elem.is('optgroup')) {
           return this.localizeOptgroupElement(elem, key, value);
-        } else if (elem.data("toggle") == "tooltip") {
+        } else if (elem.data("data-bs-toggle") == "tooltip") {
           return this.localizeToolTipElement(elem, key, value);
         } else if (elem.is('button') && elem.is("[original-text]")) {
           elem.text(value);

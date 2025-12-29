@@ -37,7 +37,7 @@ Promise.all([
   d3.json("{{ site.baseurl }}{{ '/js/geo-china-sent.json' }}"),
   d3.json("{{ site.baseurl }}{{ '/js/geo-china-received.json' }}")
 ]).then(([geoData, sentData, receivedData]) => {
-    loadingIndicator.remove();
+  loadingIndicator.remove();
 
   const sentCount = {};
   const receivedCount = {};
@@ -101,7 +101,7 @@ Promise.all([
     .attr("data-bs-html","true")
     .attr("ata-bs-auto-close", "outside")
     .attr("title", d => {
-      return `<strong>${d.properties.name}</strong><br>📥${receivedCount[d.properties.name] || 0}<a class="text-decoration-none link-light" href="received?regions=${d.properties.name}" target="_blank">🔗</a>avg ${receivedDeliveryDays[d.properties.name] || "-"} day(s)</br>📤${sentCount[d.properties.name] || 0}<a class="text-decoration-none link-light" href="sent?regions=${d.properties.name}" target="_blank">🔗</a>avg ${sentDeliveryDays[d.properties.name] || "-"} day(s)`;
+      return `<strong>${d.properties.name}</strong><br><span data-localize="Receive">Received:</span> ${receivedCount[d.properties.name] || 0}<a class="text-decoration-none link-light" href="received?regions=${d.properties.name}" target="_blank">🔗</a> <span data-localize="avg">avg</span> ${receivedDeliveryDays[d.properties.name] || "-"} <span data-localize="day(s)">day(s)</span></br><span data-localize="Send">Sent:</span> ${sentCount[d.properties.name] || 0}<a class="text-decoration-none link-light" href="sent?regions=${d.properties.name}" target="_blank">🔗</a> <span data-localize="avg">avg</span> ${sentDeliveryDays[d.properties.name] || "-"} <span data-localize="day(s)">day(s)</span>`;
     });
   $('[data-bs-toggle="tooltip"]').tooltip();
 
@@ -115,6 +115,13 @@ Promise.all([
     const display = this.checked ? "block" : "none";
     receivedLayer.style("display", display);
   });
+
+    let language_code = "en";
+    if (Cookies.get("local_language_code")) {
+        language_code = Cookies.get("local_language_code");
+    }
+    localize.localize(language_code)
+
 }).catch(err => {
     loadingIndicator.remove();
     console.error(err)

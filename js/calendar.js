@@ -138,7 +138,7 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
           if (count == 0) {
             return '';
           }
-          return `<br> <i data-feather="inbox"></i> ${type === '收' ? '📥' : '📤' } ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${dateStr}T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${dateStr}T23%3A59' target='_blank'>🔗</a>`;
+          return `<br> <i data-feather="inbox"></i> ${type === '收' ? '<span data-localize="Receive">Received:</span>' : '<span data-localize="Send">Sent:</span>' } ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${dateStr}T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${dateStr}T23%3A59' target='_blank'>🔗</a>`;
         }
         return `<b>${dateStr}</b>${showReceived ? link('收', received) : ''}${showSent ? link('发', sent) : ''}`;
       });
@@ -166,7 +166,7 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
               }
               let startDate = `${year}-${String(month+1).padStart(2, '0')}-01T00%3A00`;
               let endDate = `${year}-${String(month+2).padStart(2, '0')}-01T00%3A00`;
-              return `<br>${type === '收' ? '📥' : '📤' } ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${startDate}&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${endDate}' target='_blank'>🔗</a>`;
+              return `<br>${type === '收' ? '<span data-localize="Receive">Received:</span>' : '<span data-localize="Send">Sent:</span>' } ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${startDate}&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${endDate}' target='_blank'>🔗</a>`;
             }
             let received = 0;
             let sent = 0;
@@ -211,7 +211,7 @@ function generateCalender(data, earlistDate, showSent, showReceived) {
             if (count == 0) {
               return '';
             }
-            return `<br>${type === '收' ? '📥' : '📤' } ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${year}-01-01T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${year}-12-31T23%3A59' target='_blank'>🔗</a>`;
+            return `<br>${type === '收' ? '<span data-localize="Receive">Received:</span>' : '<span data-localize="Send">Sent:</span>' } ${count}<a class='text-decoration-none link-light' href='${type === '收' ? 'received?receivedDateStart' : 'sent?sentDateStart'}=${year}-01-01T00%3A00&${type === '收' ? 'receivedDateEnd' : 'sentDateEnd'}=${year}-12-31T23%3A59' target='_blank'>🔗</a>`;
           }
           let received = 0;
           let sent = 0;

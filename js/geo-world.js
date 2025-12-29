@@ -123,10 +123,8 @@ Promise.all([
             if (d.properties.SOVEREIGNT === "China" || d.properties.SOVEREIGNT === "Taiwan") {
                 return `<strong>${d.properties.SOVEREIGNT}</strong><br><a class="link-light" href="geo-china">Jump to China Map</a</br>`;
             }
-            return `<strong>${d.properties.SOVEREIGNT}</strong><br>📥${receivedCount[d.properties.SOVEREIGNT] || 0}<a class="text-decoration-none link-light" href="received?country=${d.properties.SOVEREIGNT}" target="_blank">🔗</a> avg ${receivedDeliveryDays[d.properties.SOVEREIGNT] || "-"} day(s)</br>📤${sentCount[d.properties.SOVEREIGNT] || 0}<a class="text-decoration-none link-light" href="received?country=${d.properties.SOVEREIGNT}" target="_blank">🔗</a> avg ${sentDeliveryDays[d.properties.SOVEREIGNT] || "-"} day(s)`;
+            return `<strong>${d.properties.SOVEREIGNT}</strong><br><span data-localize="Receive">Received:</span> ${receivedCount[d.properties.SOVEREIGNT] || 0}<a class="text-decoration-none link-light" href="received?country=${d.properties.SOVEREIGNT}" target="_blank">🔗</a> <span data-localize="avg">avg</span> ${receivedDeliveryDays[d.properties.SOVEREIGNT] || "-"} <span data-localize="day(s)">day(s)</span></br><span data-localize="Send">Sent:</span> ${sentCount[d.properties.SOVEREIGNT] || 0}<a class="text-decoration-none link-light" href="received?country=${d.properties.SOVEREIGNT}" target="_blank">🔗</a> <span data-localize="avg">avg</span> ${sentDeliveryDays[d.properties.SOVEREIGNT] || "-"} <span data-localize="day(s)">day(s)</span>`;
         });
-
-
     $('[data-bs-toggle="tooltip"]').tooltip();
 
     // Checkbox event listeners
@@ -139,6 +137,11 @@ Promise.all([
         const display = this.checked ? "block" : "none";
         receivedLayer.style("display", display);
     });
+    let language_code = "en";
+    if (Cookies.get("local_language_code")) {
+        language_code = Cookies.get("local_language_code");
+    }
+    localize.localize(language_code)
 }).catch(err => {
     loadingIndicator.remove();
     console.error(err)
