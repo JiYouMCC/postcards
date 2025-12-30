@@ -95,7 +95,7 @@ const PostcardCollection = {
   },
 
   _UpdateDrowdownList: function(selector, items, idPrefix) {
-    // tag 专用    
+    // tag 专用
     if (idPrefix === 'tag') {
       //$(selector).empty();
       //排序
@@ -135,7 +135,7 @@ const PostcardCollection = {
           $("<li></li>").append(
             $("<div></div>").addClass("dropdown-item d-flex justify-content-between align-items-center").append(
               $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", region).attr("id", `${idPrefix}_${region}`),
-              $("<label></label>").addClass("form-check-label").attr("for", `${idPrefix}_${region}`).text(`${region}`),
+              $("<label></label>").attr("data-localize", region).addClass("form-check-label").attr("for", `${idPrefix}_${region}`).text(`${region}`),
               $("<span></span>").addClass("badge rounded-pill bg-secondary ms-2").text(`${count}`)
             )
           )
@@ -144,7 +144,7 @@ const PostcardCollection = {
 
       $(selector).append(
         $("<details></details>").append(
-          $("<summary></summary>").addClass("dropdown-header d-flex align-items-center").text(`${country}`),
+          $("<summary></summary>").attr("data-localize", country).addClass("dropdown-header d-flex align-items-center").text(country),
           div
         )
       );
@@ -159,13 +159,13 @@ const PostcardCollection = {
       return countryA.localeCompare(countryB, 'zh-CN');
     });
     //$(selector).empty();
-    items.forEach(([region, count]) => {
+    items.forEach(([value, count]) => {
       $(selector).append(
         $("<li></li>").append(
           $("<div></div>").addClass("dropdown-item d-flex justify-content-between align-items-center").append(
             $("<div></div>").append(
-              $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", region).attr("id", `${idPrefix}_${region}`),
-              $("<label></label>").addClass("form-check-label").attr("for", `${idPrefix}_${region}`).text(`${region}`)
+              $("<input></input>").addClass("form-check-input me-1").attr("type", "checkbox").attr("value", value).attr("id", `${idPrefix}_${value}`),
+              $("<label></label>").attr("data-localize", value).addClass("form-check-label").attr("for", `${idPrefix}_${value}`).text(`${value}`)
             ),
             $("<span></span>").addClass("badge rounded-pill bg-secondary ms-2").text(`${count}`)
           )

@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime
-from date_format import parse_date 
+from date_format import parse_date
+from zoneinfo import ZoneInfo
 
 file_received_path = "../_data/received.csv"
 file_sent_path = "../_data/sent.csv"
@@ -8,6 +9,7 @@ file_grouped_path = "../_data/grouped.csv"
 
 grouped_map = {}
 grouped_result = []
+
 
 with open(file_received_path, mode='r', encoding='utf-8') as file_received:
     file_received_reader = csv.DictReader(file_received)
@@ -20,10 +22,12 @@ with open(file_sent_path, mode='r', encoding='utf-8') as file_sent:
 
 for row in data_received:
     parsed_date = parse_date(row['received_date'])
+    parsed_date = parsed_date.astimezone(ZoneInfo("Asia/Shanghai"))
     row['parsed_date'] = parsed_date.strftime("%Y-%m-%d")
 
 for row in data_sent:
     parsed_date = parse_date(row['sent_date'])
+    parsed_date = parsed_date.astimezone(ZoneInfo("Asia/Shanghai"))
     row['parsed_date'] = parsed_date.strftime("%Y-%m-%d")
 
 for row in data_received:

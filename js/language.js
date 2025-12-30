@@ -105,8 +105,9 @@ var localize = {
           elem.text(value);
           elem.attr("original-text", value);
           return;
-        }
-        else if (!$.isPlainObject(value)) {
+        } else if (elem.is('title')) {
+          return this.localizeTitleElement(elem, key, value);
+        } else if (!$.isPlainObject(value)) {
           elem.html(value);
           return;
         }
@@ -129,6 +130,9 @@ var localize = {
   localizeImageElement: function(elem, key, value) {
         this.setAttrFromValueForKey(elem, "alt", value);
         return this.setAttrFromValueForKey(elem, "src", value);
+  },
+  localizeTitleElement: function(elem, key, value) {
+        return elem.text(value);
   },
   localizeToolTipElement: function(elem, key, value) {
         elem.attr("title", value);

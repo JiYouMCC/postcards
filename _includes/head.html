@@ -3,7 +3,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
-  <title>{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %} - {{ site.title | escape }}</title>
+  <title data-localize="{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %} - {{ site.title | escape }}">{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %} - {{ site.title | escape }}</title>
   <link href="{{ site.baseurl }}{{ "/bootstrap/css/bootstrap.css"}}" rel="stylesheet">
   <link href="{{ site.baseurl }}{{ "/css/gutools.css"}}" rel="stylesheet">
   <link rel="Shortcut Icon" href="{{ "/favicon.ico" }}" type="image/x-icon">  
