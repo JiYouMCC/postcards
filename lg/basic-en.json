@@ -60,6 +60,11 @@
     " total. Displaying cards ": " total. Displaying cards ",
     " to ": " to ",
     ".": ".",
+
+    "GAME": "GAME",
+    "GIVE": "GIVE",
+    "MATCH": "MATCH",
+
     "收发日历 - 嵇爾的明信片收藏册": "Calendar - JiYou's Postcards",
     "我收到的明信片 - 嵇爾的明信片收藏册": "Received Postcards - JiYou's Postcards",
     "我寄出的明信片 - 嵇爾的明信片收藏册": "Sent Postcards - JiYou's Postcards",
