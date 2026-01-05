@@ -9,7 +9,7 @@
     "Sent Date": "Sent",
     "from": "from",
     "avg": "avg",
-    "day(s)": "day(s)",
+    "day(s)": "days",
     "to": "to",
     "All": "All",
     "Country": "Country",
@@ -60,6 +60,13 @@
     " total. Displaying cards ": " total. Displaying cards ",
     " to ": " to ",
     ".": ".",
+    "From": "From",
+    "To": "To",
+    "On": "On",
+    "By": "By",
+    "Expired": "Expired",
+
+    
 
     "GAME": "GAME",
     "GIVE": "GIVE",

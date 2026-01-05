@@ -53,6 +53,17 @@ var localize = {
         }
         return result;
   },
+  localizeSingle: function(language, key, callback) {
+    var self = this;
+    self.getLanguageJson(language, function(json) {
+      if (json) {
+        var value = json[key];
+        callback(value);
+      } else {
+        callback(null);
+      }
+    });
+  },
   localize: function(language, callback) {
     var self = this;
     self.getLanguageJson(language, function(json) {

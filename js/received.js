@@ -387,14 +387,26 @@ const PostcardCollection = {
     // 刷新 Popover 监听器
     const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     const popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+      popoverTriggerEl.addEventListener('shown.bs.popover', function() {
+        let language_code = "en";
+        if (Cookies.get("local_language_code")) {
+            language_code = Cookies.get("local_language_code");
+        }
+        localize.localize(language_code);
+      });
       return new bootstrap.Popover(popoverTriggerEl);
     });
     popoverList.forEach(function(popover) {
       popover.dispose();
     });
+    const myDefaultAllowList = bootstrap.Tooltip.Default.allowList;
+    myDefaultAllowList.strong = ['data-localize'];
+    myDefaultAllowList.a = ['data-localize', 'style', 'href', 'target', 'title', 'class'];
+    myDefaultAllowList.span = ['data-localize', 'style', 'class'];
     const newpopoverList = popoverTriggerList.map(function(popoverTriggerEl) {
       return new bootstrap.Popover(popoverTriggerEl, {
         html: true,
+        allowList: myDefaultAllowList,
         content: function() {
           const cardID = popoverTriggerEl.getAttribute('data-card-id');
           const cardTitle = popoverTriggerEl.getAttribute('data-card-title') || cardID;
@@ -411,12 +423,12 @@ const PostcardCollection = {
           const days = Math.floor((receivedDate - sentDate) / (1000 * 60 * 60 * 24));
           const sentDataStr = `${sentDate.getFullYear()}-${sentDate.getMonth() + 1}-${sentDate.getDate()}`;
           const receivedDataStr = `${receivedDate.getFullYear()}-${receivedDate.getMonth() + 1}-${receivedDate.getDate()}`;
-          const location = region ? `<a href="?countries=${country}" style="cursor: pointer;">${country}</a> - <a href="?countries=${country}&regions=${region}" style="cursor: pointer;">${region}</a>` : `<a href="?countries=${country}" target="_blank" style="cursor: pointer;">${country}</a>`;
+          const location = region ? `<a href="?countries=${country}" style="cursor: pointer;" data-localize="${country}">${country}</a> - <a href="?countries=${country}&regions=${region}" style="cursor: pointer;" data-localize="${region}">${region}</a>` : `<a href="?countries=${country}" target="_blank" style="cursor: pointer;" data-localize="${country}">${country}</a>`;
           let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
-          resultHtml += `<br><strong>From</strong> <a href="?&sender=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
-          resultHtml += `<br><strong>On</strong> <a href="?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
-          resultHtml += `<br><strong>By</strong> <a href="?types=${cardType}" style="cursor: pointer;">${cardType}</a>`;
-          resultHtml += `<br>${sentDataStr} ~ ${receivedDataStr} (${days} days)<br>`;
+          resultHtml += `<br><strong data-localize="From">From</strong> <a href="?&sender=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
+          resultHtml += `<br><strong data-localize="On">On</strong> <a href="?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
+          resultHtml += `<br><strong data-localize="By">By</strong> <a href="?types=${cardType}" style="cursor: pointer;"  data-localize="${cardType}">${cardType}</a>`;
+          resultHtml += `<br>${sentDataStr} ~ ${receivedDataStr} (${days} <span data-localize="day(s)">day(s)</span>)<br>`;
           tags.split(',').forEach(tag => {
             resultHtml += `<a href="?tags=${tag}" style="cursor: pointer;"><span class="me-1 badge text-bg-primary">${tag}</span></a>`;
           });
