@@ -101,7 +101,7 @@ Promise.all([
     .attr("data-bs-html","true")
     .attr("ata-bs-auto-close", "outside")
     .attr("title", d => {
-      return `<strong>${d.properties.name}</strong><br><span data-localize="Receive">Received:</span> ${receivedCount[d.properties.name] || 0}<a class="text-decoration-none link-light" href="received?regions=${d.properties.name}" target="_blank">🔗</a> <span data-localize="avg">avg</span> ${receivedDeliveryDays[d.properties.name] || "-"} <span data-localize="day(s)">day(s)</span></br><span data-localize="Send">Sent:</span> ${sentCount[d.properties.name] || 0}<a class="text-decoration-none link-light" href="sent?regions=${d.properties.name}" target="_blank">🔗</a> <span data-localize="avg">avg</span> ${sentDeliveryDays[d.properties.name] || "-"} <span data-localize="day(s)">day(s)</span>`;
+      return `<strong data-localize="${d.properties.name}">${d.properties.name}</strong><br><span data-localize="Receive">Received:</span> ${receivedCount[d.properties.name] || 0}<a class="text-decoration-none link-light" href="received?regions=${d.properties.name}" target="_blank">🔗</a> <span data-localize="avg">avg</span> ${receivedDeliveryDays[d.properties.name] || "-"} <span data-localize="day(s)">day(s)</span></br><span data-localize="Send">Sent:</span> ${sentCount[d.properties.name] || 0}<a class="text-decoration-none link-light" href="sent?regions=${d.properties.name}" target="_blank">🔗</a> <span data-localize="avg">avg</span> ${sentDeliveryDays[d.properties.name] || "-"} <span data-localize="day(s)">day(s)</span>`;
     });
   $('[data-bs-toggle="tooltip"]').tooltip();
 

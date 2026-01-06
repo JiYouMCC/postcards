@@ -66,12 +66,12 @@
     "By": "By",
     "Expired": "Expired",
 
-    
-
+    "_comment": "card types",
     "GAME": "GAME",
     "GIVE": "GIVE",
     "MATCH": "MATCH",
 
+    "_comment": "titles",
     "收发日历 - 嵇爾的明信片收藏册": "Calendar - JiYou's Postcards",
     "我收到的明信片 - 嵇爾的明信片收藏册": "Received Postcards - JiYou's Postcards",
     "我寄出的明信片 - 嵇爾的明信片收藏册": "Sent Postcards - JiYou's Postcards",
@@ -80,6 +80,7 @@
     "世界收发地图 - 嵇爾的明信片收藏册": "World Map - JiYou's Postcards",
     "中国收发地图 - 嵇爾的明信片收藏册": "China Map - JiYou's Postcards",
 
+    "_comment": "Countrys",
     "Australia": "Australia",
     "Austria": "Austria",
     "Barbados": "Barbados",
@@ -124,5 +125,49 @@
     "U.A.E.": "U.A.E.",
     "U.K.": "U.K.",
     "U.S.A.": "U.S.A.",
-    "Ukraine": "Ukraine"
+    "Ukraine": "Ukraine",
+
+    "_comment": "Lithuania",
+    "Jonava": "Jonava",
+    "Vilnius": "Vilnius",
+
+    "_comment": "Australia",
+    "Redcliffe": "Redcliffe",
+    "Sydney": "Sydney",
+    "Ulladulla": "Ulladulla",
+
+    "_comment": "China",
+    "安徽":"Anhui",
+    "北京":"Beijing",
+    "重庆":"Chongqing",
+    "福建":"Fujian",
+    "甘肃":"Gansu",
+    "广东":"Guangdong",
+    "广西":"Guangxi",
+    "贵州":"Guizhou",
+    "河北":"Hebei",
+    "河南":"Henan",
+    "黑龙江":"Heilongjiang",
+    "湖北":"Hubei",
+    "湖南":"Hunan",
+    "吉林":"Jilin",
+    "江苏":"Jiangsu",
+    "江西":"Jiangxi",
+    "辽宁":"Liaoning",
+    "内蒙古":"Inner Mongolia",
+    "青海":"Qinghai",
+    "山东":"Shandong",
+    "山西":"Shanxi",
+    "陕西":"Shaanxi",
+    "上海":"Shanghai",
+    "四川":"Sichuan",
+    "台湾":"Taiwan",
+    "天津":"Tianjin",
+    "西藏":"Tibet",
+    "香港":"Hong Kong",
+    "新疆":"Xinjiang",
+    "云南":"Yunnan",
+    "浙江":"Zhejiang",
+    "宁夏":"Ningxia"
+
 }
