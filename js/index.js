@@ -6,7 +6,18 @@ function RefreshPopoverListeners() {
   popoverList.forEach(function(popover) {
     popover.dispose();
   });
+  const myDefaultAllowList = bootstrap.Tooltip.Default.allowList;
+  myDefaultAllowList.strong = ['data-localize'];
+  myDefaultAllowList.a = ['data-localize', 'style', 'href', 'target', 'title', 'class'];
+  myDefaultAllowList.span = ['data-localize', 'style', 'class'];
   const newpopoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+    popoverTriggerEl.addEventListener('shown.bs.popover', function() {
+      let language_code = "en";
+      if (Cookies.get("local_language_code")) {
+        language_code = Cookies.get("local_language_code");
+      }
+      localize.localize(language_code);
+    });
     return new bootstrap.Popover(popoverTriggerEl, {
       html: true,
       content: function() {
@@ -33,20 +44,20 @@ function RefreshPopoverListeners() {
         }
         const sentDataStr = `${sentDate.getFullYear()}-${sentDate.getMonth() + 1}-${sentDate.getDate()}`;
         const mode = popoverTriggerEl.getAttribute('data-card-mode') || "";
-        let fromOrTo = "From";
+        let fromOrTo = `<strong data-localize="From">From</strong>`;
         if (mode == "sent") {
-          fromOrTo = "To";
+          fromOrTo = `<strong data-localize="To">To</strong>`;
         }
-        const location = region ? `<a href="${mode}?countries=${country}" style="cursor: pointer;">${country}</a> - <a href="${mode}?countries=${country}&regions=${region}" style="cursor: pointer;">${region}</a>` : `<a href="${mode}?countries=${country}" target="_blank" style="cursor: pointer;">${country}</a>`;
+        const location = region ? `<a href="${mode}?countries=${country}" style="cursor: pointer;" data-localize="${country}">${country}</a> - <a href="${mode}?countries=${country}&regions=${region}" style="cursor: pointer;" data-localize="${region}">${region}</a>` : `<a href="${mode}?countries=${country}" target="_blank" style="cursor: pointer;" data-localize="${country}">${country}</a>`;
         let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
-        resultHtml += `<br><strong>${fromOrTo}</strong> <a href="${mode}?&sender=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
-        resultHtml += `<br><strong>On</strong> <a href="${mode}?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
-        resultHtml += `<br><strong>By</strong> <a href="${mode}?types=${cardType}" style="cursor: pointer;">${cardType}</a>`;
+        resultHtml += `<br>${fromOrTo} <a href="${mode}?&sender=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
+        resultHtml += `<br><strong data-localize="On">On</strong> <a href="${mode}?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
+        resultHtml += `<br><strong data-localize="By">By</strong> <a href="${mode}?types=${cardType}" style="cursor: pointer;">${cardType}</a>`;
         resultHtml += `<br>${sentDataStr} ~`;
         if (receivedDate) {
-          resultHtml += ` ${receivedDataStr} (${days} days)<br>`;
+          resultHtml += ` ${receivedDataStr} (${days} <span data-localize="day(s)">day(s)</span>)<br>`;
         } else {
-          resultHtml += ` Expired<br>`;
+          resultHtml += ` <span data-localize="Expired">Expired</span><br>`;
         }
         tags.split(' ').forEach(tag => {
           resultHtml += `<a href="${mode}?tags=${tag}" style="cursor: pointer;"><span class="me-1 badge text-bg-primary">${tag}</span></a>`;
