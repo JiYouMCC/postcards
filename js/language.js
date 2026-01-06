@@ -114,7 +114,6 @@ var localize = {
           return this.localizeToolTipElement(elem, key, value);
         } else if (elem.is('button') && elem.is("[original-text]")) {
           elem.text(value);
-          elem.attr("original-text", value);
           return;
         } else if (elem.is('title')) {
           return this.localizeTitleElement(elem, key, value);

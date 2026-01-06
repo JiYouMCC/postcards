@@ -54,8 +54,15 @@ const PostcardCollection = {
     }
     $(selector).text(text || $(selector).attr("original-text"));
     $(selector).attr("data-localize", text || $(selector).attr("original-text"));
+    this._Localize();
   },
-
+  _Localize: function() {
+    let language_code = "en";
+    if (Cookies.get("local_language_code")) {
+      language_code = Cookies.get("local_language_code");
+    }
+    localize.localize(language_code);
+  },
   _HandleCheckboxChange: function(allSelector, itemSelector, dropdownSelector) {
     // 处理复选框变化
     $(allSelector).off('change');
@@ -392,11 +399,7 @@ const PostcardCollection = {
     myDefaultAllowList.span = ['data-localize', 'style', 'class'];
     const newpopoverList = popoverTriggerList.map(function(popoverTriggerEl) {
       popoverTriggerEl.addEventListener('shown.bs.popover', function() {
-        let language_code = "en";
-        if (Cookies.get("local_language_code")) {
-            language_code = Cookies.get("local_language_code");
-        }
-        localize.localize(language_code);
+        this._Localize();
       });
       return new bootstrap.Popover(popoverTriggerEl, {
         html: true,
