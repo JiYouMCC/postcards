@@ -9,14 +9,6 @@ function Debounce(func, wait) {
   };
 }
 
-function Capitalize(str) {
-  // 首字母大写
-  if (str === "region") {
-    return "Region/City";
-  }
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
-
 function GetStringWidth(str) {
   // 计算字符串宽度，CJP字符算2，其他算1
   let width = 0;
@@ -61,6 +53,7 @@ const PostcardCollection = {
       text = text.join(', ');
     }
     $(selector).text(text || $(selector).attr("original-text"));
+    $(selector).attr("data-localize", text || $(selector).attr("original-text"));
   },
 
   _HandleCheckboxChange: function(allSelector, itemSelector, dropdownSelector) {
