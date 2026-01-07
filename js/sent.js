@@ -399,7 +399,7 @@ const PostcardCollection = {
     myDefaultAllowList.span = ['data-localize', 'style', 'class'];
     const newpopoverList = popoverTriggerList.map(function(popoverTriggerEl) {
       popoverTriggerEl.addEventListener('shown.bs.popover', function() {
-        this._Localize();
+        PostcardCollection._Localize();
       });
       return new bootstrap.Popover(popoverTriggerEl, {
         html: true,

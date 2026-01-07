@@ -388,7 +388,7 @@ const PostcardCollection = {
     const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     const popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
       popoverTriggerEl.addEventListener('shown.bs.popover', function() {
-        this._Localize();
+        PostcardCollection._Localize();
       });
       return new bootstrap.Popover(popoverTriggerEl);
     });
