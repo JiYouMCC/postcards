@@ -259,10 +259,6 @@ const PostcardCollection = {
     PostcardCollection._SetCheckboxValues('#ul-platform .form-check-input', platforms);
     PostcardCollection._SetCheckboxValues('#div-tags .form-check-input', tags);
 
-    if (countries.length) {
-      $('#ul-country .form-check-input:checked').first().trigger('change');
-    }
-
     $('#inputTitle').val(title);
     $('#inputReceiver').val(receiver);
     $('#inputSentDateStart').val(sentDateStart);
@@ -290,8 +286,8 @@ const PostcardCollection = {
       return $(this).val();
     }).get();
     PostcardCollection._UpdateDropdownText('#dropdownMenuButton-platform', selectedPlatforms);
-
     PostcardCollection.GenerateFilter();
+
     // apply the page
     PostcardCollection._currentPage = page;
     const totalPages = Math.ceil(PostcardCollection._filterData.length / PostcardCollection._itemsPerPage);
@@ -301,6 +297,7 @@ const PostcardCollection = {
     const startIndex = (currentPage - 1) * PostcardCollection._itemsPerPage;
     const endIndex = startIndex + PostcardCollection._itemsPerPage;
     PostcardCollection.GenerateImageContainer(PostcardCollection._filterData.slice(startIndex, endIndex));
+
     $("#pagination .page-item").removeClass("active");
     $("#pagination .page-link").each(function() {
       if ($(this).attr("data-page") == currentPage) {
