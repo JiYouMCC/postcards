@@ -1,8 +1,8 @@
 ---
 title: geo script
 ---
-const width = 1024,
-  height = 600;
+const width = 1280,
+  height = 640;
 
 // SVG container
 const svg = d3.select("#map")
@@ -26,7 +26,7 @@ const loadingIndicator = d3.select("#map")
 // Projection and path
 const projection = d3.geoMercator()
   .center([104, 35]) // Center on China
-  .scale(600)
+  .scale(690)
   .translate([width / 2, height / 2]);
 
 const path = d3.geoPath().projection(projection);

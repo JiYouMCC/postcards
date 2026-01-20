@@ -1,7 +1,7 @@
 ---
 title: geo script
 ---
-const width = 1026, height = 514;
+const width = 1280, height = 640;
 
 // SVG container
 const svg = d3.select("#map")
@@ -27,7 +27,7 @@ const loadingIndicator = d3.select("#map")
 // Projection and path
 const projection = d3.geoNaturalEarth1()
     .center([0, 0])
-    .scale(180)
+    .scale(224)
     .translate([width / 2, height / 2]);
 
 const path = d3.geoPath().projection(projection);

@@ -7,7 +7,7 @@ from date_format import parse_date, format_date
 exclude_list = ["PHCNGD-0767", "PHCNZJ-1410", "PHCNFJ-1299",
                 "PHCNSH-1876", "PHCNSC-0865", "PHCNZJ-3796",
                 "PHCNJX-0993", "PHCNGD-5164", "PHCNSX-0251",
-                "PHCNSC-0417"]
+                "PHCNSC-0417", "PHCNHL-0176"]
 
 
 def get_latest_file(pattern):
