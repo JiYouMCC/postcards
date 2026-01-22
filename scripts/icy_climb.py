@@ -19,10 +19,24 @@ def process(mode, post_link_list):
     else:
         target_file_path = "../_data/sent.csv"
 
+    processed_link_list = post_link_list
+
+    # 预处理
+    with open(target_file_path, mode='r', newline='', encoding='utf-8') as target_file:
+        reader_target = csv.reader(target_file)
+        reader_target = list(reader_target)
+
+        for row_target in reader_target:
+            for link in post_link_list:
+                if row_target[1] == link[2]:
+                    processed_link_list.remove(link)
+                    print("编号已存在，跳过:", row_target[1])
+                    break
+
     print('no,id,title,type,platform,friend_id,country,region,sent_date,received_date,tags,url,friend_url')
 
     source_date = []
-    for url in post_link_list:
+    for url in processed_link_list:
         response = requests.get("https://icardyou.icu" + url[1], verify=False)
         soup = BeautifulSoup(response.content, 'html.parser')
 
