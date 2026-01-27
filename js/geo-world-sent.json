@@ -5,11 +5,10 @@ title: grouped cards data
 {% assign grouped_by_country = records | group_by: "country" %}
 [
 {% for group in grouped_by_country %}
-  {% assign valid_items = group.items | where_exp: "item", "item.received_date != nil and item.received_date != ''" %}
   {% assign total_days = 0 %}
   {% assign count = 0 %}
-  {% for item in valid_items %}
-    {% if item.sent_date and item.received_date %}
+  {% for item in group.items %}
+    {% if item.sent_date and item.received_date and item.received_date != "" %}
       {% assign sent = item.sent_date | date: "%s" %}
       {% assign received = item.received_date | date: "%s" %}
       {% assign days = received | minus: sent | divided_by: 86400 %}
