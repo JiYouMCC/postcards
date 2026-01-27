@@ -1,26 +1,26 @@
 ---
 title: grouped cards data
 ---
-{% assign china_records = site.data.sent | where: "country", "China" %}
-{% assign grouped_by_region = china_records | group_by: "region" %}
+{%- assign china_records = site.data.sent | where: "country", "China" -%}
+{%- assign grouped_by_region = china_records | group_by: "region" -%}
 [
-{% for group in grouped_by_region %}
-  {% assign total_days = 0 %}
-  {% assign count = 0 %}
-  {% for item in group.items %}
-    {% if item.sent_date and item.received_date and item.received_date != "" %}
-      {% assign sent = item.sent_date | date: "%s" %}
-      {% assign received = item.received_date | date: "%s" %}
-      {% assign days = received | minus: sent | divided_by: 86400 %}
-      {% assign total_days = total_days | plus: days %}
-      {% assign count = count | plus: 1 %}
-    {% endif %}
-  {% endfor %}
-  {% if count > 0 %}
-    {% assign avg_days = total_days | divided_by: count %}
-  {% else %}
-    {% assign avg_days = 0 %}
-  {% endif %}
-  {"province": "{{ group.name }}", "count": {{ group.items | size }}, "avgDeliveryDays": {{ avg_days }} }{% if forloop.last == false %},{% endif %}
-{% endfor %}
+{%- for group in grouped_by_region -%}
+  {%- assign total_days = 0 -%}
+  {%- assign count = 0 -%}
+  {%- for item in group.items -%}
+    {%- if item.sent_date and item.received_date and item.received_date != "" -%}
+      {%- assign sent = item.sent_date | date: "%s" -%}
+      {%- assign received = item.received_date | date: "%s" -%}
+      {%- assign days = received | minus: sent | divided_by: 86400 -%}
+      {%- assign total_days = total_days | plus: days -%}
+      {%- assign count = count | plus: 1 -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if count > 0 -%}
+    {%- assign avg_days = total_days | divided_by: count -%}
+  {%- else -%}
+    {%- assign avg_days = 0 -%}
+  {%- endif -%}
+  {"province": "{{ group.name }}", "count": {{ group.items | size }}, "avgDeliveryDays": {{ avg_days }} }{%- if forloop.last == false -%},{%- endif -%}
+{%- endfor -%}
 ]
