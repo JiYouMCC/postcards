@@ -9,7 +9,7 @@ title: grouped cards data
   {% assign total_days = 0 %}
   {% assign count = 0 %}
   {% for item in valid_items %}
-    {% if item.sent_date and item.received_date %}
+    {% if item.sent_date and item.received_date and item.received_date != "" %}
       {% assign sent = item.sent_date | date: "%s" %}
       {% assign received = item.received_date | date: "%s" %}
       {% assign days = received | minus: sent | divided_by: 86400 %}
