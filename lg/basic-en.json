@@ -283,5 +283,12 @@
     "London":"London",
     "Montréal":"Montréal",
     "Surrey":"Surrey",
-    "Victoria":"Victoria"
+    "Victoria":"Victoria",
+
+    "_comment": "Belarus",
+    "Dzyarzhynsk":"Dzyarzhynsk",
+    "Minsk":"Minsk",
+    "Ushachi":"Ushachi",
+
+    "_comment":"end"
 }

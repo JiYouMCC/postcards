@@ -281,5 +281,12 @@
     "London":"伦敦",
     "Montréal":"蒙特利尔",
     "Surrey":"萨里",
-    "Victoria":"维多利亚"
+    "Victoria":"维多利亚",
+
+    "_comment": "白俄罗斯",
+    "Dzyarzhynsk":"捷尔任斯克",
+    "Minsk":"明斯克",
+    "Ushachi":"乌沙奇",
+
+    "_comment": "末尾"
 }
