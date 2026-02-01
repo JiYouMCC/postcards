@@ -290,5 +290,18 @@
     "Minsk":"Minsk",
     "Ushachi":"Ushachi",
 
+    "_comment": "Japan",
+    "Chiba": "Chiba",
+    "Kanazawa": "Kanazawa",
+    "Kyoto": "Kyoto",
+    "Matsudo": "Matsudo",
+    "Minami-Bōsō": "Minami-Bōsō",
+    "Nisshin": "Nisshin",
+    "Saga": "Saga",
+    "Saitama": "Saitama",
+    "Sano": "Sano",
+    "Toyohashi": "Toyohashi",
+    "Yokohama": "Yokohama",
+
     "_comment":"end"
 }

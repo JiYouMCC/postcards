@@ -52,7 +52,7 @@ function RefreshPopoverListeners() {
         let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
         resultHtml += `<br>${fromOrTo} <a href="${mode}?&sender=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
         resultHtml += `<br><strong data-localize="On">On</strong> <a href="${mode}?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
-        resultHtml += `<br><strong data-localize="By">By</strong> <a href="${mode}?types=${cardType}" style="cursor: pointer;">${cardType}</a>`;
+        resultHtml += `<br><strong data-localize="By">By</strong> <a href="${mode}?types=${cardType}" style="cursor: pointer;" data-localize="${cardType}">${cardType}</a>`;
         resultHtml += `<br>${sentDataStr} ~`;
         if (receivedDate) {
           resultHtml += ` ${receivedDataStr} (${days} <span data-localize="day(s)">day(s)</span>)<br>`;
