@@ -8,11 +8,28 @@
 
       <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link {% if page.url == '/received.html' %}active{% endif %}" href="{{ site.baseurl }}/received"><i data-feather="inbox"></i>&nbsp;<span data-localize="Received">收片</span>&nbsp;<span class="badge rounded-pill text-bg-light">{{ site.data.received.size }}</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {% if page.url == '/sent.html' %}active{% endif %}" href="{{ site.baseurl }}/sent"><i data-feather="send"></i>&nbsp;<span data-localize="Sent">寄片</span>&nbsp;<span class="badge rounded-pill text-bg-light">{{ site.data.sent.size }}</span></a>
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle {% if page.url == '/received.html' or page.url == '/sent.html' or page.url == '/exchange.html' %}active{% endif %}" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i data-feather="book"></i>&nbsp;<span data-localize="Collection">收藏</span><span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item d-flex justify-content-between align-items-center {% if page.url == '/received.html' %}active{% endif %}" href="{{ site.baseurl }}/received">
+                  <span><i data-feather="inbox"></i>&nbsp;<span data-localize="Received">收到的明信片</span></span>
+                  <span class="badge rounded-pill bg-secondary ms-2">{{ site.data.received.size }}</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex justify-content-between align-items-center {% if page.url == '/sent.html' %}active{% endif %}" href="{{ site.baseurl }}/sent">
+                  <span><i data-feather="send"></i>&nbsp;<span data-localize="Sent">寄出的明信片</span></span>
+                  <span class="badge rounded-pill bg-secondary ms-2">{{ site.data.sent.size }}</span>
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item {% if page.url == '/exchange.html' %}active{% endif %}" href="{{ site.baseurl }}/exchange">
+                  <i data-feather="repeat"></i>&nbsp;<span data-localize="Exchange">互寄记录</span>
+                </a>
+              </li>
+            </ul>
           </li>
           <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i data-feather="pie-chart"></i>&nbsp;<span data-localize="Analytics">数据分析</span><span class="caret"></span></a>

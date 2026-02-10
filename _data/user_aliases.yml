@@ -1,0 +1,23 @@
+# 用户别名映射配置
+# 用于关联同一用户在不同平台的账号和昵称变化
+
+# 示例：
+# - canonical_name: "何苦来哉"       # 真实姓名或首选昵称
+#   search_aliases:                  # 所有可搜索的别名（包括历史昵称）
+#     - "何苦来哉"
+#     - "泉华"
+#     - "广东屑蟑螂"
+#   friend_urls:                     # 所有关联的 friend_url（用于精确匹配）
+#     - "https://icy.ink/user/xxx"
+#     - "https://www.post-hi.com/userxxx"
+#   notes: "爱改昵称的朋友 😄"       # 可选备注
+
+users:
+  - canonical_name: "何苦来哉"
+    search_aliases:
+      - "何苦来哉"
+      - "泉华"
+      - "广东屑蟑螂"
+    friend_urls:
+      - "https://icardyou.icu/userInfo/homePage?userId=37943"
+      - "https://www.post-hi.com/user/01JTVEPPFPRQKA0BNQDN226DNG"

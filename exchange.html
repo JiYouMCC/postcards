@@ -1,0 +1,50 @@
+---
+layout: default
+title: "互寄记录"
+---
+<header class="post-header">
+  <h1 class="post-title text-center mb-4" data-localize="Exchange">{{ page.title }}</h1>
+</header>
+<div class="container">
+  <!-- 用户选择区 -->
+  <div class="d-flex flex-wrap mb-3 align-items-center justify-content-center" style="row-gap: 0.5rem">
+    <div class="col-auto me-2">
+      <input id="inputFriendSearch" type="text" class="form-control" data-localize="Enter Username" placeholder="输入昵称" list="datalistFriend">
+      <datalist id="datalistFriend"></datalist>
+    </div>
+    <a class="btn btn-info me-1 btn-sm" id="resetSearch" data-bs-toggle="collapse" data-localize="Reset">Reset</a>
+    <span id="userStats" class="badge bg-info text-wrap"></span>
+  </div>
+
+  <!-- 统计信息 -->
+  <div class="alert alert-light text-center" role="alert" id="statsAlert" style="display: none;">
+    <span data-localize="Receive">收</span> <strong id="receivedCount">0</strong> | 
+    <span data-localize="Send">寄</span> <strong id="sentCount">0</strong>
+  </div>
+
+  <!-- 双栏展示区 -->
+  <div class="row mt-3 gx-5">
+    <div class="col-md-6">
+      <h4 class="text-center mb-3 text-primary" data-localize="Received from Friend"><i data-feather="inbox"></i> <span data-localize="Cards sent to me">TA 寄给我的</span></h4>
+      <div class="row" id="receivedContainer"></div>
+    </div>
+    <div class="col-md-6">
+      <h4 class="text-center mb-3 text-success" data-localize="I Sent to Friend"><i data-feather="send"></i> <span data-localize="Cards I sent to ...">我寄给 TA 的</span></h4>
+      <div class="row" id="sentContainer"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  feather.replace();
+</script>
+<script>
+  // 加载用户别名配置
+  const userAliasesData = {{ site.data.user_aliases | jsonify }};
+</script>
+<script src="{{ site.baseurl }}{{ "/js/received-data.js"}}"></script>
+<script src="{{ site.baseurl }}{{ "/js/sent-data.js"}}"></script>
+<script src="{{ site.baseurl }}{{ "/js/exchange.js"}}"></script>
+<script type="text/javascript">
+  ExchangeManager.Init(receivedData, sentData, userAliasesData);
+</script>

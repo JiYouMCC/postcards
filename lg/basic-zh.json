@@ -1,6 +1,7 @@
 {
     "Language": "中文",
     "JiYou's Postcard Collection": "嵇爾的明信片收藏册",
+    "Collection": "收藏",
     "Received": "收片",
     "Sent": "发片",
     "Received Date": "收片日期",
@@ -65,6 +66,12 @@
     "On": "平台",
     "By": "类型",
     "Expired": "过期",
+    "Location": "位置",
+    "Username": "昵称",
+    "Exchange": "互寄记录",
+    "Enter Username": "输入昵称",
+    "Cards sent to me": "TA 寄给我的明信片",
+    "Cards I sent to ...": "我寄给 TA 的明信片",
 
     "GAME": "活动",
     "GIVE": "赠送",
