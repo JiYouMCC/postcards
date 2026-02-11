@@ -141,11 +141,7 @@ const ExchangeManager = {
       }
     } else {
       const nicknameText = Array.from(nicknames).join(', ');
-      /*if (nicknameText.length > 200) {
-        statsText = `${nicknameText.slice(0, 200)}...`;
-      } else {*/
         statsText = `${nicknameText}`;
-      /*}*/
       const urlCount = friendUrls.size;
       
       if (urlCount > 1) {
@@ -218,6 +214,7 @@ const ExchangeManager = {
               .attr("data-card-received_date", dataItem["received_date"])
               .attr("data-card-type", dataItem["type"])
               .attr("data-card-tags", dataItem["tags"])
+              .attr("data-card-mode", folder === 'received' ? 'received' : 'sent')
           )
       );
     });
@@ -255,44 +252,49 @@ const ExchangeManager = {
         allowList: myDefaultAllowList,
         content: function() {
           const cardID = popoverTriggerEl.getAttribute('data-card-id');
-          const cardTitle = popoverTriggerEl.getAttribute('data-card-title') || cardID;
-          const cardUrl = popoverTriggerEl.getAttribute('data-card-url') || "#";
-          const cardType = popoverTriggerEl.getAttribute('data-card-type') || "";
-          const friendId = popoverTriggerEl.getAttribute('data-card-friend_id') || "";
-          const friendUrl = popoverTriggerEl.getAttribute('data-card-friend_url') || "#";
-          const country = popoverTriggerEl.getAttribute('data-card-country') || "";
-          const region = popoverTriggerEl.getAttribute('data-card-region') || "";
-          const sentDate = new Date(popoverTriggerEl.getAttribute('data-card-sent_date'));
-          let receivedDate = null;
-          if (popoverTriggerEl.getAttribute('data-card-received_date')) {
-            receivedDate = new Date(popoverTriggerEl.getAttribute('data-card-received_date'));
-          }
-          const tags = popoverTriggerEl.getAttribute('data-card-tags') || "";
-          const platform = popoverTriggerEl.getAttribute('data-card-platform');
-          let days = null;
-          let receivedDataStr = null;
-          if (receivedDate) {
-            days = Math.floor((receivedDate - sentDate) / (1000 * 60 * 60 * 24));
-            receivedDataStr = `${receivedDate.getFullYear()}-${receivedDate.getMonth() + 1}-${receivedDate.getDate()}`;
-          }
-          const sentDataStr = `${sentDate.getFullYear()}-${sentDate.getMonth() + 1}-${sentDate.getDate()}`;
-          const location = region ? `<span data-localize="${country}">${country}</span> - <span data-localize="${region}">${region}</span>` : `<span data-localize="${country}">${country}</span>`;
-          
-          let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
-          resultHtml += `<br><strong data-localize="Username">Username</strong>: <a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">${friendId}</a>`;
-          resultHtml += `<br><strong data-localize="Location">Location</strong>: ${location}`;
-          resultHtml += `<br><strong data-localize="Platform">Platform</strong>: ${platform}`;
-          resultHtml += `<br><strong data-localize="Type">Type</strong>: <span data-localize="${cardType}">${cardType}</span>`;
-          resultHtml += `<br>${sentDataStr} ~ `;
-          if (receivedDate) {
-            resultHtml += ` ${receivedDataStr} (${days} <span data-localize="day(s)">day(s)</span>)<br>`;
-          } else {
-            resultHtml += ` <span data-localize="Expired">Expired</span><br>`;
-          }
-          tags.split(',').forEach(tag => {
-            if (tag) resultHtml += `<span class="me-1 badge text-bg-primary">${tag}</span>`;
-          });
-          return resultHtml;
+        const cardTitle = popoverTriggerEl.getAttribute('data-card-title') || cardID;
+        const cardUrl = popoverTriggerEl.getAttribute('data-card-url') || "#";
+        const cardType = popoverTriggerEl.getAttribute('data-card-type') || "";
+        const friendId = popoverTriggerEl.getAttribute('data-card-friend_id') || "";
+        const friendUrl = popoverTriggerEl.getAttribute('data-card-friend_url') || "#";
+        const country = popoverTriggerEl.getAttribute('data-card-country') || "";
+        const region = popoverTriggerEl.getAttribute('data-card-region') || "";
+        const sentDate = new Date(popoverTriggerEl.getAttribute('data-card-sent_date'));
+        let receivedDate = null;
+        if (popoverTriggerEl.getAttribute('data-card-received_date')) {
+          receivedDate = new Date(popoverTriggerEl.getAttribute('data-card-received_date'));
+        }
+        const tags = popoverTriggerEl.getAttribute('data-card-tags') || "";
+        const platform = popoverTriggerEl.getAttribute('data-card-platform');
+        let days = null;
+        let receivedDataStr = null;
+        if (receivedDate) {
+          days = Math.floor((receivedDate - sentDate) / (1000 * 60 * 60 * 24));
+          receivedDataStr = `${receivedDate.getFullYear()}-${receivedDate.getMonth() + 1}-${receivedDate.getDate()}`;
+        }
+        const sentDataStr = `${sentDate.getFullYear()}-${sentDate.getMonth() + 1}-${sentDate.getDate()}`;
+        const mode = popoverTriggerEl.getAttribute('data-card-mode') || "";
+        let fromOrTo = `<strong data-localize="From">From</strong>`;
+        let usernameParam = "sender";
+        if (mode == "sent") {
+          fromOrTo = `<strong data-localize="To">To</strong>`;
+          usernameParam = "receiver";
+        }
+        const location = region ? `<a href="${mode}?countries=${country}" style="cursor: pointer;" data-localize="${country}">${country}</a> - <a href="${mode}?countries=${country}&regions=${region}" style="cursor: pointer;" data-localize="${region}">${region}</a>` : `<a href="${mode}?countries=${country}" target="_blank" style="cursor: pointer;" data-localize="${country}">${country}</a>`;
+        let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
+        resultHtml += `<br>${fromOrTo} <a href="${mode}?&${usernameParam}=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
+        resultHtml += `<br><strong data-localize="On">On</strong> <a href="${mode}?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
+        resultHtml += `<br><strong data-localize="By">By</strong> <a href="${mode}?types=${cardType}" style="cursor: pointer;" data-localize="${cardType}">${cardType}</a>`;
+        resultHtml += `<br>${sentDataStr} ~`;
+        if (receivedDate) {
+          resultHtml += ` ${receivedDataStr} (${days} <span data-localize="day(s)">day(s)</span>)<br>`;
+        } else {
+          resultHtml += ` <span data-localize="Expired">Expired</span><br>`;
+        }
+        tags.split(',').forEach(tag => {
+          resultHtml += `<a href="${mode}?tags=${tag}" style="cursor: pointer;"><span class="me-1 badge text-bg-primary">${tag}</span></a>`;
+        });
+        return resultHtml;
         }
       })
     });

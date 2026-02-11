@@ -66,8 +66,6 @@
     "On": "平台",
     "By": "类型",
     "Expired": "过期",
-    "Location": "位置",
-    "Username": "昵称",
     "Exchange": "互寄记录",
     "Enter Username": "输入昵称",
     "Cards sent to me": "TA 寄给我的明信片",
@@ -308,6 +306,11 @@
     "Sano": "佐野",
     "Toyohashi": "丰桥",
     "Yokohama": "横滨",
+
+    "_comment": "意大利",
+    "Cairo Montenotte": "卡伊罗蒙特诺泰",
+    "Genoa": "热那亚",
+    "Thiene": "特耶内",
 
     "_comment": "末尾"
 }

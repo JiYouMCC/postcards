@@ -45,12 +45,14 @@ function RefreshPopoverListeners() {
         const sentDataStr = `${sentDate.getFullYear()}-${sentDate.getMonth() + 1}-${sentDate.getDate()}`;
         const mode = popoverTriggerEl.getAttribute('data-card-mode') || "";
         let fromOrTo = `<strong data-localize="From">From</strong>`;
+        let usernameParam = "sender";
         if (mode == "sent") {
           fromOrTo = `<strong data-localize="To">To</strong>`;
+          usernameParam = "receiver";
         }
         const location = region ? `<a href="${mode}?countries=${country}" style="cursor: pointer;" data-localize="${country}">${country}</a> - <a href="${mode}?countries=${country}&regions=${region}" style="cursor: pointer;" data-localize="${region}">${region}</a>` : `<a href="${mode}?countries=${country}" target="_blank" style="cursor: pointer;" data-localize="${country}">${country}</a>`;
         let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
-        resultHtml += `<br>${fromOrTo} <a href="${mode}?&sender=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
+        resultHtml += `<br>${fromOrTo} <a href="${mode}?&${usernameParam}=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
         resultHtml += `<br><strong data-localize="On">On</strong> <a href="${mode}?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
         resultHtml += `<br><strong data-localize="By">By</strong> <a href="${mode}?types=${cardType}" style="cursor: pointer;" data-localize="${cardType}">${cardType}</a>`;
         resultHtml += `<br>${sentDataStr} ~`;
