@@ -13,7 +13,7 @@
 #   notes: "爱改昵称的朋友 😄"       # 可选备注
 
 users:
-  - canonical_name: "何苦来哉"
+  - canonical_name: "塑料凳"
     search_aliases:
       - "何苦来哉"
       - "泉华"
@@ -21,3 +21,11 @@ users:
     friend_urls:
       - "https://icardyou.icu/userInfo/homePage?userId=37943"
       - "https://www.post-hi.com/user/01JTVEPPFPRQKA0BNQDN226DNG"
+  - canonical_name: "记事本"
+    search_aliases:
+      - "记事本"
+      - "orzFly"
+      - "藻尘"
+    friend_urls:
+      - "https://www.post-hi.com/user/01JDYK3N18BBW1C4VWW9FMTBHG"
+      - "https://icardyou.icu/userInfo/homePage?userId=13597"
