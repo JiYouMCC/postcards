@@ -418,7 +418,7 @@ const PostcardCollection = {
           const receivedDataStr = `${receivedDate.getFullYear()}-${receivedDate.getMonth() + 1}-${receivedDate.getDate()}`;
           const location = region ? `<a href="?countries=${country}" style="cursor: pointer;" data-localize="${country}">${country}</a> - <a href="?countries=${country}&regions=${region}" style="cursor: pointer;" data-localize="${region}">${region}</a>` : `<a href="?countries=${country}" target="_blank" style="cursor: pointer;" data-localize="${country}">${country}</a>`;
           let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
-          resultHtml += `<br><strong data-localize="From">From</strong> <a href="?&sender=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
+          resultHtml += `<br><strong data-localize="From">From</strong> <a href="../exchange?search=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
           resultHtml += `<br><strong data-localize="On">On</strong> <a href="?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
           resultHtml += `<br><strong data-localize="By">By</strong> <a href="?types=${cardType}" style="cursor: pointer;"  data-localize="${cardType}">${cardType}</a>`;
           resultHtml += `<br>${sentDataStr} ~ ${receivedDataStr} (${days} <span data-localize="day(s)">day(s)</span>)<br>`;
