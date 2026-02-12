@@ -95,8 +95,11 @@ title: "我寄出的明信片"
 <script>
   feather.replace();
 </script>
-<script src="{{ site.baseurl }}{{ "/js/sent.js"}}"></script>
-<script src="{{ site.baseurl }}{{ "/js/sent-data.js"}}"></script>
+<script>
+  window.__POSTCARDS_EXCHANGE_BASE__ = "{{ '/exchange' | relative_url }}";
+</script>
+<script src="{{ '/js/sent.js' | relative_url }}"></script>
+<script src="{{ '/js/sent-data.js' | relative_url }}"></script>
 <script type="text/javascript">
   PostcardCollection.Init(sentData)
 </script>

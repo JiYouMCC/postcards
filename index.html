@@ -34,6 +34,9 @@ layout: default
   img.onerror = function() {
     this.src = "{{ site.baseurl }}/postcard.svg";
   }
+  window.__POSTCARDS_RECEIVED_BASE__ = "{{ '/received' | relative_url }}";
+  window.__POSTCARDS_SENT_BASE__ = "{{ '/sent' | relative_url }}";
+  window.__POSTCARDS_EXCHANGE_BASE__ = "{{ '/exchange' | relative_url }}";
 });
 </script>
-<script src="{{ site.baseurl }}{{ "/js/index.js"}}"></script>
+<script src="{{ '/js/index.js' | relative_url }}"></script>

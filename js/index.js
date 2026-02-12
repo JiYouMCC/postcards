@@ -45,11 +45,17 @@ function RefreshPopoverListeners() {
         const sentDataStr = `${sentDate.getFullYear()}-${sentDate.getMonth() + 1}-${sentDate.getDate()}`;
         const mode = popoverTriggerEl.getAttribute('data-card-mode') || "";
         let fromOrTo = `<strong data-localize="From">From</strong>`;
-        const location = region ? `<a href="${mode}?countries=${country}" style="cursor: pointer;" data-localize="${country}">${country}</a> - <a href="${mode}?countries=${country}&regions=${region}" style="cursor: pointer;" data-localize="${region}">${region}</a>` : `<a href="${mode}?countries=${country}" target="_blank" style="cursor: pointer;" data-localize="${country}">${country}</a>`;
+        let exchange_base = window.__POSTCARDS_EXCHANGE_BASE__;
+        let base_url = window.__POSTCARDS_RECEIVED_BASE__;
+        if (mode === "sent") {
+          fromOrTo = `<strong data-localize="To">To</strong>`;
+          base_url = window.__POSTCARDS_SENT_BASE__;
+        }
+        const location = region ? `<a href="${base_url}?countries=${country}" style="cursor: pointer;" data-localize="${country}">${country}</a> - <a href="${base_url}?countries=${country}&regions=${region}" style="cursor: pointer;" data-localize="${region}">${region}</a>` : `<a href="${base_url}?countries=${country}" target="_blank" style="cursor: pointer;" data-localize="${country}">${country}</a>`;
         let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
-        resultHtml += `<br>${fromOrTo} <a href="exchange?search=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
-        resultHtml += `<br><strong data-localize="On">On</strong> <a href="${mode}?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
-        resultHtml += `<br><strong data-localize="By">By</strong> <a href="${mode}?types=${cardType}" style="cursor: pointer;" data-localize="${cardType}">${cardType}</a>`;
+        resultHtml += `<br>${fromOrTo} <a href="${exchange_base}?search=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
+        resultHtml += `<br><strong data-localize="On">On</strong> <a href="${base_url}?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
+        resultHtml += `<br><strong data-localize="By">By</strong> <a href="${base_url}?types=${cardType}" style="cursor: pointer;" data-localize="${cardType}">${cardType}</a>`;
         resultHtml += `<br>${sentDataStr} ~`;
         if (receivedDate) {
           resultHtml += ` ${receivedDataStr} (${days} <span data-localize="day(s)">day(s)</span>)<br>`;
@@ -57,7 +63,7 @@ function RefreshPopoverListeners() {
           resultHtml += ` <span data-localize="Expired">Expired</span><br>`;
         }
         tags.split(' ').forEach(tag => {
-          resultHtml += `<a href="${mode}?tags=${tag}" style="cursor: pointer;"><span class="me-1 badge text-bg-primary">${tag}</span></a>`;
+          resultHtml += `<a href="${base_url}?tags=${tag}" style="cursor: pointer;"><span class="me-1 badge text-bg-primary">${tag}</span></a>`;
         });
         return resultHtml;
       }

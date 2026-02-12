@@ -30,6 +30,7 @@ const PostcardCollection = {
   _itemsPerPage: 24,
   _currentPage: 1,
   _baseUrl: "/postcards/",
+  _exchange_base: window.__POSTCARDS_EXCHANGE_BASE__,
   Init: function(data) {
     // 初始化数据
     PostcardCollection._postData = data.sort((a, b) => new Date(b['sent_date']) - new Date(a['sent_date']));
@@ -426,7 +427,7 @@ const PostcardCollection = {
           const sentDataStr = `${sentDate.getFullYear()}-${sentDate.getMonth() + 1}-${sentDate.getDate()}`;
           const location = region ? `<a href="?countries=${country}" style="cursor: pointer;" data-localize="${country}">${country}</a> - <a href="?countries=${country}&regions=${region}" style="cursor: pointer;" data-localize="${region}">${region}</a>` : `<a href="?countries=${country}" target="_blank" style="cursor: pointer;" data-localize="${country}">${country}</a>`;
           let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
-          resultHtml += `<br><strong data-localize="To">To</strong> <a href="exchange?search=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
+          resultHtml += `<br><strong data-localize="To">To</strong> <a href="${PostcardCollection._exchange_base}?search=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
           resultHtml += `<br><strong data-localize="On">On</strong> <a href="?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
           resultHtml += `<br><strong data-localize="By">By</strong> <a href="?types=${cardType}" style="cursor: pointer;" data-localize="${cardType}">${cardType}</a>`;
           resultHtml += `<br>${sentDataStr} ~`;

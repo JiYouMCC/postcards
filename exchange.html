@@ -41,10 +41,12 @@ title: "互寄记录"
 <script>
   // 加载用户别名配置
   const userAliasesData = {{ site.data.user_aliases | jsonify }};
+  window.__POSTCARDS_RECEIVED_BASE__ = "{{ '/received' | relative_url }}";
+  window.__POSTCARDS_SENT_BASE__ = "{{ '/sent' | relative_url }}";
 </script>
-<script src="{{ site.baseurl }}{{ "/js/received-data.js"}}"></script>
-<script src="{{ site.baseurl }}{{ "/js/sent-data.js"}}"></script>
-<script src="{{ site.baseurl }}{{ "/js/exchange.js"}}"></script>
+<script src="{{ '/js/sent-data.js' | relative_url }}"></script>
+<script src="{{ '/js/received-data.js' | relative_url }}"></script>
+<script src="{{ '/js/exchange.js' | relative_url }}"></script>
 <script type="text/javascript">
   ExchangeManager.Init(receivedData, sentData, userAliasesData);
 </script>
