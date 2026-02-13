@@ -19,10 +19,25 @@ def process(mode, post_link_list):
         target_file_path = "../_data/received.csv"
     else:
         target_file_path = "../_data/sent.csv"
+
+    processed_link_list = post_link_list
+
+    # 预处理
+    with open(target_file_path, mode='r', newline='', encoding='utf-8') as target_file:
+        reader_target = csv.reader(target_file)
+        reader_target = list(reader_target)
+
+        for row_target in reader_target:
+            for link in post_link_list:
+                if row_target[1] == link:
+                    processed_link_list.remove(link)
+                    print("编号已存在，跳过:", row_target[1])
+                    break
+
     print('no,id,title,type,platform,friend_id,country,region,sent_date,received_date,tags,url,friend_url')
 
     source_date = []
-    for postcard_id in post_link_list:
+    for postcard_id in processed_link_list:
         response = requests.get("https://www.postcrossing.com/postcards/" + postcard_id, verify=False)
         soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -83,8 +98,6 @@ def process(mode, post_link_list):
             else:
                 receiver_country = ""
             country = receiver_country
-        new_line.append(country)
-        print(country + ',', end='')
 
         # 8. region
         if mode == 0:
@@ -93,6 +106,12 @@ def process(mode, post_link_list):
         else:
             receiver_region = soup.find('div', class_='details-box receiver right').find('a', attrs={'itemprop': 'addressCountry'}).get('title').split(',')[0]
             region = receiver_region
+        if country == "Taiwan":
+            country = "China"
+            region = "台湾"
+
+        new_line.append(country)
+        print(country + ',', end='')
         new_line.append(region)
         print(region + ',', end='')
 
