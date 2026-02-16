@@ -1,8 +1,8 @@
 ---
 title: geo script
 ---
-const width = 1280,
-  height = 640;
+const width = 1024,
+  height = 650;
 
 // SVG container
 const svg = d3.select("#map")
