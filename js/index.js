@@ -23,10 +23,10 @@ function RefreshPopoverListeners() {
       content: function() {
         const cardID = popoverTriggerEl.getAttribute('data-card-id');
         const cardTitle = popoverTriggerEl.getAttribute('data-card-title') || cardID;
-        const cardUrl = popoverTriggerEl.getAttribute('data-card-url') || "#";
+        const cardUrl = popoverTriggerEl.getAttribute('data-card-url') || "";
         const cardType = popoverTriggerEl.getAttribute('data-card-type') || "";
         const friendId = popoverTriggerEl.getAttribute('data-card-friend_id') || "";
-        const friendUrl = popoverTriggerEl.getAttribute('data-card-friend_url') || "#";
+        const friendUrl = popoverTriggerEl.getAttribute('data-card-friend_url') || "";
         const country = popoverTriggerEl.getAttribute('data-card-country') || "";
         const region = popoverTriggerEl.getAttribute('data-card-region') || "";
         const sentDate = new Date(popoverTriggerEl.getAttribute('data-card-sent_date'));
@@ -52,8 +52,12 @@ function RefreshPopoverListeners() {
           base_url = window.__POSTCARDS_SENT_BASE__;
         }
         const location = region ? `<a href="${base_url}?countries=${country}" style="cursor: pointer;" data-localize="${country}">${country}</a> - <a href="${base_url}?countries=${country}&regions=${region}" style="cursor: pointer;" data-localize="${region}">${region}</a>` : `<a href="${base_url}?countries=${country}" target="_blank" style="cursor: pointer;" data-localize="${country}">${country}</a>`;
-        let resultHtml = `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>`;
-        resultHtml += `<br>${fromOrTo} <a href="${exchange_base}?search=${friendId}" style="cursor: pointer;">${friendId}</a><a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a> (${location})`;
+        let resultHtml = cardUrl ? `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>` : `<strong>${cardTitle}</strong>`;
+        resultHtml += `<br>${fromOrTo} <a href="${exchange_base}?search=${friendId}" style="cursor: pointer;">${friendId}</a>`;
+        if (friendUrl) {
+          resultHtml += `<a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a>`;
+        }
+        resultHtml += ` (${location})`;
         resultHtml += `<br><strong data-localize="On">On</strong> <a href="${base_url}?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
         resultHtml += `<br><strong data-localize="By">By</strong> <a href="${base_url}?types=${cardType}" style="cursor: pointer;" data-localize="${cardType}">${cardType}</a>`;
         resultHtml += `<br>${sentDataStr} ~`;
