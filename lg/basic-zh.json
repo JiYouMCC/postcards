@@ -256,6 +256,7 @@
     "Doniphan":"多尼芬",
     "Edina":"伊代纳",
     "Georgetown":"乔治敦",
+    "Hackensack":"哈肯萨克",
     "Inver Grove Heights":"因佛格罗夫海茨",
     "Joplin":"乔普林",
     "Kettering":"凯特林",
@@ -312,6 +313,9 @@
     "Cairo Montenotte": "卡伊罗蒙特诺泰",
     "Genoa": "热那亚",
     "Thiene": "特耶内",
+
+    "_comment": "比利时",
+    "Donk": "东克",
 
     "_comment": "末尾"
 }

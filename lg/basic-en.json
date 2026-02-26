@@ -259,6 +259,7 @@
     "Doniphan":"Doniphan",
     "Edina":"Edina",
     "Georgetown":"Georgetown",
+    "Hackensack": "Hackensack",
     "Inver Grove Heights":"Inver Grove Heights",
     "Joplin":"Joplin",
     "Kettering":"Kettering",
@@ -315,6 +316,9 @@
     "Cairo Montenotte": "Cairo Montenotte",
     "Genoa": "Genoa",
     "Thiene": "Thiene",
+
+    "_comment": "Belgium",
+    "Donk": "Donk",
 
     "_comment":"end"
 }
