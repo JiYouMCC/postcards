@@ -103,6 +103,7 @@
     "Ireland": "爱尔兰",
     "Italy": "意大利",
     "Japan": "日本",
+    "Kazakhstan": "哈萨克斯坦",
     "Korea (South)": "韩国",
     "Lithuania": "立陶宛",
     "Luxembourg": "卢森堡",
@@ -110,8 +111,8 @@
     "Mexico": "墨西哥",
     "Netherlands": "荷兰",
     "New Zealand": "新西兰",
-    "Philippines": "菲律宾",
     "Norway": "挪威",
+    "Philippines": "菲律宾",
     "Poland": "波兰",
     "Portugal": "葡萄牙",
     "Puerto Rico": "波多黎各",
@@ -181,6 +182,7 @@
     "Bielefeld":"比勒费尔德",
     "Bonn":"波恩",
     "Bottrop":"博特罗普",
+    "Cottbus":"科特布斯",    
     "Dessau":"德绍",
     "Dorsten":"多斯滕",
     "Dreieich":"德赖艾希",
@@ -203,6 +205,7 @@
     "Karlsruhe":"卡尔斯鲁厄",
     "Kitzingen":"基青根",
     "Kronau":"克罗瑙",
+    "Köln":"科隆",
     "Landau in der Pfalz":"兰道",
     "Leipzig":"莱比锡",
     "Lingen":"林根",
@@ -210,6 +213,7 @@
     "Lüneburg":"吕讷堡",
     "Lünen":"吕嫩",
     "Merseburg":"梅泽堡",
+    "Much":"穆赫",
     "Neuendettelsau":"新代特尔斯奥",
     "Petershagen":"彼得斯哈根",
     "Plön":"普伦",
@@ -261,7 +265,9 @@
     "Joplin":"乔普林",
     "Kettering":"凯特林",
     "Knoxville":"诺克斯维尔",
+    "Las Vegas":"拉斯维加斯",
     "Marietta":"玛丽埃塔",
+    "Medford":"梅德福",
     "Mequon":"梅昆",
     "Mount Prospect":"芒特普罗斯佩克特",
     "New York City":"纽约",
@@ -316,6 +322,9 @@
 
     "_comment": "比利时",
     "Donk": "东克",
+
+    "_comment": "哈萨克斯坦",
+    "Almaty":"阿拉木图",
 
     "_comment": "末尾"
 }

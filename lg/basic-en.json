@@ -106,6 +106,7 @@
     "Ireland": "Ireland",
     "Italy": "Italy",
     "Japan": "Japan",
+    "Kazakhstan": "Kazakhstan",
     "Korea (South)": "Korea (South)",
     "Lithuania": "Lithuania",
     "Luxembourg": "Luxembourg",
@@ -184,6 +185,7 @@
     "Bielefeld":"Bielefeld",
     "Bonn":"Bonn",
     "Bottrop":"Bottrop",
+    "Cottbus":"Cottbus",
     "Dessau":"Dessau",
     "Dorsten":"Dorsten",
     "Dreieich":"Dreieich",
@@ -206,6 +208,7 @@
     "Karlsruhe":"Karlsruhe",
     "Kitzingen":"Kitzingen",
     "Kronau":"Kronau",
+    "Köln":"Köln",
     "Landau in der Pfalz":"Landau in der Pfalz",
     "Leipzig":"Leipzig",
     "Lingen":"Lingen",
@@ -213,6 +216,7 @@
     "Lüneburg":"Lüneburg",
     "Lünen":"Lünen",
     "Merseburg":"Merseburg",
+    "Much":"Much",
     "Neuendettelsau":"Neuendettelsau",
     "Petershagen":"Petershagen",
     "Plön":"Plön",
@@ -264,7 +268,9 @@
     "Joplin":"Joplin",
     "Kettering":"Kettering",
     "Knoxville":"Knoxville",
+    "Las Vegas":"Las Vegas",
     "Marietta":"Marietta",
+    "Medford":"Medford",
     "Mequon":"Mequon",
     "Mount Prospect":"Mount Prospect",
     "New York City":"New York City",
@@ -319,6 +325,9 @@
 
     "_comment": "Belgium",
     "Donk": "Donk",
+
+    "_comment": "Kazakhstan",
+    "Almaty":"Almaty",
 
     "_comment":"end"
 }
