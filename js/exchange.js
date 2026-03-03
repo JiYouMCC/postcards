@@ -71,6 +71,13 @@ const ExchangeManager = {
       ExchangeManager.SearchAndDisplay(searchText);
     }, 300));
 
+    $('#exactMatchCheck').on('change', () => {
+      const searchText = inputSearch.val().trim();
+      if (searchText.length > 0) {
+        ExchangeManager.SearchAndDisplay(searchText);
+      }
+    });
+
     const resetButton = $('#resetSearch');
     resetButton.on('click', () => {
       inputSearch.val('');
@@ -80,6 +87,7 @@ const ExchangeManager = {
   
   SearchAndDisplay: function(searchText) {
     const allData = [...ExchangeManager._receivedData, ...ExchangeManager._sentData];
+    const exactMatch = $('#exactMatchCheck').is(':checked');
     
     // 先检查是否有用户别名映射
     let targetUrls = [];
@@ -90,7 +98,7 @@ const ExchangeManager = {
     // 查找别名配置
     const aliasEntry = ExchangeManager._userAliases.find(user => 
       user.search_aliases && user.search_aliases.some(alias => 
-        alias.includes(searchText)
+        exactMatch ? alias === searchText : alias.includes(searchText)
       )
     );
     
@@ -107,7 +115,7 @@ const ExchangeManager = {
     } else {
       // 没有找到别名配置，使用原有的昵称搜索
       matchedCards = allData.filter(item => 
-        item['friend_id'] && item['friend_id'].includes(searchText)
+        item['friend_id'] && (exactMatch ? item['friend_id'] === searchText : item['friend_id'].includes(searchText))
       );
     }
     
@@ -318,6 +326,12 @@ const ExchangeManager = {
   ApplyFiltersFromUrl: function() {
     const params = new URLSearchParams(window.location.search);
     
+    // exact 参数：url 中有 exact=0 时取消勾选，否则默认勾选
+    const exactParam = params.get('exact');
+    if (exactParam === '0') {
+      $('#exactMatchCheck').prop('checked', false);
+    }
+
     const searchText = params.get('search');
     if (searchText) {
       $('#inputFriendSearch').val(searchText);
@@ -330,6 +344,10 @@ const ExchangeManager = {
     
     if (ExchangeManager._currentSearchText) {
       params.set('search', ExchangeManager._currentSearchText);
+    }
+
+    if (!$('#exactMatchCheck').is(':checked')) {
+      params.set('exact', '0');
     }
 
     const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;

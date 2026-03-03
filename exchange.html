@@ -12,6 +12,12 @@ title: "Swap"
       <input id="inputFriendSearch" type="text" class="form-control" data-localize="Enter Username" placeholder="输入昵称" list="datalistFriend">
       <datalist id="datalistFriend"></datalist>
     </div>
+    <div class="col-auto me-2 d-flex align-items-center">
+      <div class="form-check mb-0">
+        <input class="form-check-input" type="checkbox" id="exactMatchCheck" checked>
+        <label class="form-check-label" for="exactMatchCheck" data-localize="Exact Match">精确匹配</label>
+      </div>
+    </div>
     <a class="btn btn-info me-1 btn-sm" id="resetSearch" data-bs-toggle="collapse" data-localize="Reset">Reset</a>
     <span id="userStats" class="badge bg-info text-wrap"></span>
   </div>
