@@ -38,8 +38,6 @@ def process(mode, post_link_list):
 
     source_date = []
     for postcard_id in processed_link_list:
-        print (postcard_id)
-        continue
         response = requests.get("https://www.postcrossing.com/postcards/" + postcard_id, verify=False)
         soup = BeautifulSoup(response.content, 'html.parser')
 
