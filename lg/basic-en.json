@@ -186,6 +186,7 @@
     "Bielefeld":"Bielefeld",
     "Bonn":"Bonn",
     "Bottrop":"Bottrop",
+    "Chemnitz":"Chemnitz",
     "Cottbus":"Cottbus",
     "Dessau":"Dessau",
     "Dorsten":"Dorsten",
@@ -329,6 +330,10 @@
 
     "_comment": "Kazakhstan",
     "Almaty":"Almaty",
+
+    "_comment": "Norway",
+    "Horten": "Horten",
+    "Skjeberg": "Skjeberg",
 
     "_comment":"end"
 }

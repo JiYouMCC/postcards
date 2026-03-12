@@ -210,7 +210,7 @@ const PostcardCollection = {
     // reset
     $('#resetFilter').on('click', () => {
       $('#inputTitle, #inputReceiver, #inputSentDateStart, #inputSentDateEnd, #inputReceivedDateStart, #inputReceivedDateEnd').val('');
-      $('#ul-country .form-check-input, #ul-region .form-check-input, #ul-type .form-check-input, #ul-platform .form-check-input, #div-tags .form-check-input').prop('checked', false);
+      $('#ul-country .form-check-input, #ul-region .form-check-input, #ul-type .form-check-input, #ul-platform .form-check-input, #div-tags .form-check-input, #expiredReceivedDate').prop('checked', false);
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-country', []);
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-region', []);
       PostcardCollection._UpdateDropdownText('#dropdownMenuButton-type', []);
@@ -232,7 +232,7 @@ const PostcardCollection = {
     });
 
     //parameter update
-    $('#ul-country .form-check-input, #ul-region .form-check-input, #ul-type .form-check-input, #ul-platform .form-check-input, #inputTitle, #inputReceiver, #div-tags .form-check-input, #collapseSentDate .form-control, #collapseReceivedDate .form-control').on('change input', function() {
+    $('#ul-country .form-check-input, #ul-region .form-check-input, #ul-type .form-check-input, #ul-platform .form-check-input, #inputTitle, #inputReceiver, #div-tags .form-check-input, #collapseSentDate .form-control, #collapseReceivedDate .form-control, #expiredReceivedDate').on('change input', function() {
       PostcardCollection.UpdateUrlParameters();
     });
   },
