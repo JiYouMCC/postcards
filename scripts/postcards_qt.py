@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QFormLayout,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -132,6 +133,23 @@ def load_csv_records(path: Path, direction: str) -> list[dict[str, str]]:
             clean["direction"] = direction
             records.append(clean)
     return records
+
+
+def load_csv_rows(path: Path) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            rows.append({field: (row.get(field, "") or "").strip() for field in ROW_FIELDNAMES})
+    return rows
+
+
+def write_csv_rows(path: Path, rows: list[dict[str, str]]) -> None:
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=ROW_FIELDNAMES)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({field: row.get(field, "") for field in ROW_FIELDNAMES})
 
 
 def find_image_path(root: Path, direction: str, postcard_id: str) -> Path | None:
@@ -672,6 +690,7 @@ class PostcardsPanel(QWidget):
         self.table = QTableView()
         self.table.setModel(self.proxy_model)
         self.table.setSortingEnabled(True)
+        self.table.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QTableView.SelectionMode.SingleSelection)
         self.table.setAlternatingRowColors(True)
@@ -704,8 +723,16 @@ class PostcardsPanel(QWidget):
 
         self.open_card_button = QPushButton("Open postcard link")
         self.open_friend_button = QPushButton("Open friend link")
+        self.edit_title_button = QPushButton("Edit title")
+        self.edit_tags_button = QPushButton("Edit tags")
+        self.edit_id_button = QPushButton("Edit ID")
+        self.duplicate_row_button = QPushButton("Duplicate row")
         self.open_card_button.clicked.connect(self.open_card_link)
         self.open_friend_button.clicked.connect(self.open_friend_link)
+        self.edit_title_button.clicked.connect(self.edit_selected_title)
+        self.edit_tags_button.clicked.connect(self.edit_selected_tags)
+        self.edit_id_button.clicked.connect(self.edit_selected_id)
+        self.duplicate_row_button.clicked.connect(self.duplicate_selected_row)
 
         self.status_label = QLabel("Showing 0 of 0 postcards")
 
@@ -715,6 +742,10 @@ class PostcardsPanel(QWidget):
         right_layout.addWidget(self.image_label, 1)
         right_layout.addWidget(self.open_card_button)
         right_layout.addWidget(self.open_friend_button)
+        right_layout.addWidget(self.edit_title_button)
+        right_layout.addWidget(self.edit_tags_button)
+        right_layout.addWidget(self.edit_id_button)
+        right_layout.addWidget(self.duplicate_row_button)
 
         left_panel = QWidget()
         left_layout = QVBoxLayout(left_panel)
@@ -1093,6 +1124,122 @@ class PostcardsPanel(QWidget):
             label.setText("-")
         self.image_label.setText("No image")
         self.image_label.setPixmap(QPixmap())
+
+    def csv_path(self) -> Path:
+        file_name = "received.csv" if self.direction.lower() == "received" else "sent.csv"
+        return self.project_root / "_data" / file_name
+
+    def record_signature(self, record: dict[str, str]) -> tuple[str, ...]:
+        return tuple((record.get(field, "") or "").strip() for field in ROW_FIELDNAMES)
+
+    def refresh_after_csv_write(self, preferred_id: str) -> None:
+        latest = load_csv_records(self.csv_path(), self.direction)
+        self.load_data(latest)
+        for row_idx in range(self.proxy_model.rowCount()):
+            source_index = self.proxy_model.mapToSource(self.proxy_model.index(row_idx, 0))
+            record = self.model.item(source_index.row(), 0).data(Qt.ItemDataRole.UserRole)
+            if isinstance(record, dict) and record.get("id", "") == preferred_id:
+                self.table.selectRow(row_idx)
+                self.on_row_selected()
+                break
+
+    def update_selected_row(self, changes: dict[str, str], preferred_id: str | None = None) -> bool:
+        record = self.current_record()
+        if record is None:
+            QMessageBox.information(self, "No selection", "Please select one row first.")
+            return False
+        csv_path = self.csv_path()
+        rows = load_csv_rows(csv_path)
+        old_signature = self.record_signature(record)
+        target_idx = next(
+            (idx for idx, row in enumerate(rows) if self.record_signature(row) == old_signature),
+            None,
+        )
+        if target_idx is None:
+            QMessageBox.warning(self, "Update failed", "Could not locate the selected row in CSV.")
+            return False
+        updated = rows[target_idx].copy()
+        updated.update(changes)
+        updated = {field: (updated.get(field, "") or "").strip() for field in ROW_FIELDNAMES}
+        if "id" in changes:
+            new_id = updated.get("id", "")
+            if not new_id:
+                QMessageBox.warning(self, "Invalid ID", "ID cannot be empty.")
+                return False
+            duplicate_exists = any(idx != target_idx and row.get("id", "") == new_id for idx, row in enumerate(rows))
+            if duplicate_exists:
+                QMessageBox.warning(self, "Duplicate ID", f"ID already exists: {new_id}")
+                return False
+        rows[target_idx] = updated
+        write_csv_rows(csv_path, rows)
+        self.refresh_after_csv_write(preferred_id or updated.get("id", ""))
+        return True
+
+    def edit_selected_title(self) -> None:
+        record = self.current_record()
+        if record is None:
+            QMessageBox.information(self, "No selection", "Please select one row first.")
+            return
+        value, ok = QInputDialog.getText(self, "Edit title", "Title:", text=record.get("title", ""))
+        if not ok:
+            return
+        self.update_selected_row({"title": value.strip()})
+
+    def edit_selected_tags(self) -> None:
+        record = self.current_record()
+        if record is None:
+            QMessageBox.information(self, "No selection", "Please select one row first.")
+            return
+        value, ok = QInputDialog.getText(self, "Edit tags", "Tags (space-separated):", text=record.get("tags", ""))
+        if not ok:
+            return
+        normalized_tags = " ".join(value.split())
+        self.update_selected_row({"tags": normalized_tags})
+
+    def edit_selected_id(self) -> None:
+        record = self.current_record()
+        if record is None:
+            QMessageBox.information(self, "No selection", "Please select one row first.")
+            return
+        current_id = record.get("id", "")
+        value, ok = QInputDialog.getText(self, "Edit ID", "ID:", text=current_id)
+        if not ok:
+            return
+        new_id = value.strip()
+        if not new_id or new_id == current_id:
+            return
+        self.update_selected_row({"id": new_id}, preferred_id=new_id)
+
+    def duplicate_selected_row(self) -> None:
+        record = self.current_record()
+        if record is None:
+            QMessageBox.information(self, "No selection", "Please select one row first.")
+            return
+        source_id = record.get("id", "").strip()
+        if not source_id:
+            QMessageBox.warning(self, "Duplicate failed", "Selected row has empty ID.")
+            return
+        csv_path = self.csv_path()
+        rows = load_csv_rows(csv_path)
+        old_signature = self.record_signature(record)
+        target_idx = next(
+            (idx for idx, row in enumerate(rows) if self.record_signature(row) == old_signature),
+            None,
+        )
+        if target_idx is None:
+            QMessageBox.warning(self, "Duplicate failed", "Could not locate the selected row in CSV.")
+            return
+        existing_ids = {row.get("id", "").strip() for row in rows}
+        suffix = 1
+        duplicated_id = f"{source_id}-{suffix}"
+        while duplicated_id in existing_ids:
+            suffix += 1
+            duplicated_id = f"{source_id}-{suffix}"
+        duplicated = rows[target_idx].copy()
+        duplicated["id"] = duplicated_id
+        rows.insert(target_idx + 1, duplicated)
+        write_csv_rows(csv_path, rows)
+        self.refresh_after_csv_write(duplicated_id)
 
     def current_record(self) -> dict[str, str] | None:
         index = self.table.currentIndex()
