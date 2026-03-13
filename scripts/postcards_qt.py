@@ -14,15 +14,27 @@ from pathlib import Path
 from typing import Any
 
 from PySide6.QtCore import QDate, QSortFilterProxyModel, Qt, QUrl
-from PySide6.QtGui import QAction, QActionGroup, QDesktopServices, QPixmap, QStandardItem, QStandardItemModel
+from PySide6.QtGui import (
+    QAction,
+    QActionGroup,
+    QDesktopServices,
+    QFont,
+    QFontDatabase,
+    QGuiApplication,
+    QPixmap,
+    QStandardItem,
+    QStandardItemModel,
+)
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
     QComboBox,
     QDateEdit,
     QDialog,
+    QDialogButtonBox,
     QFileDialog,
     QFormLayout,
+    QGridLayout,
     QHBoxLayout,
     QInputDialog,
     QLabel,
@@ -32,6 +44,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
+    QScrollArea,
     QSplitter,
     QStackedWidget,
     QTableView,
@@ -120,6 +133,39 @@ def load_translation_map(project_root: Path, language: str) -> dict[str, str]:
     if not isinstance(loaded, dict):
         return {}
     return {str(k): str(v) for k, v in loaded.items()}
+
+
+def apply_readable_app_font(app: QApplication, language: str) -> None:
+    preferred_families = [
+        "Noto Sans CJK SC",
+        "Noto Sans SC",
+        "Source Han Sans SC",
+        "Source Han Sans CN",
+        "Sarasa UI SC",
+        "WenQuanYi Micro Hei",
+        "LXGW WenKai",
+    ]
+    db = QFontDatabase()
+    available = set(db.families())
+    chosen_family = next((name for name in preferred_families if name in available), "")
+
+    base_font = app.font()
+    if chosen_family:
+        app_font = QFont(chosen_family)
+    else:
+        app_font = QFont(base_font)
+
+    app_font.setPointSize(13)
+    app.setFont(app_font)
+
+
+def center_window(window: QWidget) -> None:
+    screen = window.screen() or QGuiApplication.primaryScreen()
+    if screen is None:
+        return
+    frame = window.frameGeometry()
+    frame.moveCenter(screen.availableGeometry().center())
+    window.move(frame.topLeft())
 
 
 def load_csv_records(path: Path, direction: str) -> list[dict[str, str]]:
@@ -426,6 +472,22 @@ def split_tags(raw_tags: str) -> set[str]:
     return {part.strip() for part in raw_tags.split() if part.strip()}
 
 
+def load_pixmap_safely(image_path: Path) -> QPixmap:
+    if not image_path.exists():
+        return QPixmap()
+    if image_path.suffix.lower() == ".png":
+        try:
+            from PIL import Image
+            from PIL.ImageQt import ImageQt
+
+            with Image.open(image_path) as img:
+                qimage = ImageQt(img.convert("RGBA"))
+            return QPixmap.fromImage(qimage)
+        except Exception:
+            return QPixmap()
+    return QPixmap(str(image_path))
+
+
 def fetch_icy_row(entry: list[str], mode: int, parse_date, format_date) -> list[str]:
     try:
         import requests
@@ -501,53 +563,57 @@ class PostcardFilterProxy(QSortFilterProxyModel):
         self.received_date_to = None
         self.expired_filter = "All"
 
+    def refresh_rows_filter(self) -> None:
+        self.beginFilterChange()
+        self.endFilterChange(QSortFilterProxyModel.Direction.Rows)
+
     def set_search_text(self, value: str) -> None:
         self.search_text = value.lower().strip()
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_platform_filter(self, value: str) -> None:
         self.platform_filter = value
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_country_filter(self, value: str) -> None:
         self.country_filter = value
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_type_filter(self, value: str) -> None:
         self.type_filter = value
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_region_filter(self, value: str) -> None:
         self.region_filter = value
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_friend_filter(self, value: str) -> None:
         self.friend_filter = value.strip().lower()
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_tag_filters(self, values: set[str]) -> None:
         self.tag_filters = {v.strip() for v in values if v.strip()}
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_sent_date_from(self, value) -> None:
         self.sent_date_from = value
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_sent_date_to(self, value) -> None:
         self.sent_date_to = value
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_received_date_from(self, value) -> None:
         self.received_date_from = value
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_received_date_to(self, value) -> None:
         self.received_date_to = value
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def set_expired_filter(self, value: str) -> None:
         self.expired_filter = value
-        self.invalidateFilter()
+        self.refresh_rows_filter()
 
     def filterAcceptsRow(self, source_row: int, source_parent: Any) -> bool:
         model = self.sourceModel()
@@ -607,6 +673,53 @@ class PostcardFilterProxy(QSortFilterProxyModel):
             if self.search_text not in haystack:
                 return False
         return True
+
+
+class TagQuickEditDialog(QDialog):
+    def __init__(self, parent: QWidget, translator: AppTranslator, current_tags: str, known_tags: list[str]) -> None:
+        super().__init__(parent)
+        self.translator = translator
+        self.setWindowTitle(self.translator.tr("Edit tags"))
+        self.resize(720, 460)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(QLabel(self.translator.tr("Tags (space-separated):")))
+        self.tags_input = QLineEdit(current_tags)
+        layout.addWidget(self.tags_input)
+        layout.addWidget(QLabel(self.translator.tr("Quick add tags:")))
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        button_container = QWidget()
+        button_grid = QGridLayout(button_container)
+        button_grid.setContentsMargins(0, 0, 0, 0)
+
+        if known_tags:
+            columns = 6
+            for idx, tag in enumerate(known_tags):
+                button = QPushButton(tag)
+                button.clicked.connect(lambda _checked=False, t=tag: self.append_tag(t))
+                button_grid.addWidget(button, idx // columns, idx % columns)
+        else:
+            button_grid.addWidget(QLabel(self.translator.tr("No existing tags yet.")), 0, 0)
+
+        scroll.setWidget(button_container)
+        layout.addWidget(scroll, 1)
+
+        actions = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        actions.accepted.connect(self.accept)
+        actions.rejected.connect(self.reject)
+        layout.addWidget(actions)
+
+    def append_tag(self, tag: str) -> None:
+        current = self.tags_input.text().strip()
+        tokens = [t for t in current.split() if t]
+        if tag not in tokens:
+            tokens.append(tag)
+            self.tags_input.setText(" ".join(tokens))
+
+    def normalized_tags(self) -> str:
+        return " ".join(self.tags_input.text().split())
 
 
 class PostcardsPanel(QWidget):
@@ -725,12 +838,16 @@ class PostcardsPanel(QWidget):
         self.open_friend_button = QPushButton("Open friend link")
         self.edit_title_button = QPushButton("Edit title")
         self.edit_tags_button = QPushButton("Edit tags")
+        self.edit_country_button = QPushButton("Edit country")
+        self.edit_region_button = QPushButton("Edit region/city")
         self.edit_id_button = QPushButton("Edit ID")
         self.duplicate_row_button = QPushButton("Duplicate row")
         self.open_card_button.clicked.connect(self.open_card_link)
         self.open_friend_button.clicked.connect(self.open_friend_link)
         self.edit_title_button.clicked.connect(self.edit_selected_title)
         self.edit_tags_button.clicked.connect(self.edit_selected_tags)
+        self.edit_country_button.clicked.connect(self.edit_selected_country)
+        self.edit_region_button.clicked.connect(self.edit_selected_region)
         self.edit_id_button.clicked.connect(self.edit_selected_id)
         self.duplicate_row_button.clicked.connect(self.duplicate_selected_row)
 
@@ -744,6 +861,8 @@ class PostcardsPanel(QWidget):
         right_layout.addWidget(self.open_friend_button)
         right_layout.addWidget(self.edit_title_button)
         right_layout.addWidget(self.edit_tags_button)
+        right_layout.addWidget(self.edit_country_button)
+        right_layout.addWidget(self.edit_region_button)
         right_layout.addWidget(self.edit_id_button)
         right_layout.addWidget(self.duplicate_row_button)
 
@@ -779,14 +898,19 @@ class PostcardsPanel(QWidget):
         tertiary_filter_row.addWidget(self.received_date_from_edit)
         tertiary_filter_row.addWidget(self.received_date_to_check)
         tertiary_filter_row.addWidget(self.received_date_to_edit)
-        tertiary_filter_row.addWidget(QLabel(f"{self.translator.tr('Expired')}:"))
-        tertiary_filter_row.addWidget(self.expired_combo)
-        tertiary_filter_row.addWidget(self.reset_filters_btn)
         tertiary_filter_row.addStretch(1)
+
+        quaternary_filter_row = QHBoxLayout()
+        quaternary_filter_row.addWidget(self.tags_toggle_btn)
+        quaternary_filter_row.addWidget(QLabel(f"{self.translator.tr('Expired')}:"))
+        quaternary_filter_row.addWidget(self.expired_combo)
+        quaternary_filter_row.addWidget(self.reset_filters_btn)
+        quaternary_filter_row.addStretch(1)
 
         left_layout.addLayout(primary_filter_row)
         left_layout.addLayout(secondary_filter_row)
         left_layout.addLayout(tertiary_filter_row)
+        left_layout.addLayout(quaternary_filter_row)
         left_layout.addWidget(self.tags_filter_container)
         left_layout.addWidget(self.table, 1)
         left_layout.addWidget(self.status_label)
@@ -839,7 +963,8 @@ class PostcardsPanel(QWidget):
         self.update_status()
 
     def load_data(self, records: list[dict[str, str]]) -> None:
-        self.records = records
+        sort_key = "received_date" if self.direction.lower() == "received" else "sent_date"
+        self.records = sorted(records, key=lambda r: r.get(sort_key, ""), reverse=True)
         self.model.setRowCount(0)
         for record in self.records:
             row_items: list[QStandardItem] = []
@@ -849,6 +974,9 @@ class PostcardsPanel(QWidget):
                 row_items.append(item)
             row_items[0].setData(record, Qt.ItemDataRole.UserRole)
             self.model.appendRow(row_items)
+
+        sort_col = 8 if self.direction.lower() == "received" else 7
+        self.table.sortByColumn(sort_col, Qt.SortOrder.DescendingOrder)
 
         self.refresh_linked_filter_options()
         self.apply_filter_values_to_proxy()
@@ -961,6 +1089,9 @@ class PostcardsPanel(QWidget):
             for item in self.tags_filter_list.selectedItems()
             if isinstance(item.data(Qt.ItemDataRole.UserRole), str) and item.data(Qt.ItemDataRole.UserRole).strip()
         }
+
+    def known_tags(self) -> list[str]:
+        return sorted({tag for record in self.records for tag in split_tags(record.get("tags", ""))})
 
     def on_tags_toggled(self, checked: bool) -> None:
         self.tags_filter_container.setVisible(checked)
@@ -1116,6 +1247,7 @@ class PostcardsPanel(QWidget):
         self.sent_date_to_edit.setDate(current_date)
         self.received_date_from_edit.setDate(current_date.addYears(-1))
         self.received_date_to_edit.setDate(current_date)
+        self.proxy_model.set_search_text("")
         self.on_filter_controls_changed()
         self.update_status()
 
@@ -1190,11 +1322,30 @@ class PostcardsPanel(QWidget):
         if record is None:
             QMessageBox.information(self, "No selection", "Please select one row first.")
             return
-        value, ok = QInputDialog.getText(self, "Edit tags", "Tags (space-separated):", text=record.get("tags", ""))
+        dialog = TagQuickEditDialog(self, self.translator, record.get("tags", ""), self.known_tags())
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        self.update_selected_row({"tags": dialog.normalized_tags()})
+
+    def edit_selected_country(self) -> None:
+        record = self.current_record()
+        if record is None:
+            QMessageBox.information(self, "No selection", "Please select one row first.")
+            return
+        value, ok = QInputDialog.getText(self, "Edit country", "Country:", text=record.get("country", ""))
         if not ok:
             return
-        normalized_tags = " ".join(value.split())
-        self.update_selected_row({"tags": normalized_tags})
+        self.update_selected_row({"country": value.strip()})
+
+    def edit_selected_region(self) -> None:
+        record = self.current_record()
+        if record is None:
+            QMessageBox.information(self, "No selection", "Please select one row first.")
+            return
+        value, ok = QInputDialog.getText(self, "Edit region/city", "Region/City:", text=record.get("region", ""))
+        if not ok:
+            return
+        self.update_selected_row({"region": value.strip()})
 
     def edit_selected_id(self) -> None:
         record = self.current_record()
@@ -1260,7 +1411,7 @@ class PostcardsPanel(QWidget):
 
         image_path = find_image_path(self.project_root, self.direction, record.get("id", ""))
         if image_path and image_path.exists():
-            pixmap = QPixmap(str(image_path))
+            pixmap = load_pixmap_safely(image_path)
             if not pixmap.isNull():
                 self.image_label.setPixmap(
                     pixmap.scaled(
@@ -1309,8 +1460,10 @@ class ImportDialog(QDialog):
         self.translator = translator
         self.image_selected_files: list[Path] = []
         self.image_assignments: dict[str, Path] = {}
+        self._centered_once = False
         self.setWindowTitle(self.translator.tr("Import New Postcards"))
         self.resize(1000, 760)
+        self.setMaximumSize(1024, 768)
 
         self.tabs = QTabWidget()
         self.log_output = QTextEdit()
@@ -1325,6 +1478,12 @@ class ImportDialog(QDialog):
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.tabs, 1)
+
+    def showEvent(self, event) -> None:  # type: ignore[override]
+        super().showEvent(event)
+        if not self._centered_once:
+            center_window(self)
+            self._centered_once = True
 
     def log(self, message: str) -> None:
         self.log_output.append(message)
@@ -1584,7 +1743,7 @@ class ImportDialog(QDialog):
             self.image_selected_url_input.setText(candidate.get("url", ""))
             existing_path = Path(candidate.get("image_path", "")) if candidate.get("image_path", "") else None
             if existing_path and existing_path.exists():
-                pixmap = QPixmap(str(existing_path))
+                pixmap = load_pixmap_safely(existing_path)
                 if not pixmap.isNull():
                     self.image_existing_preview_label.setPixmap(
                         pixmap.scaled(
@@ -1632,7 +1791,7 @@ class ImportDialog(QDialog):
             self.image_preview_label.setText("No image selected")
             self.image_preview_label.setPixmap(QPixmap())
             return
-        pixmap = QPixmap(str(path))
+        pixmap = load_pixmap_safely(path)
         if pixmap.isNull():
             self.image_preview_label.setText("Preview failed")
             self.image_preview_label.setPixmap(QPixmap())
@@ -1807,11 +1966,13 @@ class MainWindow(QMainWindow):
         self.project_root = project_root
         self.translator = translator
         self.current_lang = current_lang
+        self._centered_once = False
         self.received_records: list[dict[str, str]] = []
         self.sent_records: list[dict[str, str]] = []
 
         self.setWindowTitle(self.translator.tr("JiYou's Postcard Collection"))
-        self.resize(1450, 860)
+        self.resize(1024, 768)
+        self.setMaximumSize(1024, 768)
 
         self.stacked = QStackedWidget()
         self.received_panel = PostcardsPanel(project_root, "Received", [], self.translator)
@@ -1823,6 +1984,12 @@ class MainWindow(QMainWindow):
         self.setup_menu()
         self.reload_data()
         self.show_received()
+
+    def showEvent(self, event) -> None:  # type: ignore[override]
+        super().showEvent(event)
+        if not self._centered_once:
+            center_window(self)
+            self._centered_once = True
 
     def setup_menu(self) -> None:
         menu_bar = self.menuBar()
@@ -1944,6 +2111,7 @@ def main() -> int:
         return 2
 
     app = QApplication(sys.argv)
+    apply_readable_app_font(app, args.lang)
     translator = AppTranslator(load_translation_map(root, args.lang))
     window = MainWindow(root, translator, args.lang)
     window.show()
