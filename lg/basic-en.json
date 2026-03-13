@@ -67,6 +67,7 @@
     "On": "On",
     "By": "By",
     "Expired": "Expired",
+    "Not expired": "Not expired",
     "Swap": "Swap",
     "Enter Username": "Enter Username",
     "Exact Match": "Exact Match",
@@ -334,6 +335,7 @@
     "_comment": "Norway",
     "Horten": "Horten",
     "Skjeberg": "Skjeberg",
+    "Stavanger": "Stavanger",
 
     "_comment":"end"
 }
