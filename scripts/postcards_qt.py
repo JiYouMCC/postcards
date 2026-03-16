@@ -85,7 +85,7 @@ ROW_FIELDNAMES = [
     "url",
     "friend_url",
 ]
-POSTHI_EXCLUDE_LIST = {
+DEFAULT_POSTHI_EXCLUDE_LIST = {
     "PHCNGD-0767",
     "PHCNZJ-1410",
     "PHCNFJ-1299",
@@ -98,6 +98,8 @@ POSTHI_EXCLUDE_LIST = {
     "PHCNSC-0417",
     "PHCNHL-0176",
 }
+
+DEFAULT_ICY_EXCLUDE_LIST = {"CNSH42434", "CNSH42824", "CNHE2329"}
 
 
 class AppTranslator:
@@ -115,6 +117,39 @@ class AppTranslator:
         if key in {"platform", "country", "region", "type"}:
             return self.tr(value)
         return value
+
+
+def normalize_exclude_ids(items: list[str]) -> set[str]:
+    return {item.strip().upper() for item in items if item and item.strip()}
+
+
+def get_exclude_config_path(project_root: Path) -> Path:
+    return project_root / "scripts" / "import_excludes.json"
+
+
+def load_exclude_lists(project_root: Path) -> tuple[set[str], set[str]]:
+    posthi = set(DEFAULT_POSTHI_EXCLUDE_LIST)
+    icy = set(DEFAULT_ICY_EXCLUDE_LIST)
+    config_path = get_exclude_config_path(project_root)
+    if not config_path.exists():
+        return posthi, icy
+    with config_path.open("r", encoding="utf-8") as f:
+        loaded = json.load(f)
+    if isinstance(loaded, dict):
+        loaded_posthi = loaded.get("posthi")
+        loaded_icy = loaded.get("icy")
+        if isinstance(loaded_posthi, list):
+            posthi = normalize_exclude_ids([str(item) for item in loaded_posthi])
+        if isinstance(loaded_icy, list):
+            icy = normalize_exclude_ids([str(item) for item in loaded_icy])
+    return posthi, icy
+
+
+def save_exclude_lists(project_root: Path, posthi_ids: set[str], icy_ids: set[str]) -> None:
+    config_path = get_exclude_config_path(project_root)
+    payload = {"posthi": sorted(posthi_ids), "icy": sorted(icy_ids)}
+    with config_path.open("w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
 
 
 def detect_default_language() -> str:
@@ -223,26 +258,64 @@ def normalize_postcard_id_for_dedupe(postcard_id: str) -> str:
 
 
 def append_rows_with_dedupe(target_file: Path, new_rows: list[list[str]]) -> int:
+    added, _updated = append_rows_with_dedupe_with_received_backfill(target_file, new_rows, False, None)
+    return added
+
+
+def append_rows_with_dedupe_with_received_backfill(
+    target_file: Path,
+    new_rows: list[list[str]],
+    update_existing_received_date: bool,
+    skip_update_ids: set[str] | None,
+) -> tuple[int, int]:
     with target_file.open("r", encoding="utf-8", newline="") as f:
         existing = list(csv.reader(f))
-    existing_dedupe_keys = {
-        normalize_postcard_id_for_dedupe(row[1]) for row in existing[1:] if len(row) > 1 and row[1].strip()
-    }
-    to_write = []
+    header = existing[0] if existing else ROW_FIELDNAMES
+    existing_rows = existing[1:] if len(existing) > 1 else []
+    existing_by_dedupe: dict[str, list[str]] = {}
+    for row in existing_rows:
+        if len(row) > 1 and row[1].strip():
+            existing_by_dedupe[normalize_postcard_id_for_dedupe(row[1])] = row
+    to_write: list[list[str]] = []
+    updated_count = 0
+    changed_existing = False
     for row in new_rows:
         if len(row) <= 1 or not row[1].strip():
             continue
         dedupe_key = normalize_postcard_id_for_dedupe(row[1])
-        if dedupe_key in existing_dedupe_keys:
+        existing_row = existing_by_dedupe.get(dedupe_key)
+        if existing_row is not None:
+            if update_existing_received_date:
+                incoming_received = str(row[9]).strip() if len(row) > 9 and row[9] is not None else ""
+                existing_received = (
+                    str(existing_row[9]).strip() if len(existing_row) > 9 and existing_row[9] is not None else ""
+                )
+                card_id = existing_row[1].strip().upper() if len(existing_row) > 1 else ""
+                should_skip = bool(skip_update_ids and card_id in skip_update_ids)
+                if incoming_received and not existing_received and not should_skip:
+                    while len(existing_row) < len(ROW_FIELDNAMES):
+                        existing_row.append("")
+                    existing_row[9] = incoming_received
+                    updated_count += 1
+                    changed_existing = True
             continue
         to_write.append(row)
-        existing_dedupe_keys.add(dedupe_key)
+        existing_by_dedupe[dedupe_key] = row
+
+    if changed_existing:
+        merged_rows = existing_rows + to_write
+        with target_file.open("w", encoding="utf-8", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            writer.writerows(merged_rows)
+        return len(to_write), updated_count
+
     if not to_write:
-        return 0
+        return 0, updated_count
     with target_file.open("a", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(to_write)
-    return len(to_write)
+    return len(to_write), updated_count
 
 
 def run_python_script(project_root: Path, script_name: str) -> tuple[int, str]:
@@ -265,6 +338,35 @@ def parse_postcrossing_ids(raw: str) -> list[str]:
     pattern = re.compile(r"[A-Z]+-\d+")
     found = [match.group(0).strip().upper() for match in pattern.finditer(raw)]
     return list(dict.fromkeys(found))
+
+
+def parse_postcrossing_expired_rows(raw: str) -> list[list[str]]:
+    text = (raw or "").strip()
+    if not text:
+        return []
+    parsed_rows: list[list[str]] = []
+    expected_columns = len(ROW_FIELDNAMES)
+    for idx, source_row in enumerate(csv.reader(text.splitlines()), start=1):
+        row = [(cell or "").strip() for cell in source_row]
+        if not any(row):
+            continue
+        if len(row) >= 2 and row[0].lower() == "no" and row[1].lower() == "id":
+            continue
+        if len(row) > expected_columns:
+            row = row[:expected_columns]
+        if len(row) < expected_columns:
+            row = row + [""] * (expected_columns - len(row))
+        postcard_id = row[1].strip().upper()
+        if not re.fullmatch(r"[A-Z]+-\d+", postcard_id):
+            raise RuntimeError(f"Invalid postcard ID at expired row line {idx}: {row[1]}")
+        row[1] = postcard_id
+        row[3] = row[3] or "MATCH"
+        row[4] = "POSTCROSSING"
+        if row[6] == "Taiwan":
+            row[6] = "China"
+            row[7] = "台湾"
+        parsed_rows.append(row)
+    return parsed_rows
 
 
 def fetch_postcrossing_row(postcard_id: str, mode: str) -> list[str]:
@@ -381,12 +483,34 @@ def normalize_posthi_region(region: str) -> str:
     return normalized
 
 
-def build_posthi_row(row_source: list[str], mode: int, parse_date, format_date) -> list[str] | None:
+def parse_optional_formatted_date(raw_value: str, parse_date, format_date) -> str:
+    raw = (raw_value or "").strip()
+    if not raw:
+        return ""
+    if not re.search(r"(\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/][A-Za-z]{3}[-/]\d{2,4}|\d{1,2}/\d{1,2}/\d{4})", raw):
+        return ""
+    parsed = parse_date(raw)
+    formatted = format_date(parsed)
+    return formatted if formatted else ""
+
+
+def pick_first_formatted_date(candidates: list[str], parse_date, format_date) -> str:
+    for candidate in candidates:
+        formatted = parse_optional_formatted_date(candidate, parse_date, format_date)
+        if formatted:
+            return formatted
+    return ""
+
+
+def build_posthi_row(
+    row_source: list[str], mode: int, parse_date, format_date, exclude_ids: set[str] | None = None
+) -> list[str] | None:
     # mode: 0=received, 1=sent, 2=expired sent
     if not row_source:
         return None
-    card_id = row_source[0].strip()
-    if not card_id or card_id in POSTHI_EXCLUDE_LIST:
+    card_id = row_source[0].strip().upper()
+    effective_excludes = exclude_ids if exclude_ids is not None else DEFAULT_POSTHI_EXCLUDE_LIST
+    if not card_id or card_id in effective_excludes:
         return None
 
     if mode == 2 and (len(row_source) < 2 or row_source[1].strip() != "已过期"):
@@ -415,13 +539,10 @@ def build_posthi_row(row_source: list[str], mode: int, parse_date, format_date) 
     sent_date = ""
     received_date = ""
     if mode == 2:
-        raw_sent = cell(15)
-        sent_date = format_date(parse_date(raw_sent)) if raw_sent else ""
+        sent_date = pick_first_formatted_date([cell(15), cell(14), cell(13)], parse_date, format_date)
     else:
-        raw_sent = cell(9) if cell(9) else cell(8)
-        raw_received = cell(10)
-        sent_date = format_date(parse_date(raw_sent)) if raw_sent else ""
-        received_date = format_date(parse_date(raw_received)) if raw_received else ""
+        sent_date = pick_first_formatted_date([cell(9), cell(8), cell(10)], parse_date, format_date)
+        received_date = pick_first_formatted_date([cell(10), cell(11), cell(12)], parse_date, format_date)
 
     return [
         "",
@@ -440,12 +561,14 @@ def build_posthi_row(row_source: list[str], mode: int, parse_date, format_date) 
     ]
 
 
-def collect_posthi_rows(csv_path: Path, mode: int, parse_date, format_date) -> list[list[str]]:
+def collect_posthi_rows(
+    csv_path: Path, mode: int, parse_date, format_date, exclude_ids: set[str] | None = None
+) -> list[list[str]]:
     with csv_path.open("r", encoding="utf-8", newline="") as f:
         rows = list(csv.reader(f))
     result: list[list[str]] = []
     for row in rows[1:]:
-        built = build_posthi_row(row, mode, parse_date, format_date)
+        built = build_posthi_row(row, mode, parse_date, format_date, exclude_ids)
         if built is not None:
             result.append(built)
     return result
@@ -488,7 +611,9 @@ def load_pixmap_safely(image_path: Path) -> QPixmap:
     return QPixmap(str(image_path))
 
 
-def fetch_icy_row(entry: list[str], mode: int, parse_date, format_date) -> list[str]:
+def fetch_icy_row(
+    entry: list[str], mode: int, parse_date, format_date, exclude_ids: set[str] | None = None
+) -> list[str] | None:
     try:
         import requests
         from bs4 import BeautifulSoup
@@ -496,6 +621,10 @@ def fetch_icy_row(entry: list[str], mode: int, parse_date, format_date) -> list[
         raise RuntimeError("Please install requests and beautifulsoup4.") from exc
 
     card_type_raw, card_path, card_id = entry
+    card_id = card_id.strip().upper()
+    effective_excludes = exclude_ids if exclude_ids is not None else DEFAULT_ICY_EXCLUDE_LIST
+    if not card_id or card_id in effective_excludes:
+        return None
     response = requests.get(f"https://icardyou.icu{card_path}", timeout=30, verify=False)
     response.raise_for_status()
     soup = BeautifulSoup(response.content, "html.parser")
@@ -720,6 +849,25 @@ class TagQuickEditDialog(QDialog):
 
     def normalized_tags(self) -> str:
         return " ".join(self.tags_input.text().split())
+
+
+class ExcludeListEditorDialog(QDialog):
+    def __init__(self, parent: QWidget, title: str, ids: set[str]) -> None:
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.resize(540, 480)
+        layout = QVBoxLayout(self)
+        layout.addWidget(QLabel("One card ID per line."))
+        self.editor = QTextEdit()
+        self.editor.setPlainText("\n".join(sorted(ids)))
+        layout.addWidget(self.editor, 1)
+        actions = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        actions.accepted.connect(self.accept)
+        actions.rejected.connect(self.reject)
+        layout.addWidget(actions)
+
+    def get_ids(self) -> set[str]:
+        return normalize_exclude_ids(self.editor.toPlainText().splitlines())
 
 
 class PostcardsPanel(QWidget):
@@ -1458,6 +1606,12 @@ class ImportDialog(QDialog):
         self.project_root = project_root
         self.on_data_changed = on_data_changed
         self.translator = translator
+        try:
+            self.posthi_exclude_ids, self.icy_exclude_ids = load_exclude_lists(self.project_root)
+        except Exception as exc:
+            QMessageBox.warning(self, "Exclude config load failed", f"Falling back to built-in defaults.\n{exc}")
+            self.posthi_exclude_ids = set(DEFAULT_POSTHI_EXCLUDE_LIST)
+            self.icy_exclude_ids = set(DEFAULT_ICY_EXCLUDE_LIST)
         self.image_selected_files: list[Path] = []
         self.image_assignments: dict[str, Path] = {}
         self._centered_once = False
@@ -1492,6 +1646,8 @@ class ImportDialog(QDialog):
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.addWidget(QLabel("Select 3 Post-Hi CSV files from any path, then import."))
+        self.posthi_exclude_status = QLabel("")
+        self.refresh_exclude_status_labels()
 
         self.posthi_received_path_input = QLineEdit()
         self.posthi_sent_path_input = QLineEdit()
@@ -1528,6 +1684,10 @@ class ImportDialog(QDialog):
         run_btn = QPushButton("Import selected Post-Hi CSV files")
         run_btn.clicked.connect(self.run_posthi_import)
         layout.addWidget(run_btn)
+        manage_exclude_btn = QPushButton("Manage Post-Hi exclude list")
+        manage_exclude_btn.clicked.connect(self.manage_posthi_excludes)
+        layout.addWidget(manage_exclude_btn)
+        layout.addWidget(self.posthi_exclude_status)
         layout.addStretch(1)
         return widget
 
@@ -1541,6 +1701,25 @@ class ImportDialog(QDialog):
         if selected_file:
             target_input.setText(selected_file)
 
+    def refresh_exclude_status_labels(self) -> None:
+        if hasattr(self, "posthi_exclude_status"):
+            self.posthi_exclude_status.setText(f"Post-Hi excludes: {len(self.posthi_exclude_ids)}")
+        if hasattr(self, "icy_exclude_status"):
+            self.icy_exclude_status.setText(f"iCardYou excludes: {len(self.icy_exclude_ids)}")
+
+    def manage_posthi_excludes(self) -> None:
+        dialog = ExcludeListEditorDialog(self, "Post-Hi Exclude List", self.posthi_exclude_ids)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        self.posthi_exclude_ids = dialog.get_ids()
+        try:
+            save_exclude_lists(self.project_root, self.posthi_exclude_ids, self.icy_exclude_ids)
+        except Exception as exc:
+            QMessageBox.warning(self, "Save failed", str(exc))
+            return
+        self.refresh_exclude_status_labels()
+        self.log(f"Post-Hi exclude list saved: {len(self.posthi_exclude_ids)} IDs")
+
     def build_postcrossing_tab(self) -> QWidget:
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -1550,6 +1729,12 @@ class ImportDialog(QDialog):
         layout.addWidget(QLabel("Paste Sent IDs:"))
         self.pc_sent_input = QTextEdit()
         layout.addWidget(self.pc_sent_input, 1)
+        layout.addWidget(QLabel("Paste Expired Sent CSV rows (from logged-in browser extraction), one row per line:"))
+        self.pc_expired_rows_input = QTextEdit()
+        self.pc_expired_rows_input.setPlaceholderText(
+            '"","CN-4210326","","MATCH","POSTCROSSING","mikebond","Italy","","2026-01-13 00:00:00 +0000","","","","https://www.postcrossing.com/user/mikebond"'
+        )
+        layout.addWidget(self.pc_expired_rows_input, 1)
         run_btn = QPushButton("Import Postcrossing IDs")
         run_btn.clicked.connect(self.run_postcrossing_import)
         layout.addWidget(run_btn)
@@ -1582,7 +1767,26 @@ class ImportDialog(QDialog):
         run_btn = QPushButton("Import iCardYou entries")
         run_btn.clicked.connect(self.run_icy_import)
         layout.addWidget(run_btn)
+        manage_exclude_btn = QPushButton("Manage iCardYou exclude list")
+        manage_exclude_btn.clicked.connect(self.manage_icy_excludes)
+        layout.addWidget(manage_exclude_btn)
+        self.icy_exclude_status = QLabel("")
+        layout.addWidget(self.icy_exclude_status)
+        self.refresh_exclude_status_labels()
         return widget
+
+    def manage_icy_excludes(self) -> None:
+        dialog = ExcludeListEditorDialog(self, "iCardYou Exclude List", self.icy_exclude_ids)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        self.icy_exclude_ids = dialog.get_ids()
+        try:
+            save_exclude_lists(self.project_root, self.posthi_exclude_ids, self.icy_exclude_ids)
+        except Exception as exc:
+            QMessageBox.warning(self, "Save failed", str(exc))
+            return
+        self.refresh_exclude_status_labels()
+        self.log(f"iCardYou exclude list saved: {len(self.icy_exclude_ids)} IDs")
 
     def build_image_tab(self) -> QWidget:
         widget = QWidget()
@@ -1850,18 +2054,24 @@ class ImportDialog(QDialog):
 
         try:
             parse_date, format_date = load_date_helpers(self.project_root)
-            recv_rows = collect_posthi_rows(received_path, 0, parse_date, format_date)
-            sent_rows = collect_posthi_rows(sent_path, 1, parse_date, format_date)
-            expired_rows = collect_posthi_rows(expired_path, 2, parse_date, format_date)
+            recv_rows = collect_posthi_rows(received_path, 0, parse_date, format_date, self.posthi_exclude_ids)
+            sent_rows = collect_posthi_rows(sent_path, 1, parse_date, format_date, self.posthi_exclude_ids)
+            expired_rows = collect_posthi_rows(expired_path, 2, parse_date, format_date, self.posthi_exclude_ids)
             recv_added = append_rows_with_dedupe(self.project_root / "_data" / "received.csv", recv_rows)
-            sent_added = append_rows_with_dedupe(self.project_root / "_data" / "sent.csv", sent_rows + expired_rows)
+            sent_added, sent_updated = append_rows_with_dedupe_with_received_backfill(
+                self.project_root / "_data" / "sent.csv", sent_rows + expired_rows, True, self.posthi_exclude_ids
+            )
         except Exception as exc:
             QMessageBox.warning(self, "Import failed", str(exc))
             return
 
-        self.log(f"Post-Hi imported from selected files: received +{recv_added}, sent +{sent_added}")
+        self.log(
+            f"Post-Hi imported from selected files: received +{recv_added}, sent +{sent_added}, sent received_date updated {sent_updated}"
+        )
         self.on_data_changed()
-        QMessageBox.information(self, "Done", f"Imported received +{recv_added}, sent +{sent_added}.")
+        QMessageBox.information(
+            self, "Done", f"Imported received +{recv_added}, sent +{sent_added}, sent received_date updated {sent_updated}."
+        )
 
     def run_postcrossing_import(self) -> None:
         try:
@@ -1870,17 +2080,24 @@ class ImportDialog(QDialog):
             urllib3.disable_warnings()
             recv_ids = parse_postcrossing_ids(self.pc_received_input.toPlainText())
             sent_ids = parse_postcrossing_ids(self.pc_sent_input.toPlainText())
+            expired_rows = parse_postcrossing_expired_rows(self.pc_expired_rows_input.toPlainText())
             recv_rows = [fetch_postcrossing_row(card_id, "received") for card_id in recv_ids]
             sent_rows = [fetch_postcrossing_row(card_id, "sent") for card_id in sent_ids]
             recv_added = append_rows_with_dedupe(self.project_root / "_data" / "received.csv", recv_rows)
-            sent_added = append_rows_with_dedupe(self.project_root / "_data" / "sent.csv", sent_rows)
+            sent_added, sent_updated = append_rows_with_dedupe_with_received_backfill(
+                self.project_root / "_data" / "sent.csv", sent_rows + expired_rows, True, None
+            )
         except Exception as exc:
             QMessageBox.warning(self, "Import failed", str(exc))
             return
 
-        self.log(f"Postcrossing imported: received +{recv_added}, sent +{sent_added}")
+        self.log(
+            f"Postcrossing imported: received +{recv_added}, sent +{sent_added} (including pasted expired rows), sent received_date updated {sent_updated}"
+        )
         self.on_data_changed()
-        QMessageBox.information(self, "Done", f"Imported received +{recv_added}, sent +{sent_added}.")
+        QMessageBox.information(
+            self, "Done", f"Imported received +{recv_added}, sent +{sent_added}, sent received_date updated {sent_updated}."
+        )
 
     def run_icy_import(self) -> None:
         try:
@@ -1890,17 +2107,33 @@ class ImportDialog(QDialog):
             parse_date, format_date = load_date_helpers(self.project_root)
             recv_entries = parse_icy_entries(self.icy_received_input.toPlainText())
             sent_entries = parse_icy_entries(self.icy_sent_input.toPlainText())
-            recv_rows = [fetch_icy_row(entry, 0, parse_date, format_date) for entry in recv_entries]
-            sent_rows = [fetch_icy_row(entry, 1, parse_date, format_date) for entry in sent_entries]
+            recv_rows = [
+                row
+                for row in (
+                    fetch_icy_row(entry, 0, parse_date, format_date, self.icy_exclude_ids) for entry in recv_entries
+                )
+                if row is not None
+            ]
+            sent_rows = [
+                row
+                for row in (
+                    fetch_icy_row(entry, 1, parse_date, format_date, self.icy_exclude_ids) for entry in sent_entries
+                )
+                if row is not None
+            ]
             recv_added = append_rows_with_dedupe(self.project_root / "_data" / "received.csv", recv_rows)
-            sent_added = append_rows_with_dedupe(self.project_root / "_data" / "sent.csv", sent_rows)
+            sent_added, sent_updated = append_rows_with_dedupe_with_received_backfill(
+                self.project_root / "_data" / "sent.csv", sent_rows, True, self.icy_exclude_ids
+            )
         except Exception as exc:
             QMessageBox.warning(self, "Import failed", str(exc))
             return
 
-        self.log(f"iCardYou imported: received +{recv_added}, sent +{sent_added}")
+        self.log(f"iCardYou imported: received +{recv_added}, sent +{sent_added}, sent received_date updated {sent_updated}")
         self.on_data_changed()
-        QMessageBox.information(self, "Done", f"Imported received +{recv_added}, sent +{sent_added}.")
+        QMessageBox.information(
+            self, "Done", f"Imported received +{recv_added}, sent +{sent_added}, sent received_date updated {sent_updated}."
+        )
 
     def run_postprocess_scripts(self) -> None:
         code_sort, out_sort = run_python_script(self.project_root, "sort.py")

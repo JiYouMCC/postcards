@@ -6,3 +6,5 @@ vendor
 /Gemfile.lock
 /_data/Post-Hi_*.csv
 /.vs
+/.github/copilot-instructions.md
+/scripts/__pycache__
