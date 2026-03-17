@@ -262,6 +262,20 @@ def append_rows_with_dedupe(target_file: Path, new_rows: list[list[str]]) -> int
     return added
 
 
+def load_existing_dedupe_state(target_file: Path) -> tuple[set[str], dict[str, str]]:
+    existing_rows = load_csv_rows(target_file)
+    existing_ids: set[str] = set()
+    existing_received_by_id: dict[str, str] = {}
+    for row in existing_rows:
+        postcard_id = row.get("id", "").strip()
+        if not postcard_id:
+            continue
+        dedupe_key = normalize_postcard_id_for_dedupe(postcard_id)
+        existing_ids.add(dedupe_key)
+        existing_received_by_id[dedupe_key] = row.get("received_date", "").strip()
+    return existing_ids, existing_received_by_id
+
+
 def append_rows_with_dedupe_with_received_backfill(
     target_file: Path,
     new_rows: list[list[str]],
@@ -2057,6 +2071,39 @@ class ImportDialog(QDialog):
             recv_rows = collect_posthi_rows(received_path, 0, parse_date, format_date, self.posthi_exclude_ids)
             sent_rows = collect_posthi_rows(sent_path, 1, parse_date, format_date, self.posthi_exclude_ids)
             expired_rows = collect_posthi_rows(expired_path, 2, parse_date, format_date, self.posthi_exclude_ids)
+
+            recv_existing_ids, _recv_received_by_id = load_existing_dedupe_state(self.project_root / "_data" / "received.csv")
+            filtered_recv_rows: list[list[str]] = []
+            for row in recv_rows:
+                row_id = row[1].strip() if len(row) > 1 else ""
+                dedupe_key = normalize_postcard_id_for_dedupe(row_id)
+                if dedupe_key in recv_existing_ids:
+                    self.log(f"Skipping already existing received ID: {row_id}")
+                    continue
+                filtered_recv_rows.append(row)
+            recv_rows = filtered_recv_rows
+
+            sent_existing_ids, sent_existing_received_by_id = load_existing_dedupe_state(self.project_root / "_data" / "sent.csv")
+            filtered_sent_rows: list[list[str]] = []
+            for row in sent_rows:
+                row_id = row[1].strip() if len(row) > 1 else ""
+                dedupe_key = normalize_postcard_id_for_dedupe(row_id)
+                if dedupe_key in sent_existing_ids and sent_existing_received_by_id.get(dedupe_key, "").strip():
+                    self.log(f"Skipping already existing sent ID: {row_id}")
+                    continue
+                filtered_sent_rows.append(row)
+            sent_rows = filtered_sent_rows
+
+            filtered_expired_rows: list[list[str]] = []
+            for row in expired_rows:
+                row_id = row[1].strip() if len(row) > 1 else ""
+                dedupe_key = normalize_postcard_id_for_dedupe(row_id)
+                if dedupe_key in sent_existing_ids and sent_existing_received_by_id.get(dedupe_key, "").strip():
+                    self.log(f"Skipping already existing expired sent ID: {row_id}")
+                    continue
+                filtered_expired_rows.append(row)
+            expired_rows = filtered_expired_rows
+
             recv_added = append_rows_with_dedupe(self.project_root / "_data" / "received.csv", recv_rows)
             sent_added, sent_updated = append_rows_with_dedupe_with_received_backfill(
                 self.project_root / "_data" / "sent.csv", sent_rows + expired_rows, True, self.posthi_exclude_ids
@@ -2081,6 +2128,28 @@ class ImportDialog(QDialog):
             recv_ids = parse_postcrossing_ids(self.pc_received_input.toPlainText())
             sent_ids = parse_postcrossing_ids(self.pc_sent_input.toPlainText())
             expired_rows = parse_postcrossing_expired_rows(self.pc_expired_rows_input.toPlainText())
+
+            recv_rows = load_csv_rows(self.project_root / "_data" / "received.csv")
+            current_recv_ids = [row.get("id", "").strip() for row in recv_rows]
+            exising_recv_ids = []
+            for recv_id in recv_ids:
+                if recv_id in current_recv_ids:
+                    exising_recv_ids.append(recv_id)
+            for recv_id in exising_recv_ids:
+                recv_ids.remove(recv_id)
+                print (f"Skipping already existing received ID: {recv_id}")
+
+
+            sent_rows = load_csv_rows(self.project_root / "_data" / "sent.csv")
+            current_sent_ids =[row.get("id", "").strip() for row in sent_rows]
+            existing_sent_ids = []
+            for sent_id in sent_ids:
+                if sent_id in current_sent_ids:
+                    existing_sent_ids.append(sent_id)
+            for sent_id in existing_sent_ids:
+                sent_ids.remove(sent_id)
+                print (f"Skipping already existing sent ID: {sent_id}")
+
             recv_rows = [fetch_postcrossing_row(card_id, "received") for card_id in recv_ids]
             sent_rows = [fetch_postcrossing_row(card_id, "sent") for card_id in sent_ids]
             recv_added = append_rows_with_dedupe(self.project_root / "_data" / "received.csv", recv_rows)
@@ -2107,6 +2176,29 @@ class ImportDialog(QDialog):
             parse_date, format_date = load_date_helpers(self.project_root)
             recv_entries = parse_icy_entries(self.icy_received_input.toPlainText())
             sent_entries = parse_icy_entries(self.icy_sent_input.toPlainText())
+
+            recv_existing_ids, _recv_received_by_id = load_existing_dedupe_state(self.project_root / "_data" / "received.csv")
+            filtered_recv_entries: list[list[str]] = []
+            for entry in recv_entries:
+                entry_id = entry[2].strip().upper() if len(entry) > 2 else ""
+                dedupe_key = normalize_postcard_id_for_dedupe(entry_id)
+                if dedupe_key in recv_existing_ids:
+                    self.log(f"Skipping already existing received ID: {entry_id}")
+                    continue
+                filtered_recv_entries.append(entry)
+            recv_entries = filtered_recv_entries
+
+            sent_existing_ids, sent_existing_received_by_id = load_existing_dedupe_state(self.project_root / "_data" / "sent.csv")
+            filtered_sent_entries: list[list[str]] = []
+            for entry in sent_entries:
+                entry_id = entry[2].strip().upper() if len(entry) > 2 else ""
+                dedupe_key = normalize_postcard_id_for_dedupe(entry_id)
+                if dedupe_key in sent_existing_ids and sent_existing_received_by_id.get(dedupe_key, "").strip():
+                    self.log(f"Skipping already existing sent ID: {entry_id}")
+                    continue
+                filtered_sent_entries.append(entry)
+            sent_entries = filtered_sent_entries
+
             recv_rows = [
                 row
                 for row in (
