@@ -563,7 +563,7 @@ def build_posthi_row(
         card_id,
         "",
         card_type,
-        "POST-HI",
+        "Post-Hi",
         friend_id,
         country,
         region,
