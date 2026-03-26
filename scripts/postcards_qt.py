@@ -677,7 +677,7 @@ def fetch_icy_row(
         card_id,
         "",
         card_type,
-        "ICARDYOU",
+        "icardyou",
         friend_id,
         "China",
         region,
@@ -2123,32 +2123,44 @@ class ImportDialog(QDialog):
     def run_postcrossing_import(self) -> None:
         try:
             import urllib3
-
             urllib3.disable_warnings()
             recv_ids = parse_postcrossing_ids(self.pc_received_input.toPlainText())
             sent_ids = parse_postcrossing_ids(self.pc_sent_input.toPlainText())
             expired_rows = parse_postcrossing_expired_rows(self.pc_expired_rows_input.toPlainText())
 
-            recv_rows = load_csv_rows(self.project_root / "_data" / "received.csv")
-            current_recv_ids = [row.get("id", "").strip() for row in recv_rows]
-            exising_recv_ids = []
+            # Filter recv_ids: skip if already in received.csv
+            recv_existing_ids, _ = load_existing_dedupe_state(self.project_root / "_data" / "received.csv")
+            filtered_recv_ids: list[str] = []
             for recv_id in recv_ids:
-                if recv_id in current_recv_ids:
-                    exising_recv_ids.append(recv_id)
-            for recv_id in exising_recv_ids:
-                recv_ids.remove(recv_id)
-                print (f"Skipping already existing received ID: {recv_id}")
+                if normalize_postcard_id_for_dedupe(recv_id) in recv_existing_ids:
+                    self.log(f"Skipping already existing received ID: {recv_id}")
+                else:
+                    filtered_recv_ids.append(recv_id)
+            recv_ids = filtered_recv_ids
 
-
-            sent_rows = load_csv_rows(self.project_root / "_data" / "sent.csv")
-            current_sent_ids =[row.get("id", "").strip() for row in sent_rows]
-            existing_sent_ids = []
+            # Filter sent_ids: skip if already in sent.csv AND received_date is present;
+            # keep if received_date is missing so it can be backfilled.
+            sent_existing_ids, sent_existing_received_by_id = load_existing_dedupe_state(
+                self.project_root / "_data" / "sent.csv"
+            )
+            filtered_sent_ids: list[str] = []
             for sent_id in sent_ids:
-                if sent_id in current_sent_ids:
-                    existing_sent_ids.append(sent_id)
-            for sent_id in existing_sent_ids:
-                sent_ids.remove(sent_id)
-                print (f"Skipping already existing sent ID: {sent_id}")
+                dedupe_key = normalize_postcard_id_for_dedupe(sent_id)
+                if dedupe_key in sent_existing_ids and sent_existing_received_by_id.get(dedupe_key, "").strip():
+                    self.log(f"Skipping already existing sent ID: {sent_id}")
+                else:
+                    filtered_sent_ids.append(sent_id)
+            sent_ids = filtered_sent_ids
+
+            # Filter expired_rows: skip if already in sent.csv
+            filtered_expired_rows: list[list[str]] = []
+            for exp_row in expired_rows:
+                exp_id = exp_row[1].strip() if len(exp_row) > 1 else ""
+                if normalize_postcard_id_for_dedupe(exp_id) in sent_existing_ids:
+                    self.log(f"Skipping already existing expired ID: {exp_id}")
+                else:
+                    filtered_expired_rows.append(exp_row)
+            expired_rows = filtered_expired_rows
 
             recv_rows = [fetch_postcrossing_row(card_id, "received") for card_id in recv_ids]
             sent_rows = [fetch_postcrossing_row(card_id, "sent") for card_id in sent_ids]
