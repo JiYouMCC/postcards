@@ -31,6 +31,11 @@ const PostcardCollection = {
   _currentPage: 1,
   _baseUrl: "/postcards/",
   _exchange_base: window.__POSTCARDS_EXCHANGE_BASE__,
+  _countUniqueExchanges: function(data) {
+    // 同一次交换的多张明信片 URL 相同，按 URL 去重计算实际交换次数
+    // 排除过期明信片（received_date 为空表示对方未登记/未到达）
+    return new Set(data.filter(p => p['received_date']).map(p => p['url'])).size;
+  },
   Init: function(data) {
     // 初始化数据
     PostcardCollection._postData = data.sort((a, b) => new Date(b['sent_date']) - new Date(a['sent_date']));
@@ -309,11 +314,15 @@ const PostcardCollection = {
     $("#cardend").text(Math.min(PostcardCollection._currentPage * PostcardCollection._itemsPerPage, PostcardCollection._filterData.length));
     $("#cardCount").text(PostcardCollection._postData.length);
     $("#searchCount").text(PostcardCollection._filterData.length);
+    $("#totalExchangeCount").text(PostcardCollection._countUniqueExchanges(PostcardCollection._postData));
+    $("#searchExchangeCount").text(PostcardCollection._countUniqueExchanges(PostcardCollection._filterData));
   },
   RefreshFilterElements: function(data) {
     // 刷新过滤器元素
     $("#cardCount").text(PostcardCollection._postData.length);
     $("#searchCount").text(data.length);
+    $("#totalExchangeCount").text(PostcardCollection._countUniqueExchanges(PostcardCollection._postData));
+    $("#searchExchangeCount").text(PostcardCollection._countUniqueExchanges(data));
 
     const countryMap = new Map();
     const typeMap = new Map();
@@ -458,6 +467,8 @@ const PostcardCollection = {
 
     $("#cardCount").text(PostcardCollection._postData.length);
     $("#searchCount").text(PostcardCollection._filterData.length);
+    $("#totalExchangeCount").text(PostcardCollection._countUniqueExchanges(PostcardCollection._postData));
+    $("#searchExchangeCount").text(PostcardCollection._countUniqueExchanges(PostcardCollection._filterData));
 
     // apply the page
     const totalPages = Math.ceil(PostcardCollection._filterData.length / PostcardCollection._itemsPerPage);
