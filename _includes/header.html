@@ -14,13 +14,13 @@
               <li>
                 <a class="dropdown-item d-flex justify-content-between align-items-center {% if page.url == '/received.html' %}active{% endif %}" href="{{ site.baseurl }}/received">
                   <span><i data-feather="inbox"></i>&nbsp;<span data-localize="Received">收到的明信片</span></span>
-                  <span class="badge rounded-pill bg-secondary ms-2">{{ site.data.received | map: 'url' | uniq | size }}</span>
+                  <span class="badge rounded-pill bg-secondary ms-2">{{ site.data.received.size }}</span>
                 </a>
               </li>
               <li>
                 <a class="dropdown-item d-flex justify-content-between align-items-center {% if page.url == '/sent.html' %}active{% endif %}" href="{{ site.baseurl }}/sent">
                   <span><i data-feather="send"></i>&nbsp;<span data-localize="Sent">寄出的明信片</span></span>
-                  <span class="badge rounded-pill bg-secondary ms-2">{{ site.data.sent | map: 'url' | uniq | size }}</span>
+                  <span class="badge rounded-pill bg-secondary ms-2">{{ site.data.sent.size }}</span>
                 </a>
               </li>
               <li><hr class="dropdown-divider"></li>
