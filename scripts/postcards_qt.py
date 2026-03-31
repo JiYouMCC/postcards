@@ -190,7 +190,7 @@ def apply_readable_app_font(app: QApplication, language: str) -> None:
     else:
         app_font = QFont(base_font)
 
-    app_font.setPointSize(13)
+    app_font.setPointSize(7)
     app.setFont(app_font)
 
 
@@ -1630,8 +1630,8 @@ class ImportDialog(QDialog):
         self.image_assignments: dict[str, Path] = {}
         self._centered_once = False
         self.setWindowTitle(self.translator.tr("Import New Postcards"))
-        self.resize(1000, 760)
-        self.setMaximumSize(1024, 768)
+        self.resize(800, 600)
+        self.setMaximumSize(800, 600)
 
         self.tabs = QTabWidget()
         self.log_output = QTextEdit()
@@ -1858,14 +1858,14 @@ class ImportDialog(QDialog):
         preview_col.addWidget(QLabel("Preview"))
         self.image_preview_label = QLabel("No image selected")
         self.image_preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_preview_label.setMinimumSize(320, 240)
+        self.image_preview_label.setMinimumSize(300, 200)
         self.image_preview_label.setStyleSheet("QLabel { background: #f0f0f0; border: 1px solid #d0d0d0; }")
         preview_col.addWidget(self.image_preview_label, 1)
 
         existing_col.addWidget(QLabel("Existing uploaded image (selected card)"))
         self.image_existing_preview_label = QLabel("No existing image")
         self.image_existing_preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_existing_preview_label.setMinimumSize(320, 240)
+        self.image_existing_preview_label.setMinimumSize(300, 200)
         self.image_existing_preview_label.setStyleSheet("QLabel { background: #f0f0f0; border: 1px solid #d0d0d0; }")
         existing_col.addWidget(self.image_existing_preview_label, 1)
 
