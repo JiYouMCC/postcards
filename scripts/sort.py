@@ -2,7 +2,8 @@ import csv
 from datetime import datetime
 from date_format import parse_date
 
-for mode in [0, 1]:
+
+def sort_postcard_data(mode):
     if mode == 0:
         file_path = "../_data/received.csv"
     else:
@@ -28,3 +29,8 @@ for mode in [0, 1]:
             writer.writerow({key: row[key] for key in fieldnames})
 
     print(f"File {file_path} has been sorted and updated.")
+
+
+if __name__ == "__main__":
+    sort_postcard_data(0)
+    sort_postcard_data(1)

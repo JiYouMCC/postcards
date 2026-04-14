@@ -3,17 +3,11 @@ from date_format import parse_date, format_date
 import csv
 import requests
 import time
-
-exclude_list = ["CNSH42434", "CNSH42824", "CNHE2329"]
-
-sent_link_list = []
-
-received_link_list = []
+import json
 
 requests.packages.urllib3.disable_warnings()
 
-
-def process(mode, post_link_list):
+def process(mode, post_link_list, exclude_list):
     if mode == 0:
         target_file_path = "../_data/received.csv"
     else:
@@ -162,6 +156,16 @@ def process(mode, post_link_list):
                     print("编号:", row_source[1])
                     writer.writerow(row_source)
 
+def get_exclude_list():
+    with open('import_excludes.json', 'r', encoding='utf-8') as file:
+        data = json.load(file)
+        exclude_list = data.get("icy", [])
+    print ("Exclude list:", exclude_list)
+    return exclude_list
 
-process(0, received_link_list)
-process(1, sent_link_list)
+if __name__ == "__main__":
+    sent_link_list = []
+    received_link_list = []
+    exclude_list = get_exclude_list()
+    process(0, received_link_list, exclude_list)
+    process(1, sent_link_list, exclude_list)
