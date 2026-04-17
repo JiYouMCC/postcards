@@ -5,13 +5,59 @@ import requests
 import time
 from datetime import datetime, timezone, timedelta
 
-exclude_list = []
-
-sent_link = []
-
-received_lint = []
-
 requests.packages.urllib3.disable_warnings()
+
+
+def fetch_postcrossing_row(postcard_id: str, mode: str) -> list:
+    """Scrape one Postcrossing card page and return a CSV output row.
+
+    mode: "received" or "sent"
+    Raises RuntimeError if the page cannot be parsed.
+    """
+    response = requests.get(
+        f"https://www.postcrossing.com/postcards/{postcard_id}",
+        timeout=30, verify=False,
+    )
+    response.raise_for_status()
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    sender_box = soup.find("div", class_="details-box sender")
+    receiver_box = soup.find("div", class_="details-box receiver right")
+    if sender_box is None or receiver_box is None:
+        raise RuntimeError(f"Failed to parse postcard page: {postcard_id}")
+
+    target_box = sender_box if mode == "received" else receiver_box
+
+    friend_tag = target_box.find("a", attrs={"itemprop": "url"})
+    friend_id = friend_tag.text.strip() if friend_tag else ""
+
+    country_tag = target_box.find("a", attrs={"itemprop": "addressCountry"})
+    country = country_tag.text.strip() if country_tag else ""
+    region = ""
+    if country_tag and country_tag.get("title"):
+        region = country_tag.get("title").split(",")[0].strip()
+    if country == "Taiwan":
+        country = "China"
+        region = "台湾"
+
+    sent_time_tag = sender_box.find("time")
+    recv_time_tag = receiver_box.find("time")
+    sent_date = ""
+    recv_date = ""
+    if sent_time_tag and sent_time_tag.get("title"):
+        sent_raw = sent_time_tag.get("title").replace("Sent on ", "").replace(" (UTC)", "")
+        sent_date = datetime.strptime(sent_raw, "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).strftime(
+            "%Y-%m-%d %H:%M:%S %z"
+        )
+    if recv_time_tag and recv_time_tag.get("title"):
+        recv_raw = recv_time_tag.get("title").replace("Received on ", "").replace(" (UTC)", "")
+        recv_date = datetime.strptime(recv_raw, "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).strftime(
+            "%Y-%m-%d %H:%M:%S %z"
+        )
+
+    postcard_url = f"https://www.postcrossing.com/postcards/{postcard_id}"
+    friend_url = f"https://www.postcrossing.com/user/{friend_id}" if friend_id else ""
+    return ["", postcard_id, "", "MATCH", "POSTCROSSING", friend_id, country, region, sent_date, recv_date, "", postcard_url, friend_url]
 
 
 def process(mode, post_link_list):
@@ -169,5 +215,9 @@ def process(mode, post_link_list):
                     writer.writerow(row_source)
 
 
-process(1, sent_link)
-process(0, received_lint)
+if __name__ == "__main__":
+    exclude_list = []
+    sent_link = []
+    received_lint = []
+    process(1, sent_link)
+    process(0, received_lint)

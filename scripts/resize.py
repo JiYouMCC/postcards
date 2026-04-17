@@ -5,7 +5,7 @@ from PIL import Image
 TARGET_WIDTH = 600
 
 
-def resize_image(image_path, output_path):
+def resize_image(image_path, output_path, convert_to_rgb=False):
     with Image.open(image_path) as image:
         width, height = image.size
         if width > height:
@@ -15,6 +15,8 @@ def resize_image(image_path, output_path):
             target_height = TARGET_WIDTH
             target_width = int(width / height * TARGET_WIDTH)
         resized_image = image.resize((target_width, target_height))
+        if convert_to_rgb:
+            resized_image = resized_image.convert("RGB")
         resized_image.save(output_path)
         print(image_path)
 

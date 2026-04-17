@@ -1,24 +1,31 @@
 import csv
-from datetime import datetime
+from pathlib import Path
 from date_format import parse_date
 from zoneinfo import ZoneInfo
 
-file_received_path = "../_data/received.csv"
-file_sent_path = "../_data/sent.csv"
-file_grouped_path = "../_data/grouped.csv"
 
+def generate_group(data_dir=None):
+    """Write grouped.csv summarising daily received/sent counts.
 
-def generate_group():
+    data_dir: path to the _data folder. Defaults to ../data relative to cwd,
+              which is the correct value when running as a standalone script.
+    """
+    if data_dir is None:
+        data_dir = Path("../_data")
+    data_dir = Path(data_dir)
+
+    file_received_path = data_dir / "received.csv"
+    file_sent_path = data_dir / "sent.csv"
+    file_grouped_path = data_dir / "grouped.csv"
+
     grouped_map = {}
     grouped_result = []
 
     with open(file_received_path, mode='r', encoding='utf-8') as file_received:
-        file_received_reader = csv.DictReader(file_received)
-        data_received = list(file_received_reader)
+        data_received = list(csv.DictReader(file_received))
 
     with open(file_sent_path, mode='r', encoding='utf-8') as file_sent:
-        file_sent_reader = csv.DictReader(file_sent)
-        data_sent = list(file_sent_reader)
+        data_sent = list(csv.DictReader(file_sent))
 
     for row in data_received:
         parsed_date = parse_date(row['received_date'])
@@ -35,20 +42,14 @@ def generate_group():
         if date in grouped_map:
             grouped_map[date]["received"] += 1
         else:
-            grouped_map[date] = {
-                "received": 1,
-                "sent": 0
-            }
+            grouped_map[date] = {"received": 1, "sent": 0}
 
     for row in data_sent:
         date = row["parsed_date"]
         if date in grouped_map:
             grouped_map[date]["sent"] += 1
         else:
-            grouped_map[date] = {
-                "received": 0,
-                "sent": 1
-            }
+            grouped_map[date] = {"received": 0, "sent": 1}
 
     for key in grouped_map.keys():
         grouped_result.append({

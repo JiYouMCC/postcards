@@ -1,16 +1,27 @@
 import csv
-from datetime import datetime
+from pathlib import Path
 from date_format import parse_date
 
 
-def sort_postcard_data(mode):
+def sort_postcard_data(mode, data_dir=None):
+    """Sort received.csv (mode=0) or sent.csv (mode=1) by date in place.
+
+    data_dir: path to the _data folder. Defaults to ../data relative to cwd,
+              which is the correct value when running as a standalone script.
+    """
+    if data_dir is None:
+        data_dir = Path("../_data")
+    data_dir = Path(data_dir)
+
     if mode == 0:
-        file_path = "../_data/received.csv"
+        file_path = data_dir / "received.csv"
     else:
-        file_path = "../_data/sent.csv"
+        file_path = data_dir / "sent.csv"
+
     with open(file_path, mode='r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         data = list(reader)
+        fieldnames = reader.fieldnames
 
     for row in data:
         row['parsed_date'] = parse_date(
@@ -22,7 +33,6 @@ def sort_postcard_data(mode):
     )
 
     with open(file_path, mode='w', encoding='utf-8', newline='') as file:
-        fieldnames = reader.fieldnames
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         for row in sorted_data:

@@ -13,7 +13,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from PySide6.QtCore import QDate, QSortFilterProxyModel, Qt, QUrl
+# Ensure the scripts directory is importable regardless of working directory.
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+from posthi_climb import (
+    DEFAULT_EXCLUDE_LIST as DEFAULT_POSTHI_EXCLUDE_LIST,
+    build_posthi_row,
+    collect_posthi_rows,
+)
+from icy_climb import DEFAULT_EXCLUDE_LIST as DEFAULT_ICY_EXCLUDE_LIST, fetch_icy_row
+from pc_climb import fetch_postcrossing_row
+from sort import sort_postcard_data
+from grouped import generate_group
+from PySide6.QtCore import QDate, QSortFilterProxyModel, QUrl, Qt
 from PySide6.QtGui import (
     QAction,
     QActionGroup,
@@ -84,21 +98,6 @@ ROW_FIELDNAMES = [
     "url",
     "friend_url",
 ]
-DEFAULT_POSTHI_EXCLUDE_LIST = {
-    "PHCNGD-0767",
-    "PHCNZJ-1410",
-    "PHCNFJ-1299",
-    "PHCNSH-1876",
-    "PHCNSC-0865",
-    "PHCNZJ-3796",
-    "PHCNJX-0993",
-    "PHCNGD-5164",
-    "PHCNSX-0251",
-    "PHCNSC-0417",
-    "PHCNHL-0176",
-}
-
-DEFAULT_ICY_EXCLUDE_LIST = {"CNSH42434", "CNSH42824", "CNHE2329"}
 
 
 class AppTranslator:
@@ -178,6 +177,9 @@ def apply_readable_app_font(app: QApplication, language: str) -> None:
         "Sarasa UI SC",
         "WenQuanYi Micro Hei",
         "LXGW WenKai",
+        "Microsoft YaHei UI",
+        "Microsoft YaHei",
+        "SimHei",
     ]
     db = QFontDatabase()
     available = set(db.families())
@@ -200,6 +202,17 @@ def center_window(window: QWidget) -> None:
     frame = window.frameGeometry()
     frame.moveCenter(screen.availableGeometry().center())
     window.move(frame.topLeft())
+
+
+def fit_to_screen(window: QWidget) -> None:
+    screen = window.screen() or QGuiApplication.primaryScreen()
+    if screen is None:
+        return
+    avail = screen.availableGeometry()
+    w = min(window.width(), avail.width())
+    h = min(window.height(), avail.height())
+    if w != window.width() or h != window.height():
+        window.resize(w, h)
 
 
 def load_csv_records(path: Path, direction: str) -> list[dict[str, str]]:
@@ -331,22 +344,6 @@ def append_rows_with_dedupe_with_received_backfill(
     return len(to_write), updated_count
 
 
-def run_python_script(project_root: Path, script_name: str) -> tuple[int, str]:
-    script_path = project_root / "scripts" / script_name
-    if not script_path.exists():
-        return (1, f"Script not found: {script_path}")
-    completed = subprocess.run(
-        [sys.executable, str(script_path)],
-        cwd=str(project_root / "scripts"),
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-    )
-    output = f"{completed.stdout}\n{completed.stderr}".strip()
-    return (completed.returncode, output)
-
-
 def parse_postcrossing_ids(raw: str) -> list[str]:
     pattern = re.compile(r"[A-Z]+-\d+")
     found = [match.group(0).strip().upper() for match in pattern.finditer(raw)]
@@ -380,59 +377,6 @@ def parse_postcrossing_expired_rows(raw: str) -> list[list[str]]:
             row[7] = "台湾"
         parsed_rows.append(row)
     return parsed_rows
-
-
-def fetch_postcrossing_row(postcard_id: str, mode: str) -> list[str]:
-    try:
-        import requests
-        from bs4 import BeautifulSoup
-    except ImportError as exc:
-        raise RuntimeError("Please install requests and beautifulsoup4.") from exc
-
-    response = requests.get(f"https://www.postcrossing.com/postcards/{postcard_id}", timeout=30, verify=False)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    sender_box = soup.find("div", class_="details-box sender")
-    receiver_box = soup.find("div", class_="details-box receiver right")
-    if sender_box is None or receiver_box is None:
-        raise RuntimeError(f"Failed to parse postcard page: {postcard_id}")
-
-    if mode == "received":
-        target_box = sender_box
-    else:
-        target_box = receiver_box
-
-    friend_tag = target_box.find("a", attrs={"itemprop": "url"})
-    friend_id = friend_tag.text.strip() if friend_tag else ""
-
-    country_tag = target_box.find("a", attrs={"itemprop": "addressCountry"})
-    country = country_tag.text.strip() if country_tag else ""
-    region = ""
-    if country_tag and country_tag.get("title"):
-        region = country_tag.get("title").split(",")[0].strip()
-    if country == "Taiwan":
-        country = "China"
-        region = "台湾"
-
-    sent_time_tag = sender_box.find("time")
-    recv_time_tag = receiver_box.find("time")
-    sent_date = ""
-    recv_date = ""
-    if sent_time_tag and sent_time_tag.get("title"):
-        sent_raw = sent_time_tag.get("title").replace("Sent on ", "").replace(" (UTC)", "")
-        sent_date = datetime.strptime(sent_raw, "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).strftime(
-            "%Y-%m-%d %H:%M:%S %z"
-        )
-    if recv_time_tag and recv_time_tag.get("title"):
-        recv_raw = recv_time_tag.get("title").replace("Received on ", "").replace(" (UTC)", "")
-        recv_date = datetime.strptime(recv_raw, "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc).strftime(
-            "%Y-%m-%d %H:%M:%S %z"
-        )
-
-    postcard_url = f"https://www.postcrossing.com/postcards/{postcard_id}"
-    friend_url = f"https://www.postcrossing.com/user/{friend_id}" if friend_id else ""
-    return ["", postcard_id, "", "MATCH", "POSTCROSSING", friend_id, country, region, sent_date, recv_date, "", postcard_url, friend_url]
 
 
 def load_date_helpers(project_root: Path):
@@ -473,120 +417,6 @@ def parse_icy_entries(raw: str) -> list[list[str]]:
     return entries
 
 
-def normalize_posthi_country(country: str) -> str:
-    mapping = {"中国": "China", "日本": "Japan", "马来西亚": "Malaysia"}
-    return mapping.get(country, country)
-
-
-def normalize_posthi_region(region: str) -> str:
-    suffixes = [
-        "壮族自治区",
-        "回族自治区",
-        "维吾尔自治区",
-        "特别行政区",
-        "自治区",
-        "省",
-        "市",
-    ]
-    normalized = region
-    for suffix in suffixes:
-        if normalized.endswith(suffix):
-            normalized = normalized[: -len(suffix)]
-            break
-    return normalized
-
-
-def parse_optional_formatted_date(raw_value: str, parse_date, format_date) -> str:
-    raw = (raw_value or "").strip()
-    if not raw:
-        return ""
-    if not re.search(r"(\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/][A-Za-z]{3}[-/]\d{2,4}|\d{1,2}/\d{1,2}/\d{4})", raw):
-        return ""
-    parsed = parse_date(raw)
-    formatted = format_date(parsed)
-    return formatted if formatted else ""
-
-
-def pick_first_formatted_date(candidates: list[str], parse_date, format_date) -> str:
-    for candidate in candidates:
-        formatted = parse_optional_formatted_date(candidate, parse_date, format_date)
-        if formatted:
-            return formatted
-    return ""
-
-
-def build_posthi_row(
-    row_source: list[str], mode: int, parse_date, format_date, exclude_ids: set[str] | None = None
-) -> list[str] | None:
-    # mode: 0=received, 1=sent, 2=expired sent
-    if not row_source:
-        return None
-    card_id = row_source[0].strip().upper()
-    effective_excludes = exclude_ids if exclude_ids is not None else DEFAULT_POSTHI_EXCLUDE_LIST
-    if not card_id or card_id in effective_excludes:
-        return None
-
-    if mode == 2 and (len(row_source) < 2 or row_source[1].strip() != "已过期"):
-        return None
-
-    prefix = 1 if mode == 2 else 0
-
-    def cell(idx: int) -> str:
-        return row_source[idx].strip() if idx < len(row_source) else ""
-
-    card_type = cell(1 + prefix)
-    if card_type == "匹配":
-        card_type = "MATCH"
-    elif card_type == "社区活动":
-        card_type = "GAME"
-    elif card_type in ("回寄", "赠送", "寄片"):
-        card_type = "GIVE"
-
-    friend_id = cell(5 + prefix)
-    friend_url = cell(6 + prefix)
-    location = cell(7 + prefix)
-    location_parts = location.split(" ", 1) if location else [""]
-    country = normalize_posthi_country(location_parts[0].strip())
-    region = normalize_posthi_region(location_parts[1].strip()) if len(location_parts) > 1 else ""
-
-    sent_date = ""
-    received_date = ""
-    if mode == 2:
-        sent_date = pick_first_formatted_date([cell(15), cell(14), cell(13)], parse_date, format_date)
-    else:
-        sent_date = pick_first_formatted_date([cell(9), cell(8), cell(10)], parse_date, format_date)
-        received_date = pick_first_formatted_date([cell(10), cell(11), cell(12)], parse_date, format_date)
-
-    return [
-        "",
-        card_id,
-        "",
-        card_type,
-        "Post-Hi",
-        friend_id,
-        country,
-        region,
-        sent_date,
-        received_date,
-        "",
-        f"https://www.post-hi.com/card/{card_id}",
-        friend_url,
-    ]
-
-
-def collect_posthi_rows(
-    csv_path: Path, mode: int, parse_date, format_date, exclude_ids: set[str] | None = None
-) -> list[list[str]]:
-    with csv_path.open("r", encoding="utf-8", newline="") as f:
-        rows = list(csv.reader(f))
-    result: list[list[str]] = []
-    for row in rows[1:]:
-        built = build_posthi_row(row, mode, parse_date, format_date, exclude_ids)
-        if built is not None:
-            result.append(built)
-    return result
-
-
 def extract_date_from_string(value: str):
     if not value:
         return None
@@ -624,68 +454,18 @@ def load_pixmap_safely(image_path: Path) -> QPixmap:
     return QPixmap(str(image_path))
 
 
-def fetch_icy_row(
-    entry: list[str], mode: int, parse_date, format_date, exclude_ids: set[str] | None = None
-) -> list[str] | None:
-    try:
-        import requests
-        from bs4 import BeautifulSoup
-    except ImportError as exc:
-        raise RuntimeError("Please install requests and beautifulsoup4.") from exc
-
-    card_type_raw, card_path, card_id = entry
-    card_id = card_id.strip().upper()
-    effective_excludes = exclude_ids if exclude_ids is not None else DEFAULT_ICY_EXCLUDE_LIST
-    if not card_id or card_id in effective_excludes:
-        return None
-    response = requests.get(f"https://icardyou.icu{card_path}", timeout=30, verify=False)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    card_type = card_type_raw
-    if card_type == "配对":
-        card_type = "MATCH"
-    elif card_type in ("回寄", "赠送"):
-        card_type = "GIVE"
-    elif card_type == "活动":
-        card_type = "GAME"
-
-    user_links = soup.find_all("a", href=lambda href: href and href.startswith("/userInfo/homePage"))
-    friend_id = user_links[mode].get_text(strip=True) if len(user_links) > mode else ""
-    friend_url = f"https://icardyou.icu{user_links[mode]['href']}" if len(user_links) > mode else ""
-
-    region_labels = soup.find_all("td", string=lambda s: s and "地区：" in s)
-    region = ""
-    if len(region_labels) > mode:
-        region = region_labels[mode].find_next("td").get_text(strip=True)
-
-    send_time_label = soup.find("td", string=lambda s: s and "发送时间：" in s)
-    sent_date = ""
-    if send_time_label is not None:
-        sent_text = send_time_label.find_next("td").get_text(strip=True)
-        sent_date = format_date(parse_date(sent_text))
-
-    recv_time_label = soup.find("td", string=lambda s: s and "到达时间：" in s)
-    received_date = ""
-    if recv_time_label is not None:
-        recv_text = recv_time_label.find_next("td").get_text(strip=True)
-        received_date = format_date(parse_date(recv_text))
-
-    return [
-        "",
-        card_id,
-        "",
-        card_type,
-        "icardyou",
-        friend_id,
-        "China",
-        region,
-        sent_date,
-        received_date,
-        "",
-        f"https://icardyou.icu{card_path}",
-        friend_url,
-    ]
+def read_js_snippet(js_path: Path, start_marker: str, end_marker: str = "") -> str:
+    if not js_path.exists():
+        return f"File not found: {js_path}"
+    text = js_path.read_text(encoding="utf-8")
+    start = text.find(start_marker)
+    if start == -1:
+        return text
+    if end_marker:
+        end = text.find(end_marker, start + len(start_marker))
+        if end != -1:
+            return text[start:end].strip()
+    return text[start:].strip()
 
 
 class PostcardFilterProxy(QSortFilterProxyModel):
@@ -883,6 +663,37 @@ class ExcludeListEditorDialog(QDialog):
         return normalize_exclude_ids(self.editor.toPlainText().splitlines())
 
 
+class CodeHintDialog(QDialog):
+    def __init__(self, parent: QWidget, title: str, code: str) -> None:
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.resize(660, 420)
+
+        layout = QVBoxLayout(self)
+
+        self.code_edit = QTextEdit()
+        self.code_edit.setReadOnly(True)
+        self.code_edit.setPlainText(code)
+        mono_font = QFont("Consolas")
+        mono_font.setStyleHint(QFont.StyleHint.Monospace)
+        mono_font.setPointSize(9)
+        self.code_edit.setFont(mono_font)
+        layout.addWidget(self.code_edit, 1)
+
+        btn_row = QHBoxLayout()
+        copy_btn = QPushButton("Copy to Clipboard")
+        copy_btn.clicked.connect(self.copy_to_clipboard)
+        close_btn = QPushButton("Close")
+        close_btn.clicked.connect(self.accept)
+        btn_row.addWidget(copy_btn)
+        btn_row.addStretch(1)
+        btn_row.addWidget(close_btn)
+        layout.addLayout(btn_row)
+
+    def copy_to_clipboard(self) -> None:
+        QApplication.clipboard().setText(self.code_edit.toPlainText())
+
+
 class PostcardsPanel(QWidget):
     def __init__(
         self, project_root: Path, direction: str, records: list[dict[str, str]], translator: AppTranslator
@@ -897,11 +708,11 @@ class PostcardsPanel(QWidget):
 
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText(self.translator.tr("Title, ID, tag"))
-        self.search_input.setMinimumWidth(280)
+        self.search_input.setMinimumWidth(120)
         self.friend_input = QLineEdit()
         friend_label_key = "Sender Name" if self.direction.lower() == "received" else "Receiver Name"
         self.friend_input.setPlaceholderText(self.translator.tr(friend_label_key))
-        self.friend_input.setMinimumWidth(280)
+        self.friend_input.setMinimumWidth(120)
 
         self.platform_combo = QComboBox()
         self.platform_combo.addItem(self.all_filter_label, self.all_filter_value)
@@ -992,17 +803,17 @@ class PostcardsPanel(QWidget):
 
         self.image_label = QLabel("No image")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setMinimumSize(420, 300)
+        self.image_label.setMinimumSize(160, 120)
         self.image_label.setStyleSheet("QLabel { background: #f0f0f0; border: 1px solid #d0d0d0; }")
 
-        self.open_card_button = QPushButton("Open postcard link")
-        self.open_friend_button = QPushButton("Open friend link")
-        self.edit_title_button = QPushButton("Edit title")
-        self.edit_tags_button = QPushButton("Edit tags")
-        self.edit_country_button = QPushButton("Edit country")
-        self.edit_region_button = QPushButton("Edit region/city")
-        self.edit_id_button = QPushButton("Edit ID")
-        self.duplicate_row_button = QPushButton("Duplicate row")
+        self.open_card_button = QPushButton("🔗 Open postcard link")
+        self.open_friend_button = QPushButton("👤 Open friend link")
+        self.edit_title_button = QPushButton("✏️ Edit title")
+        self.edit_tags_button = QPushButton("🏷️ Edit tags")
+        self.edit_country_button = QPushButton("🌍 Edit country")
+        self.edit_region_button = QPushButton("📍 Edit region/city")
+        self.edit_id_button = QPushButton("🔑 Edit ID")
+        self.duplicate_row_button = QPushButton("📋 Duplicate row")
         self.open_card_button.clicked.connect(self.open_card_link)
         self.open_friend_button.clicked.connect(self.open_friend_link)
         self.edit_title_button.clicked.connect(self.edit_selected_title)
@@ -1048,30 +859,34 @@ class PostcardsPanel(QWidget):
         secondary_filter_row.addWidget(self.tags_toggle_btn)
         secondary_filter_row.addStretch(1)
 
-        tertiary_filter_row = QHBoxLayout()
-        tertiary_filter_row.addWidget(QLabel(f"{self.translator.tr('Sent Date')}:"))
-        tertiary_filter_row.addWidget(self.sent_date_from_check)
-        tertiary_filter_row.addWidget(self.sent_date_from_edit)
-        tertiary_filter_row.addWidget(self.sent_date_to_check)
-        tertiary_filter_row.addWidget(self.sent_date_to_edit)
-        tertiary_filter_row.addWidget(QLabel(f"{self.translator.tr('Received Date')}:"))
-        tertiary_filter_row.addWidget(self.received_date_from_check)
-        tertiary_filter_row.addWidget(self.received_date_from_edit)
-        tertiary_filter_row.addWidget(self.received_date_to_check)
-        tertiary_filter_row.addWidget(self.received_date_to_edit)
-        tertiary_filter_row.addStretch(1)
+        sent_date_row = QHBoxLayout()
+        sent_date_row.addWidget(QLabel(f"{self.translator.tr('Sent Date')}:"))
+        sent_date_row.addWidget(self.sent_date_from_check)
+        sent_date_row.addWidget(self.sent_date_from_edit)
+        sent_date_row.addWidget(self.sent_date_to_check)
+        sent_date_row.addWidget(self.sent_date_to_edit)
+        sent_date_row.addStretch(1)
 
-        quaternary_filter_row = QHBoxLayout()
-        quaternary_filter_row.addWidget(self.tags_toggle_btn)
-        quaternary_filter_row.addWidget(QLabel(f"{self.translator.tr('Expired')}:"))
-        quaternary_filter_row.addWidget(self.expired_combo)
-        quaternary_filter_row.addWidget(self.reset_filters_btn)
-        quaternary_filter_row.addStretch(1)
+        received_date_row = QHBoxLayout()
+        received_date_row.addWidget(QLabel(f"{self.translator.tr('Received Date')}:"))
+        received_date_row.addWidget(self.received_date_from_check)
+        received_date_row.addWidget(self.received_date_from_edit)
+        received_date_row.addWidget(self.received_date_to_check)
+        received_date_row.addWidget(self.received_date_to_edit)
+        received_date_row.addStretch(1)
+
+        bottom_filter_row = QHBoxLayout()
+        bottom_filter_row.addWidget(self.tags_toggle_btn)
+        bottom_filter_row.addWidget(QLabel(f"{self.translator.tr('Expired')}:"))
+        bottom_filter_row.addWidget(self.expired_combo)
+        bottom_filter_row.addWidget(self.reset_filters_btn)
+        bottom_filter_row.addStretch(1)
 
         left_layout.addLayout(primary_filter_row)
         left_layout.addLayout(secondary_filter_row)
-        left_layout.addLayout(tertiary_filter_row)
-        left_layout.addLayout(quaternary_filter_row)
+        left_layout.addLayout(sent_date_row)
+        left_layout.addLayout(received_date_row)
+        left_layout.addLayout(bottom_filter_row)
         left_layout.addWidget(self.tags_filter_container)
         left_layout.addWidget(self.table, 1)
         left_layout.addWidget(self.status_label)
@@ -1079,7 +894,7 @@ class PostcardsPanel(QWidget):
         splitter = QSplitter()
         splitter.addWidget(left_panel)
         splitter.addWidget(right_panel)
-        splitter.setSizes([860, 460])
+        splitter.setSizes([620, 360])
 
         layout = QVBoxLayout(self)
         layout.addWidget(splitter)
@@ -1630,12 +1445,11 @@ class ImportDialog(QDialog):
         self._centered_once = False
         self.setWindowTitle(self.translator.tr("Import New Postcards"))
         self.resize(800, 600)
-        self.setMaximumSize(800, 600)
 
         self.tabs = QTabWidget()
         self.log_output = QTextEdit()
         self.log_output.setReadOnly(True)
-        self.run_postprocess_btn = QPushButton("Run sort.py + grouped.py")
+        self.run_postprocess_btn = QPushButton("⚙️ Run sort.py + grouped.py")
         self.run_postprocess_btn.clicked.connect(self.run_postprocess_scripts)
 
         self.tabs.addTab(self.build_posthi_tab(), "Post-Hi")
@@ -1645,10 +1459,15 @@ class ImportDialog(QDialog):
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.tabs, 1)
+        layout.addWidget(self.run_postprocess_btn)
+        layout.addWidget(QLabel("Logs:"))
+        self.log_output.setMaximumHeight(80)
+        layout.addWidget(self.log_output)
 
     def showEvent(self, event) -> None:  # type: ignore[override]
         super().showEvent(event)
         if not self._centered_once:
+            fit_to_screen(self)
             center_window(self)
             self._centered_once = True
 
@@ -1673,7 +1492,7 @@ class ImportDialog(QDialog):
             row = QHBoxLayout()
             row.addWidget(QLabel(label))
             row.addWidget(line_edit, 1)
-            btn = QPushButton("Browse...")
+            btn = QPushButton("📂 Browse...")
             btn.clicked.connect(on_click)
             row.addWidget(btn)
             layout.addLayout(row)
@@ -1694,10 +1513,10 @@ class ImportDialog(QDialog):
             lambda: self.select_posthi_file(self.posthi_expired_sent_path_input, "Select Post-Hi expired sent CSV"),
         )
 
-        run_btn = QPushButton("Import selected Post-Hi CSV files")
+        run_btn = QPushButton("📥 Import selected Post-Hi CSV files")
         run_btn.clicked.connect(self.run_posthi_import)
         layout.addWidget(run_btn)
-        manage_exclude_btn = QPushButton("Manage Post-Hi exclude list")
+        manage_exclude_btn = QPushButton("🚫 Manage Post-Hi exclude list")
         manage_exclude_btn.clicked.connect(self.manage_posthi_excludes)
         layout.addWidget(manage_exclude_btn)
         layout.addWidget(self.posthi_exclude_status)
@@ -1743,12 +1562,15 @@ class ImportDialog(QDialog):
         self.pc_sent_input = QTextEdit()
         layout.addWidget(self.pc_sent_input, 1)
         layout.addWidget(QLabel("Paste Expired Sent CSV rows (from logged-in browser extraction), one row per line:"))
+        expired_js_btn = QPushButton("📋 Show page scraper JS (pc_expired_climb.js)")
+        expired_js_btn.clicked.connect(self.show_pc_expired_js_hint)
+        layout.addWidget(expired_js_btn)
         self.pc_expired_rows_input = QTextEdit()
         self.pc_expired_rows_input.setPlaceholderText(
             '"","CN-4210326","","MATCH","POSTCROSSING","mikebond","Italy","","2026-01-13 00:00:00 +0000","","","","https://www.postcrossing.com/user/mikebond"'
         )
         layout.addWidget(self.pc_expired_rows_input, 1)
-        run_btn = QPushButton("Import Postcrossing IDs")
+        run_btn = QPushButton("📥 Import Postcrossing IDs")
         run_btn.clicked.connect(self.run_postcrossing_import)
         layout.addWidget(run_btn)
         return widget
@@ -1764,6 +1586,9 @@ class ImportDialog(QDialog):
                 "- One-per-line CSV: 配对,/sendpostcard/postcardDetail/1336317,CNSH44625"
             )
         )
+        recv_js_btn = QPushButton("📋 Show page scraper JS (received)")
+        recv_js_btn.clicked.connect(lambda: self.show_icy_js_hint("received"))
+        layout.addWidget(recv_js_btn)
         self.icy_received_input = QTextEdit()
         self.icy_received_input.setPlaceholderText(
             "[[\"配对\",\"/sendpostcard/postcardDetail/1336317\",\"CNSH44625\"],"
@@ -1771,16 +1596,19 @@ class ImportDialog(QDialog):
         )
         layout.addWidget(self.icy_received_input, 1)
         layout.addWidget(QLabel("Paste iCardYou SENT entries (same format as above):"))
+        sent_js_btn = QPushButton("📋 Show page scraper JS (sent)")
+        sent_js_btn.clicked.connect(lambda: self.show_icy_js_hint("sent"))
+        layout.addWidget(sent_js_btn)
         self.icy_sent_input = QTextEdit()
         self.icy_sent_input.setPlaceholderText(
             "[[\"配对\",\"/sendpostcard/postcardDetail/1335001\",\"CNSH44500\"],"
             "[\"配对\",\"/sendpostcard/postcardDetail/1334999\",\"CNSH44499\"]]"
         )
         layout.addWidget(self.icy_sent_input, 1)
-        run_btn = QPushButton("Import iCardYou entries")
+        run_btn = QPushButton("📥 Import iCardYou entries")
         run_btn.clicked.connect(self.run_icy_import)
         layout.addWidget(run_btn)
-        manage_exclude_btn = QPushButton("Manage iCardYou exclude list")
+        manage_exclude_btn = QPushButton("🚫 Manage iCardYou exclude list")
         manage_exclude_btn.clicked.connect(self.manage_icy_excludes)
         layout.addWidget(manage_exclude_btn)
         self.icy_exclude_status = QLabel("")
@@ -1801,18 +1629,25 @@ class ImportDialog(QDialog):
         self.refresh_exclude_status_labels()
         self.log(f"iCardYou exclude list saved: {len(self.icy_exclude_ids)} IDs")
 
+    def show_icy_js_hint(self, mode: str) -> None:
+        js_path = self.project_root / "scripts" / "climb.js"
+        if mode == "received":
+            code = read_js_snippet(js_path, "// received", "//sent")
+            title = "iCardYou received scraper (climb.js)"
+        else:
+            code = read_js_snippet(js_path, "//sent", "//pc")
+            title = "iCardYou sent scraper (climb.js)"
+        CodeHintDialog(self, title, code).exec()
+
+    def show_pc_expired_js_hint(self) -> None:
+        js_path = self.project_root / "scripts" / "pc_expired_climb.js"
+        code = js_path.read_text(encoding="utf-8") if js_path.exists() else f"File not found: {js_path}"
+        CodeHintDialog(self, "Postcrossing expired scraper (pc_expired_climb.js)", code).exec()
+
     def build_image_tab(self) -> QWidget:
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.addWidget(
-            QLabel(
-                "Workflow:\n"
-                "1) Refresh missing-image candidates\n"
-                "2) Choose source images and preview them\n"
-                "3) Assign selected image to selected candidate ID\n"
-                "4) Click Execute import"
-            )
-        )
+        layout.addWidget(QLabel("Refresh candidates → Choose images → Assign → Execute import"))
 
         row = QHBoxLayout()
         row.addWidget(QLabel("Direction:"))
@@ -1823,7 +1658,7 @@ class ImportDialog(QDialog):
         self.image_scope_combo = QComboBox()
         self.image_scope_combo.addItems(["Missing only", "All cards (allow update)"])
         row.addWidget(self.image_scope_combo)
-        refresh_btn = QPushButton("Refresh candidates")
+        refresh_btn = QPushButton("🔄 Refresh candidates")
         refresh_btn.clicked.connect(self.refresh_missing_image_candidates)
         row.addWidget(refresh_btn)
         row.addStretch(1)
@@ -1842,9 +1677,10 @@ class ImportDialog(QDialog):
         image_col = QVBoxLayout()
         image_col.addWidget(QLabel("Selected source images"))
         self.image_file_list = QListWidget()
+        self.image_file_list.setMaximumHeight(80)
         self.image_file_list.currentTextChanged.connect(self.preview_selected_image)
         image_col.addWidget(self.image_file_list, 1)
-        choose_btn = QPushButton("Choose source images...")
+        choose_btn = QPushButton("📂 Choose source images...")
         choose_btn.clicked.connect(self.choose_source_images)
         image_col.addWidget(choose_btn)
         right_col.addLayout(image_col, 1)
@@ -1857,14 +1693,14 @@ class ImportDialog(QDialog):
         preview_col.addWidget(QLabel("Preview"))
         self.image_preview_label = QLabel("No image selected")
         self.image_preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_preview_label.setMinimumSize(300, 200)
+        self.image_preview_label.setMinimumSize(160, 100)
         self.image_preview_label.setStyleSheet("QLabel { background: #f0f0f0; border: 1px solid #d0d0d0; }")
         preview_col.addWidget(self.image_preview_label, 1)
 
         existing_col.addWidget(QLabel("Existing uploaded image (selected card)"))
         self.image_existing_preview_label = QLabel("No existing image")
         self.image_existing_preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_existing_preview_label.setMinimumSize(300, 200)
+        self.image_existing_preview_label.setMinimumSize(160, 100)
         self.image_existing_preview_label.setStyleSheet("QLabel { background: #f0f0f0; border: 1px solid #d0d0d0; }")
         existing_col.addWidget(self.image_existing_preview_label, 1)
 
@@ -1872,7 +1708,7 @@ class ImportDialog(QDialog):
         preview_row.addLayout(existing_col, 1)
         mapping_col.addLayout(preview_row, 1)
 
-        assign_btn = QPushButton("Assign selected image -> selected candidate")
+        assign_btn = QPushButton("🔗 Assign selected image -> selected candidate")
         assign_btn.clicked.connect(self.assign_image_to_candidate)
         mapping_col.addWidget(assign_btn)
 
@@ -1880,26 +1716,24 @@ class ImportDialog(QDialog):
         self.image_selected_url_input = QLineEdit()
         self.image_selected_url_input.setReadOnly(True)
         mapping_col.addWidget(self.image_selected_url_input)
-        open_url_btn = QPushButton("Open selected card URL")
+        open_url_btn = QPushButton("🌐 Open selected card URL")
         open_url_btn.clicked.connect(self.open_selected_candidate_url)
         mapping_col.addWidget(open_url_btn)
 
         self.image_assignment_list = QListWidget()
+        self.image_assignment_list.setMaximumHeight(60)
         mapping_col.addWidget(QLabel("Current assignments"))
         mapping_col.addWidget(self.image_assignment_list, 1)
 
-        clear_btn = QPushButton("Clear selected assignment")
+        clear_btn = QPushButton("🗑️ Clear selected assignment")
         clear_btn.clicked.connect(self.clear_selected_assignment)
         mapping_col.addWidget(clear_btn)
 
-        execute_btn = QPushButton("Execute import (resize + rename + move)")
+        execute_btn = QPushButton("▶️ Execute import (resize + rename + move)")
         execute_btn.clicked.connect(self.run_image_import)
         mapping_col.addWidget(execute_btn)
 
         right_col.addLayout(mapping_col, 2)
-        right_col.addWidget(self.run_postprocess_btn)
-        right_col.addWidget(QLabel("Logs:"))
-        right_col.addWidget(self.log_output, 1)
         content.addLayout(right_col, 2)
 
         layout.addLayout(content, 1)
@@ -1936,8 +1770,8 @@ class ImportDialog(QDialog):
             seen.add(postcard_id)
         self.image_candidate_list.clear()
         for candidate in candidates:
-            status = "Has image" if candidate["has_image"] else "Missing image"
-            item = QListWidgetItem(f"{candidate['id']} [{status}]")
+            status = " 🖼️" if candidate["has_image"] else ""
+            item = QListWidgetItem(f"{candidate['id']}{status}")
             item.setData(Qt.ItemDataRole.UserRole, candidate)
             self.image_candidate_list.addItem(item)
         candidate_ids = {candidate["id"] for candidate in candidates}
@@ -2239,19 +2073,22 @@ class ImportDialog(QDialog):
         )
 
     def run_postprocess_scripts(self) -> None:
-        code_sort, out_sort = run_python_script(self.project_root, "sort.py")
-        code_group, out_group = run_python_script(self.project_root, "grouped.py")
-        self.log(out_sort or "sort.py finished.")
-        self.log(out_group or "grouped.py finished.")
-        if code_sort != 0 or code_group != 0:
-            QMessageBox.warning(self, "Post-process failed", "sort.py or grouped.py failed. See logs.")
+        data_dir = self.project_root / "_data"
+        try:
+            sort_postcard_data(0, data_dir)
+            sort_postcard_data(1, data_dir)
+            self.log("sort finished.")
+            generate_group(data_dir)
+            self.log("grouped finished.")
+        except Exception as exc:
+            QMessageBox.warning(self, "Post-process failed", str(exc))
             return
         self.on_data_changed()
-        QMessageBox.information(self, "Done", "sort.py + grouped.py finished.")
+        QMessageBox.information(self, "Done", "sort + grouped finished.")
 
     def run_image_import(self) -> None:
         try:
-            from PIL import Image
+            from resize import resize_image
         except ImportError:
             QMessageBox.warning(self, "Missing dependency", "Please install Pillow.")
             return
@@ -2272,17 +2109,7 @@ class ImportDialog(QDialog):
                 continue
             output_path = target_dir / f"{postcard_id}.jpg"
             existed_before = output_path.exists()
-            with Image.open(source) as img:
-                width, height = img.size
-                if width > height:
-                    target_width = 600
-                    target_height = int(height / width * 600)
-                else:
-                    target_height = 600
-                    target_width = int(width / height * 600)
-                resized = img.resize((target_width, target_height))
-                resized = resized.convert("RGB")
-                resized.save(output_path, format="JPEG")
+            resize_image(str(source), str(output_path), convert_to_rgb=True)
             if existed_before:
                 updated += 1
             else:
@@ -2308,7 +2135,6 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle(self.translator.tr("JiYou's Postcard Collection"))
         self.resize(1024, 768)
-        self.setMaximumSize(1024, 768)
 
         self.stacked = QStackedWidget()
         self.received_panel = PostcardsPanel(project_root, "Received", [], self.translator)
@@ -2324,6 +2150,7 @@ class MainWindow(QMainWindow):
     def showEvent(self, event) -> None:  # type: ignore[override]
         super().showEvent(event)
         if not self._centered_once:
+            fit_to_screen(self)
             center_window(self)
             self._centered_once = True
 

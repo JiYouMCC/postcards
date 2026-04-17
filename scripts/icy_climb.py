@@ -7,6 +7,69 @@ import json
 
 requests.packages.urllib3.disable_warnings()
 
+DEFAULT_EXCLUDE_LIST = {"CNSH42434", "CNSH42824", "CNHE2329"}
+
+
+def fetch_icy_row(entry: list, mode: int, parse_date_fn, format_date_fn, exclude_ids=None):
+    """Scrape one iCardYou card page and return a CSV output row.
+
+    entry: [card_type_raw, card_path, card_id]
+    mode:  0 = received, 1 = sent
+    Returns None if the card should be skipped.
+    """
+    card_type_raw, card_path, card_id = entry
+    card_id = card_id.strip().upper()
+    effective_excludes = exclude_ids if exclude_ids is not None else DEFAULT_EXCLUDE_LIST
+    if not card_id or card_id in effective_excludes:
+        return None
+
+    response = requests.get(f"https://icardyou.icu{card_path}", timeout=30, verify=False)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    card_type = card_type_raw
+    if card_type == "配对":
+        card_type = "MATCH"
+    elif card_type in ("回寄", "赠送"):
+        card_type = "GIVE"
+    elif card_type == "活动":
+        card_type = "GAME"
+
+    user_links = soup.find_all("a", href=lambda href: href and href.startswith("/userInfo/homePage"))
+    friend_id = user_links[mode].get_text(strip=True) if len(user_links) > mode else ""
+    friend_url = f"https://icardyou.icu{user_links[mode]['href']}" if len(user_links) > mode else ""
+
+    region_labels = soup.find_all("td", string=lambda s: s and "地区：" in s)
+    region = ""
+    if len(region_labels) > mode:
+        region = region_labels[mode].find_next("td").get_text(strip=True)
+
+    send_time_label = soup.find("td", string=lambda s: s and "发送时间：" in s)
+    sent_date = ""
+    if send_time_label is not None:
+        sent_date = format_date_fn(parse_date_fn(send_time_label.find_next("td").get_text(strip=True)))
+
+    recv_time_label = soup.find("td", string=lambda s: s and "到达时间：" in s)
+    received_date = ""
+    if recv_time_label is not None:
+        received_date = format_date_fn(parse_date_fn(recv_time_label.find_next("td").get_text(strip=True)))
+
+    return [
+        "",
+        card_id,
+        "",
+        card_type,
+        "icardyou",
+        friend_id,
+        "China",
+        region,
+        sent_date,
+        received_date,
+        "",
+        f"https://icardyou.icu{card_path}",
+        friend_url,
+    ]
+
 def process(mode, post_link_list, exclude_list):
     if mode == 0:
         target_file_path = "../_data/received.csv"
