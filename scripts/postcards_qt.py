@@ -55,7 +55,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-
 DISPLAY_COLUMNS = [
     ("id", "ID"),
     ("title", "Title"),
@@ -190,7 +189,7 @@ def apply_readable_app_font(app: QApplication, language: str) -> None:
     else:
         app_font = QFont(base_font)
 
-    app_font.setPointSize(7)
+    app_font.setPointSize(10)
     app.setFont(app_font)
 
 
