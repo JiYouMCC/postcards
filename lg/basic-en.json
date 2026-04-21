@@ -146,6 +146,7 @@
     "Vilnius": "Vilnius",
 
     "_comment": "Australia",
+    "Grantville": "Grantville",
     "Lorne": "Lorne",
     "Redcliffe": "Redcliffe",
     "Sydney": "Sydney",
@@ -217,6 +218,7 @@
     "Igelsdorf":"Igelsdorf",
     "Ingolstadt":"Ingolstadt",
     "Karlsruhe":"Karlsruhe",
+    "Kelkheim":"Kelkheim",
     "Kitzingen":"Kitzingen",
     "Kronau":"Kronau",
     "Köln":"Köln",
@@ -259,6 +261,7 @@
     "Oberhofen":"Oberhofen",
     "Soral":"Soral",
     "Willisau":"Willisau",
+    "Saas im Prättigau":"Saas im Prättigau",
 
     "_comment": "U.S.A.",
     "Acton":"Acton",
@@ -267,6 +270,7 @@
     "Apex":"Apex",
     "Arvada":"Arvada",
     "Atlanta":"Atlanta",
+    "Bay City":"Bay City",
     "Bellaire":"Bellaire",
     "Canton":"Canton",
     "Cedar Hills":"Cedar Hills",
@@ -274,6 +278,7 @@
     "Des Plaines":"Des Plaines",
     "Dexter":"Dexter",
     "Doniphan":"Doniphan",
+    "East Brainerd":"East Brainerd",
     "Edina":"Edina",
     "Georgetown":"Georgetown",
     "Hackensack": "Hackensack",
@@ -291,6 +296,7 @@
     "Newark":"Newark",
     "Oakland":"Oakland",
     "Odessa":"Odessa",
+    "Pacific Grove":"Pacific Grove",
     "Richmond":"Richmond",
     "Roseville":"Roseville",
     "Saint Paul":"Saint Paul",
@@ -349,6 +355,12 @@
     "Horten": "Horten",
     "Skjeberg": "Skjeberg",
     "Stavanger": "Stavanger",
+
+    "_comment": "Brazil",
+    "Cravinhos":"Cravinhos",
+
+    "_comment": "Romania",
+    "Bucharest":"Bucharest",
 
     "_comment":"end"
 }

@@ -147,6 +147,7 @@
     "Redcliffe": "赤壁市",
     "Sydney": "悉尼",
     "Ulladulla": "阿勒达拉",
+    "Grantville": "格兰特维尔",
 
     "_comment": "China",
     "安徽":"安徽",
@@ -185,6 +186,7 @@
     "海南":"海南",
 
     "_comment": "德国",
+    "Kelkheim":"凯尔克海姆",
     "Alfter":"阿尔夫特",
     "Augsburg":"奥格斯堡",
     "Berlin":"柏林",
@@ -256,6 +258,7 @@
     "Oberhofen":"奥伯霍芬",
     "Soral":"索拉勒",
     "Willisau":"维利绍",
+    "Saas im Prättigau":"萨斯（普雷蒂高地区）",
 
     "_comment": "美国",
     "Acton":"阿克顿",
@@ -264,6 +267,7 @@
     "Apex":"埃佩克斯",
     "Arvada":"阿瓦达",
     "Atlanta":"亚特兰大",
+    "Bay City":"贝城",
     "Bellaire":"贝莱尔",
     "Canton":"坎顿",
     "Cedar Hills":"锡达希尔斯",
@@ -271,6 +275,7 @@
     "Des Plaines":"德斯普兰斯",
     "Dexter":"德克斯特",
     "Doniphan":"多尼芬",
+    "East Brainerd":"东布雷纳德",
     "Edina":"伊代纳",
     "Georgetown":"乔治敦",
     "Hackensack":"哈肯萨克",
@@ -288,6 +293,7 @@
     "Newark":"纽瓦克",
     "Oakland":"奥克兰",
     "Odessa":"敖德萨",
+    "Pacific Grove":"太平洋丛林",
     "Richmond":"里士满",
     "Roseville":"罗斯维尔",
     "Saint Paul":"圣保罗",
@@ -346,6 +352,12 @@
     "Horten": "霍滕",
     "Skjeberg": "谢贝里",
     "Stavanger": "斯塔万格",
+
+    "_comment": "巴西",
+    "Cravinhos":"克拉维纽斯",
+
+    "_comment": "罗马尼亚",
+    "Bucharest":"布加勒斯特",
 
     "_comment": "末尾"
 }
