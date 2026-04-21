@@ -3,40 +3,66 @@ title: posting board script
 ---
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-// 图片URL列表
-const receivedImageUrls = [
-  {% assign postcards1 = site.data.received | where_exp: "postcard","postcard.received_date >= '2025-09-01'" | where_exp: "postcard","postcard.received_date <= '2025-10-01'" | reverse %}
-  {% assign postcards = site.data.received | reverse %}
-  {% for postcard in postcards limit: 48 %}"{{ site.baseurl }}/received/{{ postcard.id }}.jpg", 
+const baseUrl = "{{ site.baseurl }}";
+const yearSelect = document.getElementById('yearFilter');
+const monthSelect = document.getElementById('monthFilter');
+const spinner = document.getElementById('boardSpinner');
+
+// 所有明信片数据：[id, YYYY-MM]，由 Jekyll 在构建时生成
+const allPostcards = [
+  {% for postcard in site.data.received %}["{{ postcard.id }}","{{ postcard.received_date | date: "%Y-%m" }}"],
   {% endfor %}
 ];
 
-//随机打乱图片的顺序
-receivedImageUrls.sort(() => Math.random() - 0.5);
+// 提取唯一年份并倒序排列，填充年份选择框
+const years = [...new Set(allPostcards.map(p => p[1].slice(0, 4)).filter(Boolean))].sort().reverse();
+years.forEach(y => {
+  const opt = document.createElement('option');
+  opt.value = y;
+  opt.textContent = y;
+  yearSelect.appendChild(opt);
+});
 
-// 预加载所有图片
-const receivedImages = [];
-let loadedCount = 0;
+function populateMonths(year) {
+  // 保留第一个默认选项（全年），清除其余
+  while (monthSelect.options.length > 1) monthSelect.remove(1);
 
-function preloadImages() {
-  receivedImageUrls.forEach(url => {
-    const img = new Image();
-    img.onload = () => {
-      loadedCount++;
-      if (loadedCount === receivedImageUrls.length) {
-        init();
-      }
-    };
-    img.onerror = () => {
-      console.error(`Failed to load image: ${url}`);
-      loadedCount++;
-      if (loadedCount === receivedImageUrls.length) {
-        init();
-      }
-    };
-    img.src = url;
-    receivedImages.push(img);
+  if (!year) {
+    monthSelect.disabled = true;
+    monthSelect.value = '';
+    return;
+  }
+
+  const lang = (typeof Cookies !== 'undefined' && Cookies.get('local_language_code')) || 'zh';
+  const isZh = lang === 'zh';
+
+  // 找出该年份有数据的月份
+  const availableMonths = [...new Set(
+    allPostcards.filter(p => p[1].startsWith(year)).map(p => p[1].slice(5, 7))
+  )].sort();
+
+  availableMonths.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = isZh ? `${parseInt(m)}月` : parseInt(m);
+    monthSelect.appendChild(opt);
   });
+  monthSelect.disabled = false;
+}
+
+function getFilteredIds() {
+  const year = yearSelect.value;
+  const month = monthSelect.value;
+
+  if (!year) {
+    // 默认：最近 48 张（数据按升序排列，取末尾 48 条）
+    return allPostcards.slice(-48).map(p => p[0]);
+  }
+  return allPostcards.filter(p => {
+    const [y, m] = p[1].split('-');
+    if (month) return y === year && m === month;
+    return y === year;
+  }).map(p => p[0]);
 }
 
 // 绘制带弧度的明信片（使用图片并保持原始宽高比）
@@ -45,95 +71,64 @@ function drawCurvedPostcardWithImage(x, y, width, height, angle, image) {
   ctx.translate(x + width / 2, y + height / 2);
   ctx.rotate(angle * Math.PI / 180);
 
-  // 绘制弯曲的纸张效果
+  const curveOffset = height * 0.05;
+  const edgeOffset = width * 0.05;
+
   ctx.beginPath();
-
-  // 控制点的偏移量
-  const curveOffset = height * 0.05; // 弯曲程度
-  const edgeOffset = width * 0.05; // 边缘偏移
-
-  // 开始绘制路径
   ctx.moveTo(-width / 2, -height / 2);
-
-  // 上边弧线
-  ctx.bezierCurveTo(
-    -width / 4, -height / 2 - curveOffset,
-    width / 4, -height / 2 - curveOffset,
-    width / 2, -height / 2
-  );
-
-  // 右边
-  ctx.bezierCurveTo(
-    width / 2 + edgeOffset, -height / 4,
-    width / 2 + edgeOffset, height / 4,
-    width / 2, height / 2
-  );
-
-  // 下边弧线
-  ctx.bezierCurveTo(
-    width / 4, height / 2 + curveOffset,
-    -width / 4, height / 2 - curveOffset,
-    -width / 2, height / 2
-  );
-
-  // 左边
-  ctx.bezierCurveTo(
-    -width / 2 - edgeOffset, height / 4,
-    -width / 2 - edgeOffset, -height / 4,
-    -width / 2, -height / 2
-  );
-
-  // 裁剪路径，使图像仅在路径内部显示
+  ctx.bezierCurveTo(-width / 4, -height / 2 - curveOffset, width / 4, -height / 2 - curveOffset, width / 2, -height / 2);
+  ctx.bezierCurveTo(width / 2 + edgeOffset, -height / 4, width / 2 + edgeOffset, height / 4, width / 2, height / 2);
+  ctx.bezierCurveTo(width / 4, height / 2 + curveOffset, -width / 4, height / 2 - curveOffset, -width / 2, height / 2);
+  ctx.bezierCurveTo(-width / 2 - edgeOffset, height / 4, -width / 2 - edgeOffset, -height / 4, -width / 2, -height / 2);
   ctx.clip();
 
-  // 设置阴影
   ctx.shadowColor = 'rgba(0,0,0,0.3)';
   ctx.shadowBlur = 15;
   ctx.shadowOffsetX = 5;
   ctx.shadowOffsetY = 5;
 
-  // 保持宽高比例绘制图片
   const imgRatio = image.width / image.height;
   const cardRatio = width / height;
-
   let drawWidth, drawHeight, offsetX, offsetY;
 
   if (imgRatio > cardRatio) {
-    // 图片比较宽，以高度为基准
     drawHeight = height;
     drawWidth = height * imgRatio;
     offsetX = -(drawWidth - width) / 2;
     offsetY = 0;
   } else {
-    // 图片比较高，以宽度为基准
     drawWidth = width;
     drawHeight = width / imgRatio;
     offsetX = 0;
     offsetY = -(drawHeight - height) / 2;
   }
 
-  // 绘制图像（保持宽高比）
   ctx.drawImage(image, -width / 2 + offsetX, -height / 2 + offsetY, drawWidth, drawHeight);
   ctx.restore();
 }
 
-// 初始化
-function init() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function drawBoard(images) {
+  spinner.style.display = 'none';
+  canvas.style.display = '';
 
-  const rows = 6;
   const cols = 8;
   const baseSize = 160 - 16;
-  const pendding = 80;
-  const overlap = 1 - (canvas.width - pendding * 2) / cols / baseSize;
+  const padding = 80;
+  const overlap = 1 - (1024 - padding * 2) / cols / baseSize;
+  const step = baseSize * (1 - overlap);
+  const rows = Math.ceil(images.length / cols);
   const angleOffset = 10;
   const offset = 10;
 
-  // 绘制 #D2B48C 的底色
+  // 根据行数动态调整画布高度
+  canvas.width = 1024;
+  canvas.height = padding * 2 + rows * step;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   ctx.fillStyle = "#D2B48C";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // 绘制画框
   ctx.strokeStyle = "#8B7B5A";
   ctx.lineWidth = 12;
   ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
@@ -144,46 +139,179 @@ function init() {
   ctx.lineWidth = 4;
   ctx.strokeRect(24, 24, canvas.width - 48, canvas.height - 48);
 
-  // 绘制明信片
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      //按序选择图片
-      const image = receivedImages[row * cols + col]; //|| receivedImages[0]; 
-      // 如果没有足够的图片， 直接跳过
-      if (!image) continue;
+      const image = images[row * cols + col];
+      if (!image || !image.width) continue;
 
-
-      //如果没有足够的图片，使用第一张图片
-      // 根据图片实际宽高比决定明信片是横向还是纵向
       const imgRatio = image.width / image.height;
-      const isHorizontal = imgRatio >= 1; // 宽度大于或等于高度则为横向
-
-      // 根据图片方向设置明信片尺寸
+      const isHorizontal = imgRatio >= 1;
       const width = isHorizontal ? baseSize : baseSize * imgRatio;
       const height = isHorizontal ? baseSize / imgRatio : baseSize;
-      // 计算基础位置
-      let x = pendding + col * baseSize * (1 - overlap) - (baseSize - height) / 2;
-      let y = pendding + row * baseSize * (1 - overlap) - (baseSize - width) / 2;
 
-      // 添加随机偏移
+      let x = padding + col * step - (baseSize - height) / 2;
+      let y = padding + row * step - (baseSize - width) / 2;
       x += (Math.random() - 0.5) * offset;
       y += (Math.random() - 0.5) * offset;
-      // 随机旋转角度（范围稍微小一点）
+
       const angle = (Math.random() - 0.5) * angleOffset;
-      // 绘制明信片
       drawCurvedPostcardWithImage(x, y, width, height, angle, image);
+    }
+  }
+
+  if (yearSelect.value) drawStampLabel();
+}
+
+const EN_MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const EN_MONTHS_FULL  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const ZH_DIGITS = ['〇','一','二','三','四','五','六','七','八','九'];
+
+function toChineseYear(year) {
+  return String(year).split('').map(d => ZH_DIGITS[parseInt(d)]).join('');
+}
+
+const ZH_MONTHS = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+
+function getStampLines() {
+  const year  = yearSelect.value;
+  const month = monthSelect.value;
+  const lang  = (typeof Cookies !== 'undefined' && Cookies.get('local_language_code')) || 'zh';
+  const isZh  = lang === 'zh';
+
+  if (!year) return null; // 默认"最近"模式不显示印章（由调用方控制）
+  if (isZh) {
+    const cyear = toChineseYear(year);
+    return month ? [cyear, ZH_MONTHS[parseInt(month) - 1]] : [cyear, ''];
+  } else {
+    return month ? [year, EN_MONTHS_FULL[parseInt(month) - 1]] : [year, ''];
+  }
+}
+
+// 沿圆弧绘制文字
+// isBottom=false: 上弧（角度递增，字符朝外），isBottom=true: 下弧（字符朝外，从右往左排）
+function drawArcText(text, radius, centerAngle, isBottom, fontSize) {
+  ctx.font = `bold ${fontSize}px cursive`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const spacing = fontSize * 0.25;
+  const chars = [...text];
+  const charWidths = chars.map(ch => ctx.measureText(ch).width);
+  const totalWidth = charWidths.reduce((a, b) => a + b, 0) + spacing * (chars.length - 1);
+  const totalArc = totalWidth / radius;
+
+  if (!isBottom) {
+    // 上弧：角度从小到大，旋转 = θ + π/2
+    let angle = centerAngle - totalArc / 2;
+    for (let i = 0; i < chars.length; i++) {
+      const midAngle = angle + charWidths[i] / 2 / radius;
+      ctx.save();
+      ctx.translate(radius * Math.cos(midAngle), radius * Math.sin(midAngle));
+      ctx.rotate(midAngle + Math.PI / 2);
+      ctx.fillText(chars[i], 0, 0);
+      ctx.restore();
+      angle += (charWidths[i] + spacing) / radius;
+    }
+  } else {
+    // 下弧：从右向左排角度，使文字左→右正向阅读，旋转 = θ - π/2
+    let angle = centerAngle + totalArc / 2;
+    for (let i = 0; i < chars.length; i++) {
+      const midAngle = angle - charWidths[i] / 2 / radius;
+      ctx.save();
+      ctx.translate(radius * Math.cos(midAngle), radius * Math.sin(midAngle));
+      ctx.rotate(midAngle - Math.PI / 2);
+      ctx.fillText(chars[i], 0, 0);
+      ctx.restore();
+      angle -= (charWidths[i] + spacing) / radius;
     }
   }
 }
 
-// 开始预加载图片
-if (receivedImageUrls.length > 0) {
-  preloadImages();
-} else {
-  // 没有图片URL时不绘制
-  ctx.font = "20px Arial";
-  ctx.fillText("请添加图片URL", canvas.width / 2 - 80, canvas.height / 2);
+function drawStampLabel() {
+  const lines = getStampLines();
+  if (!lines) return;
+  const fontSize = 16;
+  const R  = 48;
+  const inner = R - 7;
+  const cx = canvas.width  - R - 18;
+  const cy = canvas.height - R - 18;
+  const ink = '#7B1515';
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.globalAlpha = 0.65;
+  ctx.fillStyle   = ink;
+  ctx.strokeStyle = ink;
+
+  // 外圆
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(0, 0, R, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // 内圆（双圈效果）
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, inner, 0, Math.PI * 2);
+  ctx.stroke();
+
+  const textR = inner - fontSize / 2 - 1;
+  const hasBottom = !!lines[1];
+
+  // 只有年份时上弧居中，有月份时上下各一弧
+  drawArcText(lines[0], textR, -Math.PI / 2, false, fontSize);
+  if (hasBottom) drawArcText(lines[1], textR, Math.PI / 2, true, fontSize);
+
+  // 中心装饰
+  ctx.font = '14px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('✦', 0, 0);
+
+  ctx.restore();
 }
 
-// 点击刷新
-canvas.addEventListener('click', init);
+function loadAndDraw() {
+  spinner.style.display = 'block';
+  canvas.style.display = 'none';
+
+  const ids = getFilteredIds();
+  // 随机打乱顺序
+  ids.sort(() => Math.random() - 0.5);
+
+  if (ids.length === 0) {
+    spinner.style.display = 'none';
+    canvas.style.display = '';
+    canvas.width = 1024;
+    canvas.height = 200;
+    ctx.fillStyle = "#D2B48C";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#555";
+    ctx.font = "20px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("该月份暂无收到的明信片", canvas.width / 2, canvas.height / 2);
+    return;
+  }
+
+  const images = [];
+  let loadedCount = 0;
+
+  ids.forEach(id => {
+    const img = new Image();
+    img.onload = img.onerror = () => {
+      loadedCount++;
+      if (loadedCount === ids.length) drawBoard(images);
+    };
+    img.src = `${baseUrl}/received/${id}.jpg`;
+    images.push(img);
+  });
+}
+
+yearSelect.addEventListener('change', function () {
+  populateMonths(this.value);
+  loadAndDraw();
+});
+monthSelect.addEventListener('change', loadAndDraw);
+canvas.addEventListener('click', loadAndDraw);
+
+loadAndDraw();
