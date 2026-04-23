@@ -1455,6 +1455,7 @@ class ImportDialog(QDialog):
         self.tabs.addTab(self.build_posthi_tab(), "Post-Hi")
         self.tabs.addTab(self.build_postcrossing_tab(), "Postcrossing")
         self.tabs.addTab(self.build_icy_tab(), "iCardYou")
+        self.tabs.addTab(self.build_personal_tab(), self.translator.tr("Personal"))
         self.tabs.addTab(self.build_image_tab(), "Images")
 
         layout = QVBoxLayout(self)
@@ -1643,6 +1644,241 @@ class ImportDialog(QDialog):
         js_path = self.project_root / "scripts" / "pc_expired_climb.js"
         code = js_path.read_text(encoding="utf-8") if js_path.exists() else f"File not found: {js_path}"
         CodeHintDialog(self, "Postcrossing expired scraper (pc_expired_climb.js)", code).exec()
+
+    def build_personal_tab(self) -> QWidget:
+        """Tab for manually adding off-platform postcards (SELF / GIFT / DIRECT)."""
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+
+        # ── Type and Direction ────────────────────────────────────────────────
+        top_row = QHBoxLayout()
+
+        top_row.addWidget(QLabel(self.translator.tr("Direction") + ":"))
+        self.personal_direction_combo = QComboBox()
+        self.personal_direction_combo.addItems([self.translator.tr("Received"), self.translator.tr("Sent")])
+        top_row.addWidget(self.personal_direction_combo)
+
+        top_row.addWidget(QLabel(self.translator.tr("Type") + ":"))
+        self.personal_type_combo = QComboBox()
+        # (value, display)
+        for value, display in [
+            ("SELF",   self.translator.tr("SELF (travel, sent to myself)")),
+            ("GIFT",   self.translator.tr("GIFT (from friend/relative, no platform)")),
+            ("DIRECT", self.translator.tr("DIRECT (online friend, no platform exchange)")),
+        ]:
+            self.personal_type_combo.addItem(display, value)
+        top_row.addWidget(self.personal_type_combo, 1)
+        top_row.addStretch(1)
+        layout.addLayout(top_row)
+
+        # ── Form ─────────────────────────────────────────────────────────────
+        form = QFormLayout()
+        form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+
+        # ID row: auto-generated + regenerate button
+        id_row = QHBoxLayout()
+        self.personal_id_input = QLineEdit()
+        self.personal_id_input.setPlaceholderText("e.g. SELF-001")
+        id_regen_btn = QPushButton("🔄")
+        id_regen_btn.setFixedWidth(36)
+        id_regen_btn.setToolTip(self.translator.tr("Regenerate ID"))
+        id_regen_btn.clicked.connect(self._personal_regen_id)
+        id_row.addWidget(self.personal_id_input, 1)
+        id_row.addWidget(id_regen_btn)
+        form.addRow("ID:", id_row)
+
+        self.personal_title_input = QLineEdit()
+        self.personal_title_input.setPlaceholderText(self.translator.tr("e.g. 杭州西湖夜景"))
+        form.addRow(self.translator.tr("Title") + ":", self.personal_title_input)
+
+        self.personal_friend_label = QLabel(self.translator.tr("Sender") + ":")
+        self.personal_friend_input = QLineEdit()
+        form.addRow(self.personal_friend_label, self.personal_friend_input)
+
+        self.personal_friend_url_label = QLabel(self.translator.tr("Friend URL") + ":")
+        self.personal_friend_url_input = QLineEdit()
+        self.personal_friend_url_input.setPlaceholderText(self.translator.tr("Profile URL (optional, DIRECT only)"))
+        form.addRow(self.personal_friend_url_label, self.personal_friend_url_input)
+
+        self.personal_country_input = QLineEdit()
+        self.personal_country_input.setPlaceholderText("e.g. China")
+        form.addRow(self.translator.tr("Country") + ":", self.personal_country_input)
+
+        self.personal_region_input = QLineEdit()
+        self.personal_region_input.setPlaceholderText(self.translator.tr("e.g. 浙江"))
+        form.addRow(self.translator.tr("Region/City") + ":", self.personal_region_input)
+
+        # Sent date
+        sent_date_row = QHBoxLayout()
+        self.personal_sent_date = QDateEdit(QDate.currentDate())
+        self.personal_sent_date.setCalendarPopup(True)
+        self.personal_sent_date.setDisplayFormat("yyyy-MM-dd")
+        sent_date_row.addWidget(self.personal_sent_date)
+        sent_date_row.addStretch(1)
+        form.addRow(self.translator.tr("Sent Date") + ":", sent_date_row)
+
+        # Received date with "not yet received" toggle
+        recv_date_row = QHBoxLayout()
+        self.personal_recv_date = QDateEdit(QDate.currentDate())
+        self.personal_recv_date.setCalendarPopup(True)
+        self.personal_recv_date.setDisplayFormat("yyyy-MM-dd")
+        self.personal_recv_unknown = QCheckBox(self.translator.tr("Not yet received / unknown"))
+        self.personal_recv_unknown.setChecked(False)
+        self.personal_recv_unknown.toggled.connect(lambda c: self.personal_recv_date.setEnabled(not c))
+        recv_date_row.addWidget(self.personal_recv_date)
+        recv_date_row.addWidget(self.personal_recv_unknown)
+        recv_date_row.addStretch(1)
+        form.addRow(self.translator.tr("Received Date") + ":", recv_date_row)
+
+        self.personal_tags_input = QLineEdit()
+        self.personal_tags_input.setPlaceholderText(self.translator.tr("Space-separated, e.g. 旅游 风景 杭州"))
+        form.addRow(self.translator.tr("Tags") + ":", self.personal_tags_input)
+
+        layout.addLayout(form)
+
+        # ── Preview of generated CSV row ──────────────────────────────────────
+        layout.addWidget(QLabel(self.translator.tr("Preview (CSV row):") + " "))
+        self.personal_preview_label = QLabel("")
+        self.personal_preview_label.setWordWrap(True)
+        self.personal_preview_label.setStyleSheet("QLabel { font-family: monospace; background: #f5f5f5; padding: 4px; }")
+        self.personal_preview_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        layout.addWidget(self.personal_preview_label)
+
+        # ── Submit ────────────────────────────────────────────────────────────
+        btn_row = QHBoxLayout()
+        preview_btn = QPushButton("👁️ " + self.translator.tr("Preview row"))
+        preview_btn.clicked.connect(self._personal_preview_row)
+        add_btn = QPushButton("✅ " + self.translator.tr("Add to CSV"))
+        add_btn.clicked.connect(self._personal_add_to_csv)
+        btn_row.addWidget(preview_btn)
+        btn_row.addWidget(add_btn)
+        btn_row.addStretch(1)
+        layout.addLayout(btn_row)
+        layout.addStretch(1)
+
+        # Wire up type/direction changes to update hints and auto-generate ID
+        self.personal_type_combo.currentIndexChanged.connect(self._personal_on_type_changed)
+        self.personal_direction_combo.currentIndexChanged.connect(self._personal_regen_id)
+
+        # Initialize
+        self._personal_on_type_changed()
+        self._personal_regen_id()
+        return widget
+
+    # ── Personal tab helpers ──────────────────────────────────────────────────
+
+    def _personal_type_value(self) -> str:
+        return self.personal_type_combo.currentData() or "SELF"
+
+    def _personal_direction_value(self) -> str:
+        """Returns 'received' or 'sent'."""
+        text = self.personal_direction_combo.currentText()
+        # Match both zh and en
+        return "received" if self.personal_direction_combo.currentIndex() == 0 else "sent"
+
+    def _personal_next_seq(self, card_type: str, direction: str) -> str:
+        """Find the next available sequence number NNN for TYPE-NNN."""
+        csv_file = self.project_root / "_data" / (f"{direction}.csv")
+        existing_ids: set[str] = set()
+        if csv_file.exists():
+            rows = load_csv_rows(csv_file)
+            existing_ids = {row.get("id", "").strip().upper() for row in rows}
+        prefix = f"{card_type}-"
+        n = 1
+        while f"{prefix}{n:03d}" in existing_ids:
+            n += 1
+        return f"{n:03d}"
+
+    def _personal_regen_id(self) -> None:
+        card_type = self._personal_type_value()
+        direction = self._personal_direction_value()
+        seq = self._personal_next_seq(card_type, direction)
+        self.personal_id_input.setText(f"{card_type}-{seq}")
+
+    def _personal_on_type_changed(self) -> None:
+        card_type = self._personal_type_value()
+        if card_type == "SELF":
+            self.personal_friend_label.setText(self.translator.tr("Sender") + ":")
+            self.personal_friend_input.setPlaceholderText(self.translator.tr("Your own name, e.g. JiYouMCC"))
+            self.personal_friend_url_input.setEnabled(False)
+            self.personal_friend_url_label.setEnabled(False)
+        elif card_type == "GIFT":
+            self.personal_friend_label.setText(self.translator.tr("Sender") + ":")
+            self.personal_friend_input.setPlaceholderText(self.translator.tr("Name/nickname, e.g. 外婆"))
+            self.personal_friend_url_input.setEnabled(False)
+            self.personal_friend_url_label.setEnabled(False)
+        else:  # DIRECT
+            self.personal_friend_label.setText(self.translator.tr("Sender") + ":")
+            self.personal_friend_input.setPlaceholderText(self.translator.tr("Platform username of the sender"))
+            self.personal_friend_url_input.setEnabled(True)
+            self.personal_friend_url_label.setEnabled(True)
+        self._personal_regen_id()
+
+    def _personal_build_row(self) -> dict[str, str]:
+        card_type = self._personal_type_value()
+        qdate_sent = self.personal_sent_date.date()
+        sent_str = f"{qdate_sent.year()}-{qdate_sent.month():02d}-{qdate_sent.day():02d} 00:00:00 +0800"
+        recv_str = ""
+        if not self.personal_recv_unknown.isChecked():
+            qdate_recv = self.personal_recv_date.date()
+            recv_str = f"{qdate_recv.year()}-{qdate_recv.month():02d}-{qdate_recv.day():02d} 00:00:00 +0800"
+        friend_url = self.personal_friend_url_input.text().strip() if card_type == "DIRECT" else ""
+        return {
+            "no": "",
+            "id": self.personal_id_input.text().strip(),
+            "title": self.personal_title_input.text().strip(),
+            "type": card_type,
+            "platform": "",
+            "friend_id": self.personal_friend_input.text().strip(),
+            "country": self.personal_country_input.text().strip(),
+            "region": self.personal_region_input.text().strip(),
+            "sent_date": sent_str,
+            "received_date": recv_str,
+            "tags": " ".join(self.personal_tags_input.text().split()),
+            "url": "",
+            "friend_url": friend_url,
+        }
+
+    def _personal_preview_row(self) -> None:
+        row = self._personal_build_row()
+        parts = [row.get(f, "") for f in ROW_FIELDNAMES]
+        import io
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(parts)
+        self.personal_preview_label.setText(buf.getvalue().strip())
+
+    def _personal_add_to_csv(self) -> None:
+        row = self._personal_build_row()
+        postcard_id = row.get("id", "").strip()
+        if not postcard_id:
+            QMessageBox.warning(self, "Missing ID", "Please enter or generate a postcard ID.")
+            return
+        if not row.get("country", ""):
+            QMessageBox.warning(self, "Missing Country", "Please enter the country.")
+            return
+
+        direction = self._personal_direction_value()
+        csv_path = self.project_root / "_data" / f"{direction}.csv"
+
+        # Check for duplicate ID
+        existing_rows = load_csv_rows(csv_path)
+        existing_ids = {r.get("id", "").strip().upper() for r in existing_rows}
+        if postcard_id.upper() in existing_ids:
+            QMessageBox.warning(self, "Duplicate ID", f"ID already exists in {direction}.csv: {postcard_id}")
+            return
+
+        csv_row = [row.get(f, "") for f in ROW_FIELDNAMES]
+        added = append_rows_with_dedupe(csv_path, [csv_row])
+
+        if added:
+            self.log(f"Personal postcard added to {direction}.csv: {postcard_id}")
+            self.on_data_changed()
+            # Reset ID for next entry
+            self._personal_regen_id()
+            QMessageBox.information(self, "Done", f"Added {postcard_id} to {direction}.csv.")
+        else:
+            QMessageBox.warning(self, "Not added", f"Postcard {postcard_id} was not added (may already exist).")
 
     def build_image_tab(self) -> QWidget:
         widget = QWidget()

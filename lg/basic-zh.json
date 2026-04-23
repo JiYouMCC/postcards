@@ -81,6 +81,9 @@
     "GAME": "活动",
     "GIVE": "赠送",
     "MATCH": "匹配",
+    "SELF": "旅游自寄",
+    "GIFT": "亲友赠送",
+    "DIRECT": "直接邮寄",
 
     "收发日历 - 嵇爾的明信片收藏册": "收发日历 - 嵇爾的明信片收藏册",
     "我收到的明信片 - 嵇爾的明信片收藏册": "我收到的明信片 - 嵇爾的明信片收藏册",
@@ -358,6 +361,29 @@
 
     "_comment": "罗马尼亚",
     "Bucharest":"布加勒斯特",
+
+    "_comment": "Personal tab (Qt tool)",
+    "Personal": "个人/非平台",
+    "Direction": "方向",
+    "SELF (travel, sent to myself)": "旅游自寄",
+    "GIFT (from friend/relative, no platform)": "亲友赠送（无平台）",
+    "DIRECT (online friend, no platform exchange)": "直接邮寄（网友，未走平台）",
+    "Regenerate ID": "重新生成编号",
+    "Title": "标题",
+    "Sender": "寄件人",
+    "Friend URL": "好友主页链接",
+    "Profile URL (optional, DIRECT only)": "平台主页链接（可选，仅限DIRECT）",
+    "Not yet received / unknown": "未收到/不确定",
+    "Space-separated, e.g. 旅游 风景 杭州": "空格分隔，例如 旅游 风景 杭州",
+    "Preview (CSV row):": "预览（CSV行）：",
+    "Preview row": "预览CSV行",
+    "Add to CSV": "添加到CSV",
+    "Your own name, e.g. JiYouMCC": "自己的名字，例如 JiYouMCC",
+    "Name/nickname, e.g. 外婆": "姓名/昵称，例如 外婆",
+    "Platform username of the sender": "寄件人的平台用户名",
+    "e.g. 杭州西湖夜景": "例如 杭州西湖夜景",
+    "e.g. China": "例如 China",
+    "e.g. 浙江": "例如 浙江",
 
     "_comment": "末尾"
 }

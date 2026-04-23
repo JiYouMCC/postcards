@@ -34,7 +34,8 @@ const PostcardCollection = {
   _countUniqueExchanges: function(data) {
     // 同一次交换的多张明信片 URL 相同，按 URL 去重计算实际交换次数
     // 排除过期明信片（received_date 为空表示对方未登记/未到达）
-    return new Set(data.filter(p => p['received_date']).map(p => p['url'])).size;
+    // 无平台明信片（url 为空）不计入交换次数
+    return new Set(data.filter(p => p['received_date'] && p['url']).map(p => p['url'])).size;
   },
   Init: function(data) {
     // 初始化数据
@@ -436,12 +437,19 @@ const PostcardCollection = {
           const sentDataStr = `${sentDate.getFullYear()}-${sentDate.getMonth() + 1}-${sentDate.getDate()}`;
           const location = region ? `<a href="?countries=${country}" style="cursor: pointer;" data-localize="${country}">${country}</a> - <a href="?countries=${country}&regions=${region}" style="cursor: pointer;" data-localize="${region}">${region}</a>` : `<a href="?countries=${country}" target="_blank" style="cursor: pointer;" data-localize="${country}">${country}</a>`;
           let resultHtml = cardUrl ? `<a href="${cardUrl}" target="_blank" title="${cardUrl}"><strong>${cardTitle}</strong></a>` : `<strong>${cardTitle}</strong>`;
-          resultHtml += `<br><strong data-localize="To">To</strong> <a href="${PostcardCollection._exchange_base}?search=${friendId}" style="cursor: pointer;">${friendId}</a>`;
+          // 有平台的明信片：显示可点击的收件人搜索链接；无平台则直接显示名字
+          if (platform) {
+            resultHtml += `<br><strong data-localize="To">To</strong> <a href="${PostcardCollection._exchange_base}?search=${friendId}" style="cursor: pointer;">${friendId}</a>`;
+          } else {
+            resultHtml += `<br><strong data-localize="To">To</strong> ${friendId}`;
+          }
           if (friendUrl) {
             resultHtml += `<a href="${friendUrl}" target="_blank" class="text-decoration-none" style="cursor: pointer;" title="${friendUrl}">🔗</a>`;
           }
           resultHtml += ` (${location})`;
-          resultHtml += `<br><strong data-localize="On">On</strong> <a href="?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
+          if (platform) {
+            resultHtml += `<br><strong data-localize="On">On</strong> <a href="?platforms=${platform}" style="cursor: pointer;">${platform}</a>`;
+          }
           resultHtml += `<br><strong data-localize="By">By</strong> <a href="?types=${cardType}" style="cursor: pointer;" data-localize="${cardType}">${cardType}</a>`;
           resultHtml += `<br>${sentDataStr} ~`;
           if (receivedDate) {
@@ -556,7 +564,10 @@ const PostcardCollection = {
       const isTypeMatch = !selectedTypes.length || selectedTypes.includes(item['type']);
       const isPlatformMatch = !selectedPlatforms.length || selectedPlatforms.includes(item['platform']);
       const isTagMatch = !selectedTags.length || selectedTags.some(tag => item['tags'].includes(tag));
-      const isFriendUrlMatch = !selectedFriend || (item['friend_url'] && selectedFriendUrl.includes(item['friend_url']));
+      const isFriendUrlMatch = !selectedFriend ||
+        (item['friend_url'] && selectedFriendUrl.includes(item['friend_url'])) ||
+        // 无平台明信片没有 friend_url，直接按 friend_id 匹配
+        (!item['friend_url'] && item['friend_id'] && item['friend_id'].includes(selectedFriend));
       const isSentDateMatch = (!sentDateStart || new Date(item['sent_date']) >= new Date(sentDateStart)) && (!sentDateEnd || new Date(item['sent_date']) <= new Date(sentDateEnd));
       const isReceivedDateMatch = (!receivedDateStart || new Date(item['received_date']) >= new Date(receivedDateStart)) && (!receivedDateEnd || new Date(item['received_date']) <= new Date(receivedDateEnd));
       const isExpiredMatch = !expiredReceivedDate || !item['received_date'];
