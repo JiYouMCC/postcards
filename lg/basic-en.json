@@ -220,6 +220,7 @@
     "Karlsruhe":"Karlsruhe",
     "Kelkheim":"Kelkheim",
     "Kitzingen":"Kitzingen",
+    "Kremmen":"Kremmen",
     "Kronau":"Kronau",
     "Köln":"Köln",
     "Landau in der Pfalz":"Landau in der Pfalz",
@@ -232,6 +233,7 @@
     "Much":"Much",
     "Munich":"Munich",
     "Neuendettelsau":"Neuendettelsau",
+    "Norderstedt": "Norderstedt",
     "Oldenburg":"Oldenburg",
     "Petershagen":"Petershagen",
     "Plön":"Plön",
@@ -250,6 +252,7 @@
     "Warendorf":"Warendorf",
     "Wilthen":"Wilthen",
     "Witten":"Witten",
+    "Wittlich": "Wittlich",
     "Wolfhagen":"Wolfhagen",
     "Wuppertal":"Wuppertal",
     "Würzburg":"Würzburg",
@@ -280,6 +283,7 @@
     "Doniphan":"Doniphan",
     "East Brainerd":"East Brainerd",
     "Edina":"Edina",
+    "Gaithersburg" : "Gaithersburg",
     "Georgetown":"Georgetown",
     "Hackensack": "Hackensack",
     "Inver Grove Heights":"Inver Grove Heights",
@@ -306,6 +310,7 @@
     "San Marcos":"San Marcos",
     "Santa Barbara":"Santa Barbara",
     "South Dennis":"South Dennis",
+    "Spokane":"Spokane",
     "Traverse City":"Traverse City",
     "Vergennes":"Vergennes",
     "West Bonetraill":"West Bonetraill",
@@ -321,13 +326,16 @@
     "Victoria":"Victoria",
 
     "_comment": "Belarus",
-    "Dzyarzhynsk":"Dzyarzhynsk",
-    "Hrodna":"Hrodna",
-    "Minsk":"Minsk",
-    "Ushachi":"Ushachi",
+    "Bierazino": "Bierazino",
+    "Dzyarzhynsk": "Dzyarzhynsk",
+    "Hrodna": "Hrodna",
+    "Minsk": "Minsk",
+    "Puchavičy": "Puchavičy",
+    "Ushachi": "Ushachi",
 
     "_comment": "Japan",
     "Chiba": "Chiba",
+    "Gyōtoku-ekimae": "Gyōtoku-ekimae",
     "Kanazawa": "Kanazawa",
     "Kyoto": "Kyoto",
     "Matsudo": "Matsudo",
@@ -357,10 +365,26 @@
     "Stavanger": "Stavanger",
 
     "_comment": "Brazil",
-    "Cravinhos":"Cravinhos",
+    "Cravinhos": "Cravinhos",
 
     "_comment": "Romania",
-    "Bucharest":"Bucharest",
+    "Bucharest": "Bucharest",
+
+    "_comment": "Austria",
+    "Vienna": "Vienna",
+    "Weißpriach": "Weißpriach",
+
+    "_comment": "Czechia",
+    "Krnov": "Krnov",
+
+    "_comment": "U.K.",
+    "Kington": "Kington",
+    "West Looe": "West Looe",
+
+    "_comment": "Russia",
+    "Orël": "Orël",
+    "Samara": "Samara",
+    "Yekaterinburg": "Yekaterinburg",
 
     "_comment":"end"
 }
